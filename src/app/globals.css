@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 60 9% 98%;
+    --foreground: 210 29% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 29% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 29% 11%;
+
+    --primary: 222 47% 11%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 38 92% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 215 16% 47%;
+    --muted-foreground: 215 16% 47%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 38 92% 50%;
+
+    --radius: 14px;
+
+    /* Surface hierarchy */
+    --surface: 60 4% 97%;
+    --surface-container: 60 1% 93%;
+    --surface-container-low: 100 4% 95%;
+    --surface-container-lowest: 0 0% 100%;
+    --surface-container-high: 60 1% 91%;
+    --surface-container-highest: 60 1% 89%;
+  }
+
+  .dark {
+    --background: 220 14% 14%;
+    --foreground: 210 40% 96%;
+
+    --card: 220 13% 18%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 220 13% 18%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 38 92% 50%;
+    --primary-foreground: 220 14% 10%;
+
+    --secondary: 38 80% 45%;
+    --secondary-foreground: 220 14% 10%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 220 14% 10%;
+
+    --muted: 215 14% 55%;
+    --muted-foreground: 215 14% 55%;
+
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 12% 24%;
+    --input: 220 12% 24%;
+    --ring: 38 92% 50%;
+
+    /* Surface hierarchy - dark */
+    --surface: 220 14% 14%;
+    --surface-container: 220 13% 20%;
+    --surface-container-low: 220 13% 18%;
+    --surface-container-lowest: 220 14% 12%;
+    --surface-container-high: 220 12% 23%;
+    --surface-container-highest: 220 12% 26%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-surface font-sans text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+}
+
+@layer components {
+  /* Glass morphism for modals/popovers */
+  .glass {
+    @apply bg-white/80 backdrop-blur-[24px] dark:bg-slate-900/80;
+  }
+
+  /* Ghost border (accessibility fallback) */
+  .ghost-border {
+    box-shadow: 0 0 0 1px rgba(198, 198, 205, 0.15);
+  }
+
+  .dark .ghost-border {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

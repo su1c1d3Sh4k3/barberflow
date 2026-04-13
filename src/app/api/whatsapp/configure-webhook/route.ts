@@ -1,0 +1,76 @@
+import { NextRequest } from "next/server";
+import { validateAuth, isAuthError, ok, apiError, db } from "@/app/api/_helpers";
+import { uazapi } from "@/lib/uazapi/client";
+
+/**
+ * POST /api/whatsapp/configure-webhook
+ * Configures the uazapi webhook for a connected WhatsApp instance.
+ * Called automatically when a session transitions to 'connected'.
+ */
+export async function POST(request: NextRequest) {
+  const auth = validateAuth(request);
+  if (isAuthError(auth)) return auth;
+
+  const { tenantId } = auth;
+  const supabase = db();
+
+  let body: { instance_id?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return apiError("Invalid JSON body", 400);
+  }
+
+  if (!body.instance_id || typeof body.instance_id !== "string") {
+    return apiError("instance_id is required", 400);
+  }
+
+  try {
+    // Fetch session to get the instance token
+    const { data: session, error: sessionError } = await supabase
+      .from("whatsapp_sessions")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .single();
+
+    if (sessionError || !session) {
+      return apiError("WhatsApp session not found", 404);
+    }
+
+    if (!session.instance_token) {
+      return apiError("Instance token not available", 400);
+    }
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://your-app.vercel.app";
+    const webhookUrl = `${appUrl}/api/webhooks/whatsapp`;
+
+    // Call uazapi to configure the webhook
+    await uazapi.setWebhook(session.instance_token, {
+      url: webhookUrl,
+      events: ["messages", "messages_update", "connection"],
+      enabled: true,
+      addUrlEvents: true,
+      addUrlTypesMessages: true,
+      excludeMessages: ["fromMe"],
+    });
+
+    // Update whatsapp_sessions with webhook_configured_at timestamp
+    const { error: updateError } = await supabase
+      .from("whatsapp_sessions")
+      .update({
+        webhook_configured_at: new Date().toISOString(),
+        webhook_status: "active",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("tenant_id", tenantId);
+
+    if (updateError) {
+      return apiError("Failed to update session: " + updateError.message, 500);
+    }
+
+    return ok({ configured: true, webhook_url: webhookUrl });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to configure webhook";
+    return apiError(message, 500);
+  }
+}
