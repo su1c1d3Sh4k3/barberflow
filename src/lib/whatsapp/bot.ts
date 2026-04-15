@@ -172,6 +172,21 @@ export async function processMessage(
   const supabase = createServiceRoleClient();
   const { tenantId, contactId, contactPhone, instanceToken } = context;
 
+  // Check test mode: if enabled, only respond to whitelisted numbers
+  const { data: settingsData } = await supabase
+    .from("settings")
+    .select("test_mode, test_numbers")
+    .eq("tenant_id", tenantId)
+    .single();
+
+  if (settingsData?.test_mode && Array.isArray(settingsData.test_numbers) && settingsData.test_numbers.length > 0) {
+    const normalizedContact = contactPhone.replace(/\D/g, "").slice(-11);
+    const isAllowed = settingsData.test_numbers.some(
+      (n: string) => n.replace(/\D/g, "").slice(-11) === normalizedContact
+    );
+    if (!isAllowed) return;
+  }
+
   // Get or create conversation state
   let { data: state } = await supabase
     .from("conversation_states")

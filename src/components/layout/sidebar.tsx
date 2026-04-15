@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  FlaskConical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -31,6 +32,7 @@ const navItems = [
   { href: "/servicos", label: "Serviços", icon: ClipboardList },
   { href: "/definicoes", label: "Definições", icon: Settings },
   { href: "/definicoes/ia", label: "Definições da IA", icon: Sparkles },
+  { href: "/definicoes/modo-teste", label: "Modo Teste", icon: FlaskConical },
   { href: "/whatsapp", label: "Conexão WhatsApp", icon: MessageCircle },
 ];
 

@@ -11,7 +11,6 @@ import {
   ToggleRight,
   Upload,
   X,
-  Phone,
   Loader2,
   Check,
   Lock,
@@ -36,8 +35,6 @@ interface IASettings {
   tone: TomDeVoz;
   instructions: string;
   knowledge_base_url: string | null;
-  test_mode: boolean;
-  test_numbers: string[];
   handoff_keywords: string[];
 }
 
@@ -53,8 +50,6 @@ const DEFAULT_SETTINGS: IASettings = {
   tone: "educado",
   instructions: "",
   knowledge_base_url: null,
-  test_mode: false,
-  test_numbers: [],
   handoff_keywords: [],
 };
 
@@ -72,7 +67,6 @@ export default function DefinicoesIAPage() {
   const [settings, setSettings] = useState<IASettings>(DEFAULT_SETTINGS);
   const [usage, setUsage] = useState<IAUsage | null>(null);
 
-  const [phoneInput, setPhoneInput] = useState("");
   const [keywordInput, setKeywordInput] = useState("");
   const [hasIa, setHasIa] = useState<boolean | null>(null);
   const [uploadingKB, setUploadingKB] = useState(false);
@@ -125,8 +119,6 @@ export default function DefinicoesIAPage() {
           tone: settingsRes.data.tone || "educado",
           instructions: settingsRes.data.instructions || "",
           knowledge_base_url: settingsRes.data.knowledge_base_url || null,
-          test_mode: settingsRes.data.test_mode ?? false,
-          test_numbers: settingsRes.data.test_numbers || [],
           handoff_keywords: settingsRes.data.handoff_keywords || [],
         });
       }
@@ -161,8 +153,6 @@ export default function DefinicoesIAPage() {
           tone: settings.tone,
           instructions: settings.instructions,
           knowledge_base_url: settings.knowledge_base_url,
-          test_mode: settings.test_mode,
-          test_numbers: settings.test_numbers,
           handoff_keywords: settings.handoff_keywords,
         }, { onConflict: "tenant_id" });
 
@@ -175,18 +165,6 @@ export default function DefinicoesIAPage() {
     } finally {
       setSaving(false);
     }
-  };
-
-  const addPhoneChip = () => {
-    const value = phoneInput.trim();
-    if (value && !settings.test_numbers.includes(value)) {
-      setSettings({ ...settings, test_numbers: [...settings.test_numbers, value] });
-      setPhoneInput("");
-    }
-  };
-
-  const removePhoneChip = (phone: string) => {
-    setSettings({ ...settings, test_numbers: settings.test_numbers.filter((p) => p !== phone) });
   };
 
   const addKeyword = () => {
@@ -490,52 +468,7 @@ export default function DefinicoesIAPage() {
         </div>
       </div>
 
-      {/* Row 5: Modo teste */}
-      <div className="rounded-card bg-surface-container-lowest p-6 shadow-card space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-foreground">Modo teste</h3>
-            <p className="text-sm text-muted-foreground">A IA so respondera para os numeros abaixo</p>
-          </div>
-          <button onClick={() => setSettings({ ...settings, test_mode: !settings.test_mode })}>
-            {settings.test_mode ? (
-              <ToggleRight className="h-8 w-8 text-amber-500" />
-            ) : (
-              <ToggleLeft className="h-8 w-8 text-muted-foreground" />
-            )}
-          </button>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {settings.test_numbers.map((phone) => (
-            <span key={phone} className="flex items-center gap-1 rounded-full bg-surface-container px-3 py-1 text-sm">
-              <Phone className="h-3 w-3 text-muted-foreground" />
-              {phone}
-              <button onClick={() => removePhoneChip(phone)}>
-                <X className="h-3 w-3 text-muted-foreground hover:text-red-500" />
-              </button>
-            </span>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={phoneInput}
-            onChange={(e) => setPhoneInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addPhoneChip()}
-            placeholder="Adicionar numero..."
-            className="flex-1 rounded-lg border border-border bg-surface-container-lowest px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-          />
-          <button
-            onClick={addPhoneChip}
-            className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-600 transition"
-          >
-            Adicionar
-          </button>
-        </div>
-      </div>
-
-      {/* Row 6: Handoff */}
+      {/* Row 5: Handoff */}
       <div className="rounded-card bg-surface-container-lowest p-6 shadow-card space-y-3">
         <div className="flex items-center justify-between">
           <div>

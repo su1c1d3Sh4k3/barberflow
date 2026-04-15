@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Bell, LogOut, Calendar, Zap, DollarSign, Crown } from "lucide-react";
+import { Bell, LogOut, Calendar, Zap, DollarSign, Crown, Radio } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useTenantStore } from "@/stores/tenant-store";
+import { cn } from "@/lib/utils";
 
 interface TopbarData {
   planName: string;
@@ -14,6 +15,8 @@ interface TopbarData {
   revenue: number;
   pendingToday: number;
   completedToday: number;
+  serviceActive: boolean;
+  hasConnectedSession: boolean;
 }
 
 export function Topbar() {
@@ -30,7 +33,10 @@ export function Topbar() {
     revenue: 0,
     pendingToday: 0,
     completedToday: 0,
+    serviceActive: false,
+    hasConnectedSession: false,
   });
+  const [togglingService, setTogglingService] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!tenantId) return;
@@ -47,7 +53,6 @@ export function Topbar() {
     let hasIa = false;
 
     if (sub) {
-      // Get plan name
       if (sub.plan_id) {
         const { data: plan } = await supabase
           .from("plans")
@@ -71,6 +76,16 @@ export function Topbar() {
         daysUntilRenewal = Math.max(0, Math.ceil(diff / 86400000));
       }
     }
+
+    // WhatsApp session status
+    const { data: session } = await supabase
+      .from("whatsapp_sessions")
+      .select("status, service_active")
+      .eq("tenant_id", tenantId)
+      .single();
+
+    const hasConnectedSession = session?.status === "connected";
+    const serviceActive = hasConnectedSession ? (session?.service_active ?? false) : false;
 
     // Tokens (if IA plan)
     let tokensUsed = 0;
@@ -111,7 +126,7 @@ export function Topbar() {
     const pendingToday = todayAppts?.filter((a) => a.status === "pendente" || a.status === "confirmado").length || 0;
     const completedToday = todayAppts?.filter((a) => a.status === "concluido").length || 0;
 
-    setData({ planName, daysUntilRenewal, tokensUsed, hasIa, revenue, pendingToday, completedToday });
+    setData({ planName, daysUntilRenewal, tokensUsed, hasIa, revenue, pendingToday, completedToday, serviceActive, hasConnectedSession });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenantId]);
 
@@ -123,8 +138,34 @@ export function Topbar() {
     router.push("/login");
   };
 
+  const handleToggleService = async () => {
+    if (!data.hasConnectedSession || togglingService) return;
+    setTogglingService(true);
+    try {
+      const res = await fetch("/api/whatsapp/service-active", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ service_active: !data.serviceActive }),
+      });
+      if (res.ok) {
+        setData((prev) => ({ ...prev, serviceActive: !prev.serviceActive }));
+      }
+    } catch {
+      // silently ignore toggle error
+    } finally {
+      setTogglingService(false);
+    }
+  };
+
   const formatCurrency = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  const serviceDisabled = !data.hasConnectedSession || togglingService;
+  const serviceTooltip = !data.hasConnectedSession
+    ? "Conecte o WhatsApp primeiro"
+    : data.serviceActive
+    ? "Desativar atendimento automático"
+    : "Ativar atendimento automático";
 
   return (
     <header className="fixed top-0 right-0 z-30 flex h-topbar items-center justify-between px-6 ml-sidebar bg-surface/80 backdrop-blur-xl border-b border-border/50">
@@ -142,6 +183,53 @@ export function Topbar() {
             )}
           </div>
         </div>
+
+        {/* Service active toggle */}
+        <button
+          onClick={handleToggleService}
+          disabled={serviceDisabled}
+          title={serviceTooltip}
+          aria-label={serviceTooltip}
+          className={cn(
+            "flex items-center gap-2 shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-all border",
+            serviceDisabled
+              ? "opacity-50 cursor-not-allowed border-border text-muted-foreground bg-transparent"
+              : data.serviceActive
+              ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100"
+              : "bg-surface-container border-border text-muted-foreground hover:border-amber-400 hover:text-foreground"
+          )}
+        >
+          <Radio
+            className={cn(
+              "h-3.5 w-3.5 transition-colors",
+              serviceDisabled
+                ? "text-muted-foreground"
+                : data.serviceActive
+                ? "text-emerald-500"
+                : "text-muted-foreground"
+            )}
+            strokeWidth={1.5}
+          />
+          {/* Toggle pill */}
+          <span
+            className={cn(
+              "relative inline-flex h-4 w-7 items-center rounded-full transition-colors",
+              serviceDisabled
+                ? "bg-muted"
+                : data.serviceActive
+                ? "bg-emerald-500"
+                : "bg-muted-foreground/30"
+            )}
+          >
+            <span
+              className={cn(
+                "inline-block h-3 w-3 rounded-full bg-white shadow transition-transform",
+                data.serviceActive ? "translate-x-3.5" : "translate-x-0.5"
+              )}
+            />
+          </span>
+          <span>Ativar atendimento</span>
+        </button>
 
         <div className="h-5 w-px bg-border shrink-0" />
 

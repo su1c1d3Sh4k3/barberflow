@@ -39,11 +39,12 @@ export async function POST(request: Request) {
     const instanceId = instance?.id || instance?.instanceId || body?.instanceId;
     let tenantId: string | null = null;
     let instanceToken: string | null = null;
+    let serviceActive = false;
 
     if (instanceId) {
       const { data: session } = await supabase
         .from("whatsapp_sessions")
-        .select("tenant_id, instance_token")
+        .select("tenant_id, instance_token, service_active")
         .eq("instance_id", instanceId)
         .eq("status", "connected")
         .single();
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
       if (session) {
         tenantId = session.tenant_id;
         instanceToken = session.instance_token;
+        serviceActive = session.service_active ?? false;
       }
     }
 
@@ -60,7 +62,7 @@ export async function POST(request: Request) {
       if (instancePhone) {
         const { data: session } = await supabase
           .from("whatsapp_sessions")
-          .select("tenant_id, instance_token")
+          .select("tenant_id, instance_token, service_active")
           .like("phone_number", `%${instancePhone.slice(-8)}`)
           .eq("status", "connected")
           .single();
@@ -68,6 +70,7 @@ export async function POST(request: Request) {
         if (session) {
           tenantId = session.tenant_id;
           instanceToken = session.instance_token;
+          serviceActive = session.service_active ?? false;
         }
       }
     }
@@ -120,6 +123,11 @@ export async function POST(request: Request) {
       .from("contacts")
       .update({ last_message_at: new Date().toISOString() })
       .eq("id", contact.id);
+
+    // If service is not active, log the message but do not process through bot
+    if (!serviceActive) {
+      return NextResponse.json({ success: true, skipped: true, reason: "service_inactive" });
+    }
 
     // Process through bot state machine
     await processMessage(
