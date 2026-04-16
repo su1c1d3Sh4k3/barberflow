@@ -15,6 +15,16 @@ function validateCron(request: NextRequest): boolean {
   return request.headers.get("x-cron-secret") === process.env.CRON_SECRET;
 }
 
+interface ReminderAppt {
+  id: string;
+  start_at: string;
+  tenant_id: string;
+  contact_id: string;
+  contacts: { id: string; name: string; phone: string } | null;
+  professionals: { name: string } | null;
+  appointment_services: { services: { name: string } }[];
+}
+
 function ptBrDate(iso: string) {
   return new Date(iso).toLocaleString("pt-BR", {
     day: "2-digit",
@@ -48,21 +58,17 @@ export async function POST(request: NextRequest) {
     const w24Start = new Date(now + 23 * 3600_000 + 50 * 60_000).toISOString();
     const w24End   = new Date(now + 24 * 3600_000 + 10 * 60_000).toISOString();
 
-    const { data: apts24h } = await supabase
+    const { data: raw24h } = await supabase
       .from("appointments")
-      .select(
-        "id, start_at, tenant_id, contact_id, " +
-        "contacts(id, name, phone), " +
-        "professionals(name), " +
-        "appointment_services(services(name))"
-      )
+      .select("id, start_at, tenant_id, contact_id, contacts(id, name, phone), professionals(name), appointment_services(services(name))")
       .in("status", ["pendente", "confirmado"])
       .gte("start_at", w24Start)
       .lte("start_at", w24End)
       .is("reminder_24h_sent_at", null);
+    const apts24h = (raw24h ?? []) as unknown as ReminderAppt[];
 
-    for (const apt of apts24h || []) {
-      const contact = apt.contacts as unknown as { id: string; name: string; phone: string } | null;
+    for (const apt of apts24h) {
+      const contact = apt.contacts;
       if (!contact?.phone) continue;
 
       const { data: session } = await supabase
@@ -73,8 +79,8 @@ export async function POST(request: NextRequest) {
         .single();
       if (!session?.instance_token) continue;
 
-      const profFirstName = ((apt.professionals as unknown as { name: string } | null)?.name ?? "").split(" ")[0] || "Profissional";
-      const svcName       = (apt.appointment_services?.[0] as unknown as { services: { name: string } } | undefined)?.services?.name ?? "Serviço";
+      const profFirstName = (apt.professionals?.name ?? "").split(" ")[0] || "Profissional";
+      const svcName       = apt.appointment_services?.[0]?.services?.name ?? "Serviço";
       const clientFirst   = contact.name?.split(" ")[0] ?? "";
       const dateStr       = ptBrDate(apt.start_at);
 
@@ -136,21 +142,17 @@ export async function POST(request: NextRequest) {
     const w1hStart = new Date(now + 50 * 60_000).toISOString();
     const w1hEnd   = new Date(now + 70 * 60_000).toISOString();
 
-    const { data: apts1h } = await supabase
+    const { data: raw1h } = await supabase
       .from("appointments")
-      .select(
-        "id, start_at, tenant_id, contact_id, " +
-        "contacts(id, name, phone), " +
-        "professionals(name), " +
-        "appointment_services(services(name))"
-      )
+      .select("id, start_at, tenant_id, contact_id, contacts(id, name, phone), professionals(name), appointment_services(services(name))")
       .in("status", ["pendente", "confirmado"])
       .gte("start_at", w1hStart)
       .lte("start_at", w1hEnd)
       .is("reminder_1h_sent_at", null);
+    const apts1h = (raw1h ?? []) as unknown as ReminderAppt[];
 
-    for (const apt of apts1h || []) {
-      const contact = apt.contacts as unknown as { id: string; name: string; phone: string } | null;
+    for (const apt of apts1h) {
+      const contact = apt.contacts;
       if (!contact?.phone) continue;
 
       const { data: session } = await supabase
@@ -161,8 +163,8 @@ export async function POST(request: NextRequest) {
         .single();
       if (!session?.instance_token) continue;
 
-      const profFirstName1h = ((apt.professionals as unknown as { name: string } | null)?.name ?? "").split(" ")[0] || "Profissional";
-      const svcName1h       = (apt.appointment_services?.[0] as unknown as { services: { name: string } } | undefined)?.services?.name ?? "Serviço";
+      const profFirstName1h = (apt.professionals?.name ?? "").split(" ")[0] || "Profissional";
+      const svcName1h       = apt.appointment_services?.[0]?.services?.name ?? "Serviço";
       const clientFirst1h   = contact.name?.split(" ")[0] ?? "";
       const timeStr         = ptBrTime(apt.start_at);
 

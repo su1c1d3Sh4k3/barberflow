@@ -17,6 +17,16 @@ function validateCron(request: NextRequest): boolean {
   return request.headers.get("x-cron-secret") === process.env.CRON_SECRET;
 }
 
+interface SatisfactionAppt {
+  id: string;
+  end_at: string;
+  tenant_id: string;
+  contact_id: string;
+  contacts: { id: string; name: string; phone: string } | null;
+  professionals: { name: string } | null;
+  appointment_services: { services: { name: string } }[];
+}
+
 export async function POST(request: NextRequest) {
   if (!validateCron(request)) return apiError("Unauthorized", 401);
 
@@ -30,21 +40,17 @@ export async function POST(request: NextRequest) {
     const windowStart = new Date(now - 70 * 60_000).toISOString();
     const windowEnd   = new Date(now - 50 * 60_000).toISOString();
 
-    const { data: appointments } = await supabase
+    const { data: rawApts } = await supabase
       .from("appointments")
-      .select(
-        "id, end_at, tenant_id, contact_id, " +
-        "contacts(id, name, phone), " +
-        "professionals(name), " +
-        "appointment_services(services(name))"
-      )
+      .select("id, end_at, tenant_id, contact_id, contacts(id, name, phone), professionals(name), appointment_services(services(name))")
       .in("status", ["concluido", "confirmado", "pendente"])
       .gte("end_at", windowStart)
       .lte("end_at", windowEnd)
       .is("satisfaction_sent_at", null);
+    const appointments = (rawApts ?? []) as unknown as SatisfactionAppt[];
 
-    for (const apt of appointments || []) {
-      const contact = apt.contacts as unknown as { id: string; name: string; phone: string } | null;
+    for (const apt of appointments) {
+      const contact = apt.contacts;
       if (!contact?.phone) continue;
 
       const { data: session } = await supabase
@@ -55,8 +61,8 @@ export async function POST(request: NextRequest) {
         .single();
       if (!session?.instance_token) continue;
 
-      const profFirstName = ((apt.professionals as unknown as { name: string } | null)?.name ?? "").split(" ")[0] || "Profissional";
-      const svcName       = (apt.appointment_services?.[0] as unknown as { services: { name: string } } | undefined)?.services?.name ?? "Serviço";
+      const profFirstName = (apt.professionals?.name ?? "").split(" ")[0] || "Profissional";
+      const svcName       = apt.appointment_services?.[0]?.services?.name ?? "Serviço";
       const clientFirst   = contact.name?.split(" ")[0] ?? "";
 
       const text =
