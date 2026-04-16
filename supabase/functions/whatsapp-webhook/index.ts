@@ -651,7 +651,7 @@ Deno.serve(async (req: Request) => {
       at: new Date().toISOString(), eventType,
       bodyKeys: Object.keys(body),
       chat: body?.chat, owner: body?.owner,
-      messageVal: JSON.stringify(body?.message).slice(0, 300),
+      messageVal: JSON.stringify(body?.message ?? null).slice(0, 300),
       extracted: { phone, message: message.slice(0, 100), isFromMe, senderName },
       hasData: !!body?.data,
     });
