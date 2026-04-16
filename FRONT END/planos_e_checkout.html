@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "on-surface": "#1a1c1c",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#bec6e0",
+                        "surface": "#f9f9f8",
+                        "on-secondary-container": "#684000",
+                        "primary-container": "#131b2e",
+                        "primary": "#000000",
+                        "surface-dim": "#dadad9",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "outline-variant": "#c6c6cd",
+                        "secondary-container": "#fea619",
+                        "inverse-surface": "#2f3130",
+                        "secondary": "#855300",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#271901",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "surface-container-high": "#e8e8e7",
+                        "on-tertiary-container": "#98805d",
+                        "on-primary-fixed": "#131b2e",
+                        "tertiary": "#000000",
+                        "primary-fixed": "#dae2fd",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "background": "#f9f9f8",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eeeeed",
+                        "secondary-fixed": "#ffddb8",
+                        "outline": "#76777d",
+                        "surface-variant": "#e2e2e2",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "surface-container-low": "#f3f4f3",
+                        "inverse-on-surface": "#f1f1f0",
+                        "on-secondary-fixed": "#2a1700",
+                        "tertiary-container": "#271901",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-surface-variant": "#45464d",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "tertiary-fixed": "#fcdeb5",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "surface-bright": "#f9f9f8",
+                        "on-background": "#1a1c1c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- SideNavBar -->
+<aside class="w-[240px] h-screen fixed left-0 top-0 bg-slate-100 dark:bg-slate-900 flex flex-col h-full py-8 px-6 z-50">
+<div class="mb-10">
+<h1 class="text-2xl font-bold text-slate-900 dark:text-slate-50">BarberFlow</h1>
+<p class="text-xs text-on-primary-container tracking-wider uppercase font-semibold">SaaS Management</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 py-3 px-4 text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Agenda</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors" href="#">
+<span class="material-symbols-outlined">contacts</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Contatos</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors" href="#">
+<span class="material-symbols-outlined">store</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Empresa</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors" href="#">
+<span class="material-symbols-outlined">badge</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Profissionais</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors" href="#">
+<span class="material-symbols-outlined">content_cut</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Serviços</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-900 dark:text-white font-bold bg-white/50 rounded-xl" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Definições</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Definições da IA</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors" href="#">
+<span class="material-symbols-outlined">chat</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Conexão WhatsApp</span>
+</a>
+</nav>
+<div class="mt-auto p-4 bg-surface-container-low rounded-lg">
+<button class="w-full py-3 bg-primary text-on-primary rounded-full font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all">
+                Book Appointment
+            </button>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-[240px] h-16 bg-slate-50/80 backdrop-blur-xl flex items-center justify-between px-8 z-40 shadow-sm">
+<div class="flex items-center bg-surface-container-low px-4 py-2 rounded-full w-96 focus-within:ring-2 focus-within:ring-amber-500/40 transition-all">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full ml-2" placeholder="Pesquisar..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-slate-100 p-2 rounded-full transition-all">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-slate-100 p-2 rounded-full transition-all">help</button>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a professional barber with a well-groomed beard and stylish hair in a modern barbershop environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA07oaGUqwBl8dS2J9SFZgcFYvF-dbFmvZrlP_bImWXQeNrN0-7wVdeZ7OrdzTTj3A7uV6VOV79c09gAHhKmjI0n30wkodEiBv5J9yYxL-FFMvJ53noqpk5cU0XeThSakBPdInqdAavGD07eWSPXzRfMBj2EJsNmJRC5bWR-jQ6hUmeh0QREVjl7Kvrs-BsDCgojQfU58nmiBo2tpk_juRDq_g6-0On1wfu7cxFJkZM7u_9uthop5CQzJDmP-SlAWxDgsh2MCccs6M"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<main class="ml-[240px] pt-16 min-h-screen">
+<!-- Trial Banner -->
+<section class="p-6">
+<div class="bg-secondary-container text-on-secondary-container px-8 py-4 rounded-lg flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-4">
+<div class="bg-white/30 p-2 rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">timer</span>
+</div>
+<div>
+<h4 class="font-bold text-lg leading-tight">Seu teste grátis termina em <span class="font-black">03:14:55</span></h4>
+<p class="text-sm opacity-90">Não perca acesso às suas ferramentas premium. Escolha um plano agora e mantenha seu fluxo de trabalho.</p>
+</div>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-full font-bold text-sm hover:scale-105 transition-transform">
+                    Garantir Acesso
+                </button>
+</div>
+</section>
+<section class="max-w-6xl mx-auto px-6 py-8">
+<div class="text-center mb-12">
+<h2 class="text-5xl font-extrabold tracking-tight mb-4">Escolha seu Plano</h2>
+<p class="text-on-surface-variant text-lg max-w-2xl mx-auto">Invista no crescimento da sua barbearia com a tecnologia líder do mercado. Sem taxas ocultas, cancele quando quiser.</p>
+<!-- Billing Toggle -->
+<div class="mt-10 inline-flex items-center p-1.5 bg-surface-container-low rounded-full gap-2">
+<button class="px-6 py-2.5 rounded-full text-sm font-bold bg-white shadow-sm text-primary">Mensal</button>
+<button class="px-6 py-2.5 rounded-full text-sm font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2">
+                        Semestral
+                        <span class="bg-secondary-container/20 text-secondary px-2 py-0.5 rounded-full text-[10px] font-black">-15%</span>
+</button>
+<button class="px-6 py-2.5 rounded-full text-sm font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2">
+                        Anual
+                        <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full text-[10px] font-black">-30%</span>
+</button>
+</div>
+</div>
+<!-- Pricing Cards -->
+<div class="grid md:grid-cols-2 gap-8 mb-16 items-start">
+<!-- Plano Essencial -->
+<div class="bg-surface-container-lowest border-2 border-surface-container-high p-10 rounded-lg transition-all hover:border-outline-variant group">
+<div class="mb-8">
+<span class="text-xs font-black uppercase tracking-widest text-outline">Básico &amp; Eficaz</span>
+<h3 class="text-3xl font-bold mt-2">Plano Essencial</h3>
+<div class="mt-4 flex items-baseline gap-1">
+<span class="text-4xl font-black">R$ 89</span>
+<span class="text-on-surface-variant">/mês</span>
+</div>
+</div>
+<ul class="space-y-4 mb-10">
+<li class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-xl">check_circle</span>
+<span>Agenda Online 24/7</span>
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-xl">check_circle</span>
+<span>Gestão de até 3 Profissionais</span>
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-xl">check_circle</span>
+<span>Lembretes por E-mail</span>
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-xl">check_circle</span>
+<span>Controle de Estoque Básico</span>
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-xl">check_circle</span>
+<span>Relatórios de Faturamento</span>
+</li>
+</ul>
+<button class="w-full py-4 rounded-full border-2 border-primary font-bold text-primary hover:bg-primary hover:text-on-primary transition-all">
+                        Começar com Essencial
+                    </button>
+</div>
+<!-- Plano IA -->
+<div class="relative bg-primary-container p-10 rounded-lg text-white shadow-xl overflow-hidden group">
+<div class="absolute top-0 right-0 bg-secondary-container text-on-secondary-container px-6 py-1.5 rounded-bl-xl font-bold text-xs uppercase tracking-tighter">
+                        Mais popular
+                    </div>
+<!-- Amber Glow Effect -->
+<div class="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/20 blur-[100px] rounded-full"></div>
+<div class="relative z-10">
+<div class="mb-8">
+<span class="text-xs font-black uppercase tracking-widest text-on-primary-container">Potencializado por IA</span>
+<h3 class="text-3xl font-bold mt-2">Plano IA</h3>
+<div class="mt-4 flex items-baseline gap-1">
+<span class="text-4xl font-black text-amber-400">R$ 159</span>
+<span class="text-on-primary-container">/mês</span>
+</div>
+</div>
+<ul class="space-y-4 mb-10">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-amber-500 text-xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-bold">Assistente IA de Agendamento</span>
+</li>
+<li class="flex items-center gap-3 text-on-primary-container">
+<span class="material-symbols-outlined text-amber-500/50 text-xl">check_circle</span>
+<span>Profissionais Ilimitados</span>
+</li>
+<li class="flex items-center gap-3 text-on-primary-container">
+<span class="material-symbols-outlined text-amber-500/50 text-xl">check_circle</span>
+<span>Lembretes via WhatsApp</span>
+</li>
+<li class="flex items-center gap-3 text-on-primary-container">
+<span class="material-symbols-outlined text-amber-500/50 text-xl">check_circle</span>
+<span>CRM Inteligente com IA</span>
+</li>
+<li class="flex items-center gap-3 text-on-primary-container">
+<span class="material-symbols-outlined text-amber-500/50 text-xl">check_circle</span>
+<span>Previsão de Demanda &amp; Estoque</span>
+</li>
+</ul>
+<button class="w-full py-4 rounded-full bg-amber-500 text-on-secondary-fixed font-bold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20">
+                            Ativar Poder da IA
+                        </button>
+</div>
+</div>
+</div>
+<!-- Checkout Section -->
+<div class="grid lg:grid-cols-3 gap-12 items-start pb-24">
+<div class="lg:col-span-2 space-y-12">
+<!-- Payment Selector -->
+<div>
+<h4 class="text-2xl font-bold mb-6">1. Forma de Pagamento</h4>
+<div class="grid sm:grid-cols-2 gap-4">
+<label class="relative flex items-center p-6 bg-surface-container-lowest rounded-lg border-2 border-primary cursor-pointer ring-4 ring-primary/5">
+<input checked="" class="hidden" name="payment" type="radio"/>
+<span class="material-symbols-outlined text-primary mr-4" style="font-variation-settings: 'FILL' 1;">credit_card</span>
+<span class="font-bold">Cartão de Crédito</span>
+<span class="material-symbols-outlined ml-auto text-primary">check_circle</span>
+</label>
+<label class="relative flex items-center p-6 bg-surface-container-lowest rounded-lg border-2 border-transparent hover:border-outline-variant cursor-pointer transition-all">
+<input class="hidden" name="payment" type="radio"/>
+<span class="material-symbols-outlined text-on-surface-variant mr-4">qr_code_2</span>
+<span class="font-bold text-on-surface-variant">Pix Instantâneo</span>
+</label>
+</div>
+</div>
+<!-- Card Form -->
+<div>
+<h4 class="text-2xl font-bold mb-6">2. Dados do Cartão</h4>
+<div class="bg-surface-container-low/50 p-8 rounded-lg space-y-6">
+<div class="space-y-2">
+<label class="text-xs font-black uppercase tracking-widest text-on-surface-variant">Nome no Cartão</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-lg p-4 focus:ring-2 focus:ring-amber-500/40 text-sm font-medium" placeholder="JOÃO A SILVA" type="text"/>
+</div>
+<div class="grid sm:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-black uppercase tracking-widest text-on-surface-variant">Número do Cartão</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-none rounded-lg p-4 focus:ring-2 focus:ring-amber-500/40 text-sm font-medium" placeholder="0000 0000 0000 0000" type="text"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1">
+<div class="w-8 h-5 bg-slate-200 rounded"></div>
+<div class="w-8 h-5 bg-slate-200 rounded"></div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-xs font-black uppercase tracking-widest text-on-surface-variant">Validade</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-lg p-4 focus:ring-2 focus:ring-amber-500/40 text-sm font-medium text-center" placeholder="MM/AA" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-black uppercase tracking-widest text-on-surface-variant">CVV</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-lg p-4 focus:ring-2 focus:ring-amber-500/40 text-sm font-medium text-center" placeholder="123" type="text"/>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-black uppercase tracking-widest text-on-surface-variant">Parcelamento</label>
+<select class="w-full bg-surface-container-lowest border-none rounded-lg p-4 focus:ring-2 focus:ring-amber-500/40 text-sm font-bold">
+<option>1x de R$ 159,00 (Sem juros)</option>
+<option>2x de R$ 82,50 (2.5% a.m.)</option>
+<option>3x de R$ 56,10 (2.5% a.m.)</option>
+</select>
+<p class="text-[10px] text-outline text-right mt-1 italic">Taxas aplicadas conforme operadora do cartão.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Order Summary -->
+<div class="lg:sticky lg:top-24">
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm border border-surface-container">
+<h4 class="text-xl font-bold mb-6">Resumo do Pedido</h4>
+<div class="space-y-4 mb-8">
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant">Plano Selecionado</span>
+<span class="font-bold">Plano IA (Mensal)</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant">Subtotal</span>
+<span class="font-bold">R$ 159,00</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant">Taxas e impostos</span>
+<span class="font-bold">R$ 0,00</span>
+</div>
+</div>
+<div class="pt-6 border-t border-surface-container mb-8">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-xs font-black uppercase tracking-widest text-on-surface-variant">Total a pagar</p>
+<p class="text-3xl font-black text-primary">R$ 159,00</p>
+</div>
+<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase mb-1">Pagamento Seguro</span>
+</div>
+</div>
+<button class="w-full py-5 rounded-full bg-primary text-on-primary font-bold text-lg hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20 mb-4">
+                            Assinar Agora
+                        </button>
+<div class="flex items-center justify-center gap-2 text-xs text-outline font-medium">
+<span class="material-symbols-outlined text-sm">lock</span>
+                            Transação criptografada SSL 256-bit
+                        </div>
+</div>
+<!-- Upsell micro-card -->
+<div class="mt-6 p-6 bg-amber-50 rounded-lg flex items-start gap-4">
+<div class="bg-amber-500 text-white p-2 rounded-full">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-secondary-fixed">Garantia BarberFlow</p>
+<p class="text-xs text-on-secondary-fixed-variant">Teste por 7 dias. Se não gostar, devolvemos 100% do seu investimento sem perguntas.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

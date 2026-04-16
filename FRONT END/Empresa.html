@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f1f1f0",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary-fixed": "#fcdeb5",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#bec6e0",
+                        "on-primary": "#ffffff",
+                        "surface": "#f9f9f8",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-error": "#ffffff",
+                        "background": "#f9f9f8",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1a1c1c",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-tint": "#565e74",
+                        "on-secondary-container": "#684000",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-bright": "#f9f9f8",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container": "#eeeeed",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "on-primary-container": "#7c839b",
+                        "on-error-container": "#93000a",
+                        "secondary": "#855300",
+                        "secondary-container": "#fea619",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary-container": "#271901",
+                        "on-tertiary-fixed": "#271901",
+                        "surface-container-low": "#f3f4f3",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#131b2e",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary-container": "#98805d",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#000000",
+                        "surface-dim": "#dadad9",
+                        "surface-container-high": "#e8e8e7",
+                        "on-primary-fixed": "#131b2e",
+                        "outline": "#76777d",
+                        "surface-variant": "#e2e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 h-screen w-[240px] border-none bg-[#f3f4f3] dark:bg-slate-900 z-50">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">store</span>
+</div>
+<div>
+<h1 class="text-xl font-bold text-[#0F172A] dark:text-slate-100 tracking-tight">BarberFlow</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">SaaS Premium</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto no-scrollbar">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">calendar_month</span> Agenda
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">group</span> Contatos
+            </a>
+<!-- Active Navigation -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-[#0F172A] dark:text-white font-bold border-r-4 border-[#F59E0B] bg-white/50 dark:bg-slate-800/50 font-['Inter'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">store</span> Empresa
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">content_cut</span> Profissionais
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">content_paste</span> Serviços
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">settings</span> Definições
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">psychology</span> Definições da IA
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">chat</span> Conexão WhatsApp
+            </a>
+</nav>
+<div class="mt-auto border-t border-slate-200 dark:border-slate-800 pt-4">
+<button class="w-full bg-primary text-on-primary rounded-xl py-3 font-semibold text-sm mb-4 transition-transform active:scale-95 duration-150">Novo Agendamento</button>
+<div class="flex items-center gap-3 px-2 py-2 hover:bg-white/50 rounded-xl transition-colors cursor-pointer">
+<div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a professional male barber with a well-groomed beard in a high-end salon setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAZo6IsqJDKL3nKZohzspEuTLu8xzk3nHwxRgNC_HqAlk4VUcIv9A-XB_Xlop4Zm2s6fYcANtkUGGQdrNzO_9KICn-SbQy6q5VdU_e5ThJ02fYypCnEWKqhJoZOo6qIaXVj6_5adAaER41gWgwoEuZ0L4_SUAtW1VeZbQpnstT1SOAr7mRAn3L4KO1dyIXC0rWq8MnIo0OWKBT9qF9_I7a9CWAK-UzHmWsLomNMZB7qyFnHUMNrfl0scShy98COJjV1-D5e2IXn-s"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-[#0F172A]">Ricardo Silva</p>
+<p class="text-[10px] text-slate-500">Perfil do Usuário</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-lg">more_vert</span>
+</div>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="h-16 w-full sticky top-0 z-40 bg-[#FAFAF9]/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm dark:shadow-none ml-[240px] pr-[240px]">
+<div class="flex justify-between items-center h-full px-8 max-w-[1440px]">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-[#F59E0B]/40 focus:outline-none" placeholder="Pesquisar..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-600">
+<button class="hover:text-[#F59E0B] transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+<button class="hover:text-[#F59E0B] transition-colors"><span class="material-symbols-outlined">location_on</span></button>
+</div>
+<div class="h-6 w-px bg-slate-200 mx-2"></div>
+<button class="bg-secondary-container text-on-secondary-fixed px-5 py-2 rounded-full text-sm font-bold transition-all hover:opacity-90 active:scale-95">Perfil</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-[240px] p-8 max-w-[1440px]">
+<div class="flex justify-between items-end mb-10">
+<div>
+<span class="text-xs font-bold uppercase tracking-widest text-[#F59E0B] mb-2 block">Gerenciamento</span>
+<h2 class="text-4xl font-bold tracking-tight text-[#0F172A]">Configurações da Empresa</h2>
+</div>
+<button class="flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all active:scale-95">
+<span class="material-symbols-outlined text-lg">add</span>
+                Nova unidade
+            </button>
+</div>
+<!-- Navigation Tabs -->
+<div class="flex gap-8 mb-8 border-b border-surface-container overflow-x-auto no-scrollbar">
+<button class="pb-4 text-sm font-bold border-b-2 border-[#F59E0B] text-[#0F172A] whitespace-nowrap">Dados gerais</button>
+<button class="pb-4 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">Unidades</button>
+<button class="pb-4 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">Horários</button>
+<button class="pb-4 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">Marca</button>
+</div>
+<!-- Layout Grid -->
+<div class="grid grid-cols-12 gap-8 items-start">
+<!-- Left Column: Basic Info -->
+<div class="col-span-12 lg:col-span-8 space-y-8">
+<section class="bg-surface-container-lowest p-8 rounded-lg shadow-sm">
+<h3 class="text-xl font-bold mb-8 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">info</span>
+                        Informações Principais
+                    </h3>
+<div class="flex flex-col md:flex-row gap-10">
+<!-- Logo Dropzone -->
+<div class="flex flex-col items-center gap-4">
+<div class="w-[120px] h-[120px] border-2 border-dashed border-outline-variant rounded-full flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-outline text-3xl group-hover:scale-110 transition-transform">add_a_photo</span>
+<span class="text-[10px] font-bold text-outline mt-2">LOGO</span>
+</div>
+<p class="text-xs text-slate-400 text-center max-w-[120px]">Formatos: PNG, JPG (Máx 2MB)</p>
+</div>
+<!-- Form Fields -->
+<div class="flex-1 grid grid-cols-2 gap-6">
+<div class="col-span-2 md:col-span-1 flex flex-col gap-2">
+<label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Nome fantasia</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-[#F59E0B]/40" type="text" value="BarberFlow Matriz"/>
+</div>
+<div class="col-span-2 md:col-span-1 flex flex-col gap-2">
+<label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Razão social</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-[#F59E0B]/40" type="text" value="BarberFlow Serviços Estéticos LTDA"/>
+</div>
+<div class="col-span-2 md:col-span-1 flex flex-col gap-2">
+<label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">CNPJ</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-[#F59E0B]/40" type="text" value="00.000.000/0001-00"/>
+</div>
+<div class="col-span-2 flex flex-col gap-2">
+<label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Descrição</label>
+<textarea class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-[#F59E0B]/40 resize-none" rows="3">O melhor em cortes clássicos e barbas tradicionais com um toque moderno no coração da cidade.</textarea>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-surface-container-lowest p-8 rounded-lg shadow-sm">
+<h3 class="text-xl font-bold mb-8 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">location_on</span>
+                        Endereço da Unidade
+                    </h3>
+<div class="grid grid-cols-12 gap-6 mb-8">
+<div class="col-span-4 flex flex-col gap-2">
+<label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">CEP</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-[#F59E0B]/40" type="text" value="01310-000"/>
+</div>
+<div class="col-span-8 flex flex-col gap-2">
+<label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Rua</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-[#F59E0B]/40" type="text" value="Avenida Paulista"/>
+</div>
+<div class="col-span-3 flex flex-col gap-2">
+<label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Número</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-[#F59E0B]/40" type="text" value="1000"/>
+</div>
+<div class="col-span-4 flex flex-col gap-2">
+<label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Bairro</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-[#F59E0B]/40" type="text" value="Bela Vista"/>
+</div>
+<div class="col-span-5 flex flex-col gap-2">
+<label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Cidade</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-[#F59E0B]/40" type="text" value="São Paulo"/>
+</div>
+</div>
+<!-- Map Preview Card -->
+<div class="rounded-xl overflow-hidden h-[240px] relative group">
+<img class="w-full h-full object-cover" data-alt="High-resolution bird's eye view satellite map of Avenida Paulista urban area in São Paulo with clean cartographic styling" data-location="São Paulo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFVW02gAToZrlR-iZfQ-Fh-3o_VbsicNW9CGeQ9Lur8VhhvGYZmNOPw_S4ljcOUzMCe_Gw1K6TQY-EdVQxFs56BqhZV8X-n0drI1zzOdRqzojn2zT3gVqRC_TS68bW5byDqIDgJM7HYkutCMgOBrJWUPUOlHESnUyroMja5I1fpJ8e_HvvwZYAovVgtXDq_mAEYhJXvfwsIOtKIXTJYcNUfqqka0JoJS8jU6AoD71ScinV8bAfhtYYfO4d9lCG_Y2sBnlDcEKQ7ss"/>
+<div class="absolute inset-0 bg-primary/20 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+<div class="bg-white px-6 py-3 rounded-full flex items-center gap-2 shadow-xl">
+<span class="material-symbols-outlined text-secondary">open_in_new</span>
+<span class="font-bold text-sm">Ver no Google Maps</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Operating Hours -->
+<div class="col-span-12 lg:col-span-4 space-y-8">
+<section class="bg-surface-container-lowest p-8 rounded-lg shadow-sm">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">schedule</span>
+                            Horários
+                        </h3>
+<span class="text-[10px] font-bold bg-[#F59E0B]/10 text-[#F59E0B] px-2 py-1 rounded">VIGENTE</span>
+</div>
+<div class="space-y-6">
+<!-- Monday -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-sm font-bold">Segunda-feira</span>
+<div class="w-10 h-5 bg-[#F59E0B] rounded-full relative cursor-pointer">
+<div class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex-1 px-3 py-2 bg-surface-container-low rounded-lg text-xs text-center font-semibold">09:00</div>
+<span class="text-slate-300">—</span>
+<div class="flex-1 px-3 py-2 bg-surface-container-low rounded-lg text-xs text-center font-semibold">19:00</div>
+<button class="p-2 text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-lg">add_circle</span></button>
+</div>
+</div>
+<!-- Tuesday (With Break) -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-sm font-bold">Terça-feira</span>
+<div class="w-10 h-5 bg-[#F59E0B] rounded-full relative cursor-pointer">
+<div class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<div class="flex-1 px-3 py-2 bg-surface-container-low rounded-lg text-xs text-center font-semibold">09:00</div>
+<span class="text-slate-300">—</span>
+<div class="flex-1 px-3 py-2 bg-surface-container-low rounded-lg text-xs text-center font-semibold">12:00</div>
+<button class="p-2 text-slate-400 hover:text-error"><span class="material-symbols-outlined text-lg">remove_circle</span></button>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex-1 px-3 py-2 bg-surface-container-low rounded-lg text-xs text-center font-semibold">13:00</div>
+<span class="text-slate-300">—</span>
+<div class="flex-1 px-3 py-2 bg-surface-container-low rounded-lg text-xs text-center font-semibold">20:00</div>
+<button class="p-2 text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-lg">add_circle</span></button>
+</div>
+</div>
+</div>
+<!-- Wednesday -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-sm font-bold">Quarta-feira</span>
+<div class="w-10 h-5 bg-[#F59E0B] rounded-full relative cursor-pointer">
+<div class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex-1 px-3 py-2 bg-surface-container-low rounded-lg text-xs text-center font-semibold">09:00</div>
+<span class="text-slate-300">—</span>
+<div class="flex-1 px-3 py-2 bg-surface-container-low rounded-lg text-xs text-center font-semibold">19:00</div>
+<button class="p-2 text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-lg">add_circle</span></button>
+</div>
+</div>
+<!-- Sunday (Closed) -->
+<div class="flex flex-col gap-3 opacity-60">
+<div class="flex items-center justify-between">
+<span class="text-sm font-bold text-slate-400">Domingo</span>
+<div class="w-10 h-5 bg-slate-300 rounded-full relative cursor-pointer">
+<div class="w-4 h-4 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+</div>
+</div>
+<p class="text-xs italic text-slate-400">Estabelecimento fechado</p>
+</div>
+</div>
+<button class="w-full mt-10 py-4 rounded-xl border border-outline-variant font-bold text-sm text-on-surface hover:bg-surface-container-high transition-colors">
+                        Configurar exceções e feriados
+                    </button>
+</section>
+<!-- Save Card (Glassmorphism inspired) -->
+<div class="sticky bottom-8 bg-[#ffffff]/80 backdrop-blur-lg p-6 rounded-lg shadow-xl border border-white/20">
+<div class="flex flex-col gap-4">
+<p class="text-sm text-slate-500 leading-relaxed">Você possui <span class="font-bold text-primary">3 alterações</span> não salvas neste formulário.</p>
+<div class="flex gap-3">
+<button class="flex-1 bg-primary text-on-primary py-3 rounded-full font-bold shadow-lg shadow-primary/20 hover:-translate-y-0.5 transition-all">Salvar alterações</button>
+<button class="px-5 py-3 text-sm font-bold text-slate-500 hover:text-primary transition-colors">Descartar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

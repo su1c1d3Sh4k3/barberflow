@@ -27,11 +27,11 @@ import { useRealtime } from "@/hooks/use-realtime";
 interface Stats {
   contacts: number;
   appointments: number;
+  pending: number;
   confirmed: number;
   completed: number;
   canceled: number;
   rescheduled: number;
-  followup: number;
   previsao: number;
   faturamento: number;
   conversionRate: number;
@@ -90,10 +90,11 @@ export default function DashboardPage() {
   const { user, tenant } = useTenantStore();
   const supabase = createClient();
   const [stats, setStats] = useState<Stats>({
-    contacts: 0, appointments: 0, confirmed: 0, completed: 0,
-    canceled: 0, rescheduled: 0, followup: 0, previsao: 0, faturamento: 0, conversionRate: 0,
+    contacts: 0, appointments: 0, pending: 0, confirmed: 0, completed: 0,
+    canceled: 0, rescheduled: 0, previsao: 0, faturamento: 0, conversionRate: 0,
   });
   const [lastAppointments, setLastAppointments] = useState<AppointmentItem[]>([]);
+  const [upcomingAppointments, setUpcomingAppointments] = useState<AppointmentItem[]>([]);
   const [dayOfWeekData, setDayOfWeekData] = useState<DayOfWeekData[]>(
     DAY_LABELS.map((day) => ({ day, count: 0 }))
   );
@@ -103,7 +104,6 @@ export default function DashboardPage() {
   const [exportOpen, setExportOpen] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
 
-  // Close export dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
@@ -118,58 +118,62 @@ export default function DashboardPage() {
     if (!tenant?.id) return;
 
     const now = new Date();
-    const days = [0, 7, 30, 30][period];
-    const dateFrom = new Date(now);
-    dateFrom.setDate(dateFrom.getDate() - days);
 
-    // Stats
-    const { data: appointments } = await supabase
+    // Compute period date range
+    let dateFrom: Date;
+    let dateTo: Date;
+    if (period === 0) {
+      // Today: full day
+      dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      dateTo = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    } else {
+      const days = [0, 7, 30, 30][period];
+      dateFrom = new Date(now);
+      dateFrom.setDate(dateFrom.getDate() - days);
+      dateTo = new Date(now);
+    }
+
+    // Period appointments (all statuses for counts + chart)
+    const { data: periodApts } = await supabase
       .from("appointments")
       .select("id, status, total_price, start_at")
       .eq("tenant_id", tenant.id)
       .gte("start_at", dateFrom.toISOString())
-      .lte("start_at", now.toISOString());
+      .lte("start_at", dateTo.toISOString());
+
+    // Global future previsão (independent of period filter)
+    const { data: futureApts } = await supabase
+      .from("appointments")
+      .select("total_price")
+      .eq("tenant_id", tenant.id)
+      .in("status", ["pendente", "confirmado"])
+      .gt("start_at", now.toISOString());
 
     const { count: contactsCount } = await supabase
       .from("contacts")
       .select("id", { count: "exact", head: true })
       .eq("tenant_id", tenant.id);
 
-    const { count: followupCount } = await supabase
-      .from("contacts")
-      .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenant.id)
-      .eq("status", "follow_up");
-
-    // Also fetch upcoming active appointments (future pendente/confirmado) for previsão
-    const { data: upcomingActive } = await supabase
-      .from("appointments")
-      .select("id, status, total_price, start_at")
-      .eq("tenant_id", tenant.id)
-      .in("status", ["pendente", "confirmado"])
-      .gt("start_at", now.toISOString());
-
-    const apt = appointments || [];
-    const allActive = [...apt.filter(a => ["pendente", "confirmado"].includes(a.status)), ...(upcomingActive || [])];
-    const previsao = allActive.reduce((sum, a) => sum + Number(a.total_price || 0), 0);
+    const apt = periodApts || [];
+    const previsao = (futureApts || []).reduce((sum, a) => sum + Number(a.total_price || 0), 0);
     const faturamento = apt
       .filter(a => a.status === "concluido")
       .reduce((sum, a) => sum + Number(a.total_price || 0), 0);
 
     setStats({
       contacts: contactsCount || 0,
-      appointments: apt.length + (upcomingActive?.length || 0),
-      confirmed: allActive.filter(a => a.status === "confirmado").length,
+      appointments: apt.length,
+      pending: apt.filter(a => a.status === "pendente").length,
+      confirmed: apt.filter(a => a.status === "confirmado").length,
       completed: apt.filter(a => a.status === "concluido").length,
       canceled: apt.filter(a => a.status === "cancelado").length,
       rescheduled: apt.filter(a => a.status === "reagendado").length,
-      followup: followupCount || 0,
       previsao: Math.round(previsao * 100) / 100,
       faturamento: Math.round(faturamento * 100) / 100,
-      conversionRate: contactsCount ? Math.round(((apt.length + (upcomingActive?.length || 0)) / contactsCount) * 100) : 0,
+      conversionRate: contactsCount ? Math.round((apt.length / contactsCount) * 100) : 0,
     });
 
-    // Appointments by day of week (real data)
+    // Day of week chart (period appointments)
     const byDow = [0, 0, 0, 0, 0, 0, 0];
     for (const a of apt) {
       const dow = new Date(a.start_at).getDay();
@@ -177,8 +181,7 @@ export default function DashboardPage() {
     }
     setDayOfWeekData(DAY_LABELS.map((day, i) => ({ day, count: byDow[i] })));
 
-    // Revenue by professional (previsao + faturamento + comissao)
-    // No upper date limit: future pendente/confirmado are included in previsão
+    // Revenue by professional
     const { data: profAppts } = await supabase
       .from("appointments")
       .select("total_price, status, start_at, professionals(id, name, commission_pct)")
@@ -197,7 +200,6 @@ export default function DashboardPage() {
       if (a.status === "concluido") {
         profMap[profName].faturamento += price;
       } else if (isFuture) {
-        // Only future pendente/confirmado count as previsão (past-due overdue excluded)
         profMap[profName].previsao += price;
       }
     }
@@ -213,13 +215,13 @@ export default function DashboardPage() {
         .sort((a, b) => (b.faturamento + b.previsao) - (a.faturamento + a.previsao))
     );
 
-    // Export data
+    // Export data (period range)
     const { data: exportAppts } = await supabase
       .from("appointments")
       .select("start_at, status, total_price, contacts(name), professionals(name), appointment_services(services(name))")
       .eq("tenant_id", tenant.id)
       .gte("start_at", dateFrom.toISOString())
-      .lte("start_at", now.toISOString())
+      .lte("start_at", dateTo.toISOString())
       .order("start_at", { ascending: true });
 
     setExportData(
@@ -236,24 +238,33 @@ export default function DashboardPage() {
       }))
     );
 
-    // Last appointments (most recent in period)
+    // Últimos agendamentos — by created_at DESC (most recently created, no period filter)
     const { data: lastData } = await supabase
       .from("appointments")
       .select("id, start_at, status, contacts(name), professionals(name), appointment_services(services(name))")
       .eq("tenant_id", tenant.id)
-      .gte("start_at", dateFrom.toISOString())
-      .lte("start_at", now.toISOString())
-      .order("start_at", { ascending: false })
+      .order("created_at", { ascending: false })
       .limit(6);
 
     setLastAppointments((lastData as unknown as AppointmentItem[]) || []);
+
+    // Próximos agendamentos — future only, not canceled/rescheduled, soonest first, limit 3
+    const { data: upcomingData } = await supabase
+      .from("appointments")
+      .select("id, start_at, status, contacts(name), professionals(name), appointment_services(services(name))")
+      .eq("tenant_id", tenant.id)
+      .not("status", "in", "(cancelado,reagendado)")
+      .gt("start_at", now.toISOString())
+      .order("start_at", { ascending: true })
+      .limit(3);
+
+    setUpcomingAppointments((upcomingData as unknown as AppointmentItem[]) || []);
   }, [tenant?.id, period, supabase]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Realtime updates
   useRealtime({
     table: "appointments",
     filter: tenant?.id ? `tenant_id=eq.${tenant.id}` : undefined,
@@ -274,21 +285,25 @@ export default function DashboardPage() {
   ];
 
   const statusCards = [
+    { label: "Pendentes", count: stats.pending, color: "bg-amber-500" },
     { label: "Confirmados", count: stats.confirmed, color: "bg-success" },
     { label: "Concluidos", count: stats.completed, color: "bg-info" },
     { label: "Cancelados", count: stats.canceled, color: "bg-error" },
     { label: "Reagendados", count: stats.rescheduled, color: "bg-warning" },
-    { label: "Follow-up", count: stats.followup, color: "bg-purple-500" },
   ];
 
   const periods = ["Hoje", "7 dias", "30 dias", "Personalizado"];
 
-  // --- Export handlers ---
   const handleExportCSV = useCallback(() => {
     const now = new Date();
-    const days = [0, 7, 30, 30][period];
-    const dateFrom = new Date(now);
-    dateFrom.setDate(dateFrom.getDate() - days);
+    let dateFrom: Date;
+    if (period === 0) {
+      dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    } else {
+      const days = [0, 7, 30, 30][period];
+      dateFrom = new Date(now);
+      dateFrom.setDate(dateFrom.getDate() - days);
+    }
 
     const lines: string[] = [];
     lines.push(`Relatorio BarberFlow - ${periodLabel}`);
@@ -300,6 +315,7 @@ export default function DashboardPage() {
     lines.push(`Taxa de conversao;${stats.conversionRate}%`);
     lines.push(`Previsao;${stats.previsao.toFixed(2)}`);
     lines.push(`Faturamento;${stats.faturamento.toFixed(2)}`);
+    lines.push(`Pendentes;${stats.pending}`);
     lines.push(`Confirmados;${stats.confirmed}`);
     lines.push(`Concluidos;${stats.completed}`);
     lines.push(`Cancelados;${stats.canceled}`);
@@ -325,9 +341,14 @@ export default function DashboardPage() {
 
   const handleExportPDF = useCallback(() => {
     const now = new Date();
-    const days = [0, 7, 30, 30][period];
-    const dateFrom = new Date(now);
-    dateFrom.setDate(dateFrom.getDate() - days);
+    let dateFrom: Date;
+    if (period === 0) {
+      dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    } else {
+      const days = [0, 7, 30, 30][period];
+      dateFrom = new Date(now);
+      dateFrom.setDate(dateFrom.getDate() - days);
+    }
 
     const html = `
       <!DOCTYPE html>
@@ -377,9 +398,7 @@ export default function DashboardPage() {
     if (printWindow) {
       printWindow.document.write(html);
       printWindow.document.close();
-      printWindow.onload = () => {
-        printWindow.print();
-      };
+      printWindow.onload = () => { printWindow.print(); };
     }
     setExportOpen(false);
   }, [period, periodLabel, stats, profRevenue, exportData]);
@@ -444,7 +463,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI Cards — 5 cards */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {kpis.map((kpi) => {
           const Icon = kpi.icon;
@@ -502,11 +521,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Ultimos agendamentos (replaces WhatsApp status) */}
+        {/* Últimos agendamentos — most recently created */}
         <div className="col-span-2 rounded-card bg-surface-container-lowest p-6 shadow-card">
           <h3 className="mb-4 text-title text-foreground">Últimos agendamentos</h3>
           {lastAppointments.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">Nenhum agendamento no período</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">Nenhum agendamento encontrado</p>
           ) : (
             <div className="space-y-2">
               {lastAppointments.map((apt) => {
@@ -569,33 +588,38 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Upcoming appointments */}
+        {/* Próximos agendamentos — always future, closest first, limit 3 */}
         <div className="rounded-card bg-surface-container-lowest p-6 shadow-card">
-          <h3 className="mb-4 text-title text-foreground">Proximos agendamentos</h3>
-          {lastAppointments.filter(a => ["pendente", "confirmado"].includes(a.status)).length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">Nenhum agendamento proximo</p>
+          <h3 className="mb-4 text-title text-foreground">Próximos agendamentos</h3>
+          {upcomingAppointments.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">Nenhum agendamento futuro</p>
           ) : (
             <div className="space-y-3">
-              {lastAppointments
-                .filter(a => ["pendente", "confirmado"].includes(a.status))
-                .slice(0, 5)
-                .map((apt) => (
+              {upcomingAppointments.map((apt) => {
+                const dateStr = new Date(apt.start_at).toLocaleDateString("pt-BR", {
+                  day: "2-digit", month: "2-digit",
+                });
+                const timeStr = new Date(apt.start_at).toLocaleTimeString("pt-BR", {
+                  hour: "2-digit", minute: "2-digit",
+                });
+                return (
                   <div key={apt.id} className="flex items-center gap-3 rounded-btn p-3 hover:bg-surface-container-low">
-                    <div className="h-9 w-9 rounded-full bg-surface-container-high" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">{apt.contacts?.name || "Cliente"}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {apt.appointment_services?.map(s => s.services?.name).join(", ") || "Servico"}
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-amber-700 shrink-0">
+                      <Calendar className="h-4 w-4" strokeWidth={1.5} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{apt.contacts?.name || "Cliente"}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {apt.appointment_services?.map(s => s.services?.name).filter(Boolean).join(", ") || "Serviço"}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-foreground">
-                        {new Date(apt.start_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{apt.professionals?.name || ""}</p>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-semibold text-foreground">{timeStr}</p>
+                      <p className="text-xs text-muted-foreground">{dateStr} · {apt.professionals?.name?.split(" ")[0] || ""}</p>
                     </div>
                   </div>
-                ))}
+                );
+              })}
             </div>
           )}
         </div>

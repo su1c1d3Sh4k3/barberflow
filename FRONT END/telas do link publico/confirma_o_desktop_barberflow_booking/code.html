@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Booking Confirmation - BarberFlow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#574425",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e2e2e2",
+                    "on-secondary-fixed": "#2a1700",
+                    "surface-container-highest": "#e2e2e2",
+                    "primary-container": "#131b2e",
+                    "on-tertiary-fixed": "#271901",
+                    "on-tertiary-container": "#98805d",
+                    "on-primary-container": "#7c839b",
+                    "on-surface-variant": "#45464d",
+                    "inverse-surface": "#2f3130",
+                    "surface": "#f9f9f8",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#dae2fd",
+                    "secondary-container": "#fea619",
+                    "on-secondary-container": "#684000",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#1a1c1c",
+                    "on-primary": "#ffffff",
+                    "secondary": "#855300",
+                    "outline": "#76777d",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "background": "#f9f9f8",
+                    "surface-container-low": "#f3f4f3",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f1f1f0",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#000000",
+                    "secondary-fixed": "#ffddb8",
+                    "inverse-primary": "#bec6e0",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-error": "#ffffff",
+                    "on-background": "#1a1c1c",
+                    "outline-variant": "#c6c6cd",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "primary": "#000000",
+                    "tertiary-fixed": "#fcdeb5",
+                    "surface-tint": "#565e74",
+                    "on-primary-fixed": "#131b2e",
+                    "tertiary-fixed-dim": "#dec29a",
+                    "tertiary-container": "#271901",
+                    "surface-bright": "#f9f9f8",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eeeeed",
+                    "surface-dim": "#dadad9",
+                    "surface-container-high": "#e8e8e7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 max-w-2xl mx-auto left-1/2 -translate-x-1/2 bg-[#FAFAF9] dark:bg-[#0F172A]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#0F172A] dark:text-[#FAFAF9] cursor-pointer hover:opacity-80 transition-opacity" data-icon="arrow_back">arrow_back</span>
+<h1 class="font-['Inter'] font-semibold tracking-tight text-lg text-[#0F172A] dark:text-[#FAFAF9]">BarberFlow</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border border-outline-variant/10">
+<img alt="Barbershop Logo" class="w-full h-full object-cover" data-alt="minimalist modern barbershop logo with clean typography and a silhouette of shears on a cream background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQOzmvi1F9U0ezILVIXpjgys2hSMloSLhmTdttaMCNTzpP-2KBqPhaOhDbAcg576d2-rwnkt_Fraq4gwaEV2CWdkw_odJ6-rTiYmkV8ssnSkC0NzGOkmhgzUpSPO4MkHX51ebALTqRX0PdxQEuwDcgd5QHkUjsnQGjhapWvoy9Z8tYLMIgpwmeZ7UdojHhayu9uQpuc-D7-i7qMpjdEN7Re_Lu9TC5gibTmZpWm05M3lf6ENgS58FB_jDd_o7elSZXcYVVvZni5cc"/>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-12 px-6 flex flex-col items-center">
+<div class="w-full max-w-[640px]">
+<!-- Hero Status Section -->
+<section class="text-center mb-12">
+<div class="inline-flex items-center justify-center w-20 h-20 bg-secondary-fixed rounded-full mb-6">
+<span class="material-symbols-outlined text-on-secondary-container text-4xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h2 class="text-4xl md:text-5xl font-extrabold tracking-tight text-primary mb-4">Almost there.</h2>
+<p class="text-on-surface-variant text-lg">Review your selection before we secure your chair.</p>
+</section>
+<!-- Summary Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+<!-- Service Detail Card -->
+<div class="bg-surface-container-lowest p-8 rounded-lg flex flex-col justify-between min-h-[220px]">
+<div>
+<span class="text-[0.75rem] font-bold tracking-widest text-secondary uppercase mb-4 block">Service</span>
+<h3 class="text-2xl font-bold text-on-surface leading-tight">The Executive Scissor Cut &amp; Hot Towel</h3>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-sm font-medium">45 Minutes</span>
+</div>
+</div>
+<!-- Barber & Time Card -->
+<div class="bg-surface-container-low p-8 rounded-lg flex flex-col gap-6">
+<div>
+<span class="text-[0.75rem] font-bold tracking-widest text-secondary uppercase mb-2 block">Your Barber</span>
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="professional male barber with a well-groomed beard and stylish hair in a modern studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDJ_xqJFJZiM7a4nqtk6WEluvn-UZEGlOICCJFNjkT3xW2i42WD0-vtZIpzLV0zFVbS-JM12BuUq_Yny7pfNeA09DJ8x4CmTzaDxTrxEdNtZZLCdObTZkIKmnKOg_QxeqA_3dWKnlPlSO2fziheBUgZHAPcBkyry24Sfn0ureGDmBa19lcYxjzgqGL90F3FyXVoBfew150jquLtXFGsaB-YVgSlF-MPWTqOv6w53eQ2Lkk0JLL8k7JXxrV-KGDABgqQQgB1d1pto4"/>
+<span class="font-semibold text-on-surface">Marcus Thorne</span>
+</div>
+</div>
+<div>
+<span class="text-[0.75rem] font-bold tracking-widest text-secondary uppercase mb-2 block">Appointment</span>
+<div class="flex flex-col">
+<span class="text-lg font-bold text-on-surface">Oct 24, 2023</span>
+<span class="text-on-surface-variant">2:30 PM — 3:15 PM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Price & Location Section (Asymmetric) -->
+<div class="bg-surface-container-lowest p-8 rounded-lg mb-12">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary" data-icon="location_on">location_on</span>
+<div>
+<p class="font-bold text-on-surface">Main Street Studio</p>
+<p class="text-sm text-on-surface-variant">412 Heritage Blvd, Suite 101<br/>Austin, TX 78701</p>
+</div>
+</div>
+</div>
+<div class="w-full md:w-auto text-right md:border-l border-outline-variant/20 md:pl-12">
+<span class="text-[0.75rem] font-bold tracking-widest text-secondary uppercase block mb-1">Total Amount</span>
+<div class="text-4xl font-extrabold text-primary">$65.00</div>
+<p class="text-xs text-on-surface-variant mt-1">Includes complimentary refreshment</p>
+</div>
+</div>
+</div>
+<!-- Huge Confirmation Button -->
+<button class="group relative w-full bg-primary text-on-primary py-6 rounded-full font-bold text-xl transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-3 overflow-hidden">
+<span class="relative z-10">Confirm &amp; Book Appointment</span>
+<span class="material-symbols-outlined relative z-10 transition-transform group-hover:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+<!-- Subtle Gradient Overlay -->
+<div class="absolute inset-0 bg-gradient-to-tr from-primary via-primary to-primary-container opacity-50"></div>
+</button>
+<p class="text-center text-on-surface-variant text-sm mt-6">
+                By confirming, you agree to our <a class="underline hover:text-secondary transition-colors" href="#">Cancellation Policy</a>.
+            </p>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full px-8 py-12 flex flex-col gap-6 bg-[#F3F4F3] dark:bg-[#131B2E] rounded-t-[32px] mt-12">
+<div class="max-w-2xl mx-auto w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+<div>
+<span class="font-bold text-[#0F172A] dark:text-[#F59E0B] text-xl">BarberFlow</span>
+<p class="font-['Inter'] text-sm leading-relaxed text-slate-500 mt-2">Powered by BarberFlow</p>
+</div>
+<div class="flex flex-wrap gap-6">
+<a class="font-['Inter'] text-sm leading-relaxed text-slate-500 hover:text-[#F59E0B] transition-colors" href="#">Address</a>
+<a class="font-['Inter'] text-sm leading-relaxed text-slate-500 hover:text-[#F59E0B] transition-colors" href="#">Phone</a>
+<a class="font-['Inter'] text-sm leading-relaxed text-slate-500 hover:text-[#F59E0B] transition-colors" href="#">Hours</a>
+</div>
+</div>
+<div class="max-w-2xl mx-auto w-full border-t border-outline-variant/10 pt-6">
+<p class="text-xs text-slate-400">© 2023 BarberFlow Professional Grooming. All rights reserved.</p>
+</div>
+</footer>
+</body></html>

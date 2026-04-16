@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#574425",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e2e2e2",
+                    "on-secondary-fixed": "#2a1700",
+                    "surface-container-highest": "#e2e2e2",
+                    "primary-container": "#131b2e",
+                    "on-tertiary-fixed": "#271901",
+                    "on-tertiary-container": "#98805d",
+                    "on-primary-container": "#7c839b",
+                    "on-surface-variant": "#45464d",
+                    "inverse-surface": "#2f3130",
+                    "surface": "#f9f9f8",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#dae2fd",
+                    "secondary-container": "#fea619",
+                    "on-secondary-container": "#684000",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#1a1c1c",
+                    "on-primary": "#ffffff",
+                    "secondary": "#855300",
+                    "outline": "#76777d",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "background": "#f9f9f8",
+                    "surface-container-low": "#f3f4f3",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f1f1f0",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#000000",
+                    "secondary-fixed": "#ffddb8",
+                    "inverse-primary": "#bec6e0",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-error": "#ffffff",
+                    "on-background": "#1a1c1c",
+                    "outline-variant": "#c6c6cd",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "primary": "#000000",
+                    "tertiary-fixed": "#fcdeb5",
+                    "surface-tint": "#565e74",
+                    "on-primary-fixed": "#131b2e",
+                    "tertiary-fixed-dim": "#dec29a",
+                    "tertiary-container": "#271901",
+                    "surface-bright": "#f9f9f8",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eeeeed",
+                    "surface-dim": "#dadad9",
+                    "surface-container-high": "#e8e8e7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 max-w-2xl mx-auto bg-[#FAFAF9] dark:bg-[#0F172A]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#0F172A] dark:text-[#FAFAF9] hover:opacity-80 transition-opacity cursor-pointer scale-95 duration-150">arrow_back</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-lg text-[#0F172A] dark:text-[#FAFAF9]">BarberFlow</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWanLd84bjvM26VPJDZAv3pIiZ9CU1iqyHlpWpS3O9Qx8hrOdpXRJSy0cY8_2zJN_jblti8skrDBv2GkWLVm2YHyrTxrXlfbER-LhxJ_tqLUp_yb4fYmlopMV-FnHNoqCH-4yCFrZQ_V4TmXphoA-CLhuHPLwQu95-lFrOrdYnXTiM8Pnlms-6QWZh0KHWxgm6L_aGWuPWyVGhPn9zG2-MKCKQkni-7Fkth-VB97C5upWwP5YRovp6eNQd7wNahfyVab_mAn5H7J4"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-[390px] mx-auto min-h-screen">
+<!-- Progress Indicator -->
+<div class="flex gap-1 mb-8">
+<div class="h-1.5 w-full bg-secondary-container rounded-full"></div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full"></div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full"></div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full"></div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full"></div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full"></div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full"></div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full"></div>
+</div>
+<!-- Header Section -->
+<section class="mb-10">
+<span class="text-[0.75rem] font-bold tracking-[0.05em] uppercase text-on-surface-variant opacity-60">Passo 1 de 8</span>
+<h2 class="text-3xl font-bold tracking-tight mt-2 leading-tight">Em qual unidade você quer ser atendido?</h2>
+<p class="text-on-surface-variant mt-2 text-md">Escolha a barbearia mais perto de você</p>
+</section>
+<!-- Unit Cards Container -->
+<div class="space-y-8">
+<!-- Unit Card 1 -->
+<div class="group relative bg-surface-container-lowest rounded-lg overflow-hidden transition-all duration-300 hover:ring-1 hover:ring-outline-variant/30">
+<div class="aspect-[16/9] w-full overflow-hidden">
+<img alt="Unidade Downtown" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Modern upscale barbershop interior with leather chairs and warm exposed bulb lighting, vintage aesthetic, professional atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD59eIeDGRkq3R-GJnSQ2rg3YUTYt1k9aUAaJbDS1JL8Jm3psZUpn_HOH0T-Q-1A5A1aBRSMT-SZ_fip4X_Wekgm0jZCCr7sV5qS4F6mmhy2BCfzzKoxtDf2dx0eXysfPdwkMbGjk5FMVkK39nt3Tfm2EtOT-t6yNlvIrwdA6VZVQaj7UDNwY71c-oy7XbgWwV_VcNq0qMKoGnFbVKsiSx0qNDF1osY2fHqsapBhOAHHRMQQVLIiUrQN6E__VT4wvgoGWmHkTS5_o0"/>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-3">
+<h3 class="text-xl font-bold">Unidade Downtown</h3>
+<span class="bg-[#e7f5ed] text-[#1a5c3d] text-[0.75rem] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Aberto</span>
+</div>
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-md" data-icon="location_on">location_on</span>
+<span>Av. Paulista, 1200 - Bela Vista</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-md" data-icon="explore">explore</span>
+<span class="font-semibold text-on-surface">📍 1.2 km de você</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-md" data-icon="schedule">schedule</span>
+<span>Hoje: 09:00 - 20:00</span>
+</div>
+</div>
+<button class="w-full py-4 px-6 border border-outline-variant rounded-full font-semibold text-on-surface hover:bg-surface-container-low transition-colors flex justify-center items-center gap-2 group/btn">
+                        Selecionar esta unidade
+                        <span class="material-symbols-outlined transition-transform group-hover/btn:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Unit Card 2 -->
+<div class="group relative bg-surface-container-lowest rounded-lg overflow-hidden transition-all duration-300 hover:ring-1 hover:ring-outline-variant/30">
+<div class="aspect-[16/9] w-full overflow-hidden">
+<img alt="Unidade Jardins" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Elegant boutique barber shop with dark blue walls, minimalist decor and bright spotlighting on styling stations" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvnO5QPhVJY60Qz0jw74t8Moao4FEXVVHLUGoL3ptR8zA3mBSq-NKPCcqVL_PvmFOP3V311rvCUycD8O4oacTizLxkpHLqS7IMl5xy0_ReIaSSQry1aIDLhgpcFRDXmmIB3zdEhTmVS3WyISeTSPSPjXXM_ofuwV6yp2q4GGw_KWrZZcN6cPj0Mz23PklhVHijmPXEXAx6Wu5WxQELwqLWDmubX470pVXttmHpaaVP0wnwd2gsNJro1GS3w5tb9nka4G0w80bUUi8"/>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-3">
+<h3 class="text-xl font-bold">Unidade Jardins</h3>
+<span class="bg-[#e7f5ed] text-[#1a5c3d] text-[0.75rem] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Aberto</span>
+</div>
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-md" data-icon="location_on">location_on</span>
+<span>Rua Oscar Freire, 850 - Jardins</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-md" data-icon="explore">explore</span>
+<span class="font-semibold text-on-surface">📍 3.8 km de você</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-md" data-icon="schedule">schedule</span>
+<span>Hoje: 09:00 - 20:00</span>
+</div>
+</div>
+<button class="w-full py-4 px-6 border border-outline-variant rounded-full font-semibold text-on-surface hover:bg-surface-container-low transition-colors flex justify-center items-center gap-2 group/btn">
+                        Selecionar esta unidade
+                        <span class="material-symbols-outlined transition-transform group-hover/btn:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer with "Polished Artisan" Styling -->
+<footer class="w-full px-8 py-12 flex flex-col gap-6 bg-[#F3F4F3] dark:bg-[#131B2E] rounded-t-[32px]">
+<div class="flex justify-between items-center">
+<span class="font-bold text-[#0F172A] dark:text-[#F59E0B]">BarberFlow</span>
+<div class="flex gap-4">
+<span class="font-['Inter'] text-sm leading-relaxed text-slate-500 hover:text-[#F59E0B] transition-colors cursor-pointer">Address</span>
+<span class="font-['Inter'] text-sm leading-relaxed text-slate-500 hover:text-[#F59E0B] transition-colors cursor-pointer">Phone</span>
+<span class="font-['Inter'] text-sm leading-relaxed text-slate-500 hover:text-[#F59E0B] transition-colors cursor-pointer">Hours</span>
+</div>
+</div>
+<div class="text-center mt-4">
+<p class="font-['Inter'] text-sm leading-relaxed text-slate-500">Powered by BarberFlow</p>
+</div>
+</footer>
+</body></html>

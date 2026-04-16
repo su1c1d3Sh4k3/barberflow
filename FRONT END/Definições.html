@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f1f1f0",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary-fixed": "#fcdeb5",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#bec6e0",
+                        "on-primary": "#ffffff",
+                        "surface": "#f9f9f8",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-error": "#ffffff",
+                        "background": "#f9f9f8",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1a1c1c",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-tint": "#565e74",
+                        "on-secondary-container": "#684000",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-bright": "#f9f9f8",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container": "#eeeeed",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "on-primary-container": "#7c839b",
+                        "on-error-container": "#93000a",
+                        "secondary": "#855300",
+                        "secondary-container": "#fea619",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary-container": "#271901",
+                        "on-tertiary-fixed": "#271901",
+                        "surface-container-low": "#f3f4f3",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#131b2e",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary-container": "#98805d",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#000000",
+                        "surface-dim": "#dadad9",
+                        "surface-container-high": "#e8e8e7",
+                        "on-primary-fixed": "#131b2e",
+                        "outline": "#76777d",
+                        "surface-variant": "#e2e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9f8; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(24px); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="text-on-background">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 h-screen w-[240px] border-none bg-[#f3f4f3] dark:bg-slate-900 z-50">
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+<img alt="BarberFlow Logo" class="w-6 h-6" data-alt="minimalist geometric logo for a premium barbershop brand with sharp lines and dark aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj-lfGX9eVhHQf6qVYzewLwd5UtyN5VF71fXs6x4Lw38Mz-k_66bBfDMLytdArKCW9oivnso9A8xIoXTphLr_3tybNMrQpWRm_Tn88IKH5z6k7MnlB7fFbK-M1nmGFdSUi6WOdMZNzQKf39lN9UtS_Vi6DDWMCUTT6sW99ZdERAF6Se7DAHxJ0bOaKsUKL1xzTHjeW2WeJQ7VxSh_3SBB8ew9l768jdXcWyskBYfHpVIdFmVNuCvHCFLmj966eZWg7XYXwS-V8VEs"/>
+</div>
+<div>
+<h1 class="text-xl font-bold text-[#0F172A] dark:text-slate-100 tracking-tight">BarberFlow</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">SaaS Premium</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto hide-scrollbar">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-white/80 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Dashboard</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-white/80 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Agenda</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-white/80 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Contatos</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-white/80 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">store</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Empresa</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-white/80 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">content_cut</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Profissionais</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-white/80 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">content_paste</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Serviços</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#0F172A] font-bold border-r-4 border-[#F59E0B] bg-white/50 cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Definições</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-white/80 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Definições da IA</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-white/80 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">chat</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Conexão WhatsApp</span>
+</div>
+</nav>
+<div class="mt-auto pt-6">
+<button class="w-full py-3 bg-primary text-white rounded-xl font-bold text-sm mb-6 shadow-lg shadow-primary/10 active:scale-95 transition-all">
+                Novo Agendamento
+            </button>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-[#0F172A] cursor-pointer">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-sm">Perfil do Usuário</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="ml-[240px] min-h-screen">
+<!-- TopNavBar -->
+<header class="h-16 w-full sticky top-0 z-40 bg-[#FAFAF9]/80 backdrop-blur-xl flex justify-between items-center px-8 max-w-[1440px]">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-[#F59E0B]/40 transition-all" placeholder="Pesquisar configurações..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-600 hover:text-[#F59E0B] transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full"></span>
+</button>
+<button class="p-2 text-slate-600 hover:text-[#F59E0B] transition-colors">
+<span class="material-symbols-outlined">location_on</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/30 mx-2"></div>
+<div class="flex items-center gap-3 pl-2">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-bold text-[#0F172A]">Rodrigo Silva</p>
+<p class="text-[10px] text-slate-500">Administrador</p>
+</div>
+<img alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-white shadow-sm" data-alt="close-up portrait of a professional male barber with a well-groomed beard and stylish haircut in a bright studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2FZi0KjS9DiEjp7d48QZerTXScnd5dYe-8MLwr7yK7YGW_FD61ERp8koFB_k4RmddJqQyOpxC6ydYTTSnXgSbd9x4b9_cjYBFjIS2JJAG4oh4o1HmjLMD2G_3uh1wxRh_GrKT-Bv5O9KGvag883eYdZ1rQZMLbfzdDxXB60ppVjxH3FCCdg_w_FOe-XKw5E-8Y73iVd7l3oR_OIXd3eb521jMcmH3yWh_CKvtHFr03tyw6fp8WzRxAPp4NNsaiBnfVaYjxzcSyRM"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="p-8 max-w-[1440px] mx-auto">
+<header class="mb-10">
+<h2 class="text-4xl font-bold tracking-tight text-on-background mb-2">Definições</h2>
+<p class="text-on-surface-variant font-medium">Gerencie as automações e regras de negócio do seu estabelecimento.</p>
+</header>
+<div class="flex gap-8 items-start">
+<!-- Vertical Tabs -->
+<aside class="w-64 flex flex-col gap-2 shrink-0">
+<button class="flex items-center gap-3 px-5 py-4 rounded-xl text-sm font-bold bg-white shadow-sm text-secondary border-l-4 border-secondary transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send_time_extension</span>
+                        Follow-up
+                    </button>
+<button class="flex items-center gap-3 px-5 py-4 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-white/60 transition-all">
+<span class="material-symbols-outlined">cake</span>
+                        Aniversário
+                    </button>
+<button class="flex items-center gap-3 px-5 py-4 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-white/60 transition-all">
+<span class="material-symbols-outlined">confirmation_number</span>
+                        Cupons
+                    </button>
+<button class="flex items-center gap-3 px-5 py-4 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-white/60 transition-all">
+<span class="material-symbols-outlined">handshake</span>
+                        Boas-vindas
+                    </button>
+<button class="flex items-center gap-3 px-5 py-4 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-white/60 transition-all">
+<span class="material-symbols-outlined">payments</span>
+                        Pagamento
+                    </button>
+</aside>
+<!-- Content Area (Follow-up Tab Active) -->
+<div class="flex-1 space-y-8">
+<!-- Follow-up Cards Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+<!-- Follow-up Card 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-8 shadow-sm border border-outline-variant/10">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-xl font-bold mb-1">Follow-up 1</h3>
+<p class="text-xs text-on-surface-variant uppercase tracking-wider font-bold">Após 24 horas</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<div class="space-y-6">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Delay do Envio</label>
+<div class="flex items-center gap-3">
+<input class="w-20 bg-surface-container-low border-none rounded-lg focus:ring-secondary/40 text-sm font-bold" type="number" value="24"/>
+<span class="text-sm font-medium">horas após o serviço</span>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Mensagem Personalizada</label>
+<div class="bg-surface-container-low rounded-xl p-4">
+<textarea class="w-full bg-transparent border-none focus:ring-0 text-sm min-h-[120px] resize-none" placeholder="Escreva sua mensagem aqui...">Olá $nome, tudo bem? Gostaríamos de saber o que achou do seu corte ontem. Sua satisfação é nossa prioridade! ✂️</textarea>
+<div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-outline-variant/20">
+<span class="px-3 py-1 bg-white rounded-full text-[10px] font-bold text-secondary shadow-sm cursor-pointer hover:bg-secondary/10 transition-colors">$nome</span>
+<span class="px-3 py-1 bg-white rounded-full text-[10px] font-bold text-secondary shadow-sm cursor-pointer hover:bg-secondary/10 transition-colors">$serviço</span>
+<span class="px-3 py-1 bg-white rounded-full text-[10px] font-bold text-secondary shadow-sm cursor-pointer hover:bg-secondary/10 transition-colors">$data</span>
+<span class="px-3 py-1 bg-white rounded-full text-[10px] font-bold text-secondary shadow-sm cursor-pointer hover:bg-secondary/10 transition-colors">$horário</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- WhatsApp Preview Bubble -->
+<div class="flex flex-col justify-center items-center">
+<div class="w-full max-w-sm aspect-[9/16] bg-slate-200 rounded-xl overflow-hidden shadow-2xl relative border-8 border-slate-800">
+<div class="absolute inset-0 opacity-10" data-alt="classic whatsapp chat wallpaper pattern with small icons of hearts, bubbles, and tech items" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBnm2FvUZjALG5qm7YtEURU-vkEDrQXE-HFxzZLKKvrsOLFKeiL3lpUmD0RWlJMDOC-0Bq70TinjY6aKvKCcOIxAyHhy0KRn6tkHLv5drPWuuxIIgEK6d7JMZ6OrGrW_QPw87_fKgNw4AVkj4iCm5WdLsQ0IsOhHENHVKw3FMtqc3YVYJWfEqEawOF2Elgz1zztlsjwd0-bMNM7l0t7bo5SuywP98gAyHQ56J3Or0XCFwHYsqoDSxM6buoC0ZkrKKgFRKZ15kE4jgk')"></div>
+<div class="relative h-full flex flex-col">
+<div class="bg-[#075e54] p-4 flex items-center gap-3 text-white">
+<span class="material-symbols-outlined text-xl">arrow_back</span>
+<div class="w-8 h-8 rounded-full bg-slate-300"></div>
+<div>
+<p class="text-xs font-bold leading-tight">BarberFlow Premium</p>
+<p class="text-[8px] opacity-80">Online</p>
+</div>
+</div>
+<div class="flex-1 p-4 flex flex-col gap-4">
+<div class="bg-white rounded-lg rounded-tl-none p-3 shadow-sm max-w-[85%] self-start relative">
+<p class="text-[11px] leading-relaxed">Olá João, tudo bem? Gostaríamos de saber o que achou do seu corte ontem. Sua satisfação é nossa prioridade! ✂️</p>
+<span class="text-[8px] text-slate-400 absolute bottom-1 right-2">10:45</span>
+</div>
+</div>
+<div class="p-2 bg-[#f0f0f0] flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-lg">mood</span>
+<div class="flex-1 bg-white h-8 rounded-full"></div>
+<div class="w-8 h-8 rounded-full bg-[#075e54] flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">mic</span>
+</div>
+</div>
+</div>
+</div>
+<p class="mt-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Pré-visualização em tempo real</p>
+</div>
+</div>
+<!-- Cupons Section Preview -->
+<div class="bg-surface-container-low rounded-lg p-10 mt-12">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="text-2xl font-bold">Cupons de Fidelidade</h3>
+<p class="text-sm text-on-surface-variant">Incentive o retorno dos seus clientes com descontos exclusivos.</p>
+</div>
+<button class="bg-secondary text-on-secondary-fixed font-bold py-3 px-6 rounded-full flex items-center gap-2 shadow-lg shadow-secondary/20 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">add</span>
+                                Criar cupom
+                            </button>
+</div>
+<div class="overflow-hidden">
+<table class="w-full text-left">
+<thead class="border-b border-outline-variant/30">
+<tr>
+<th class="pb-4 text-[10px] uppercase tracking-widest font-extrabold text-on-surface-variant">Código</th>
+<th class="pb-4 text-[10px] uppercase tracking-widest font-extrabold text-on-surface-variant">Desconto</th>
+<th class="pb-4 text-[10px] uppercase tracking-widest font-extrabold text-on-surface-variant">Uso</th>
+<th class="pb-4 text-[10px] uppercase tracking-widest font-extrabold text-on-surface-variant">Status</th>
+<th class="pb-4 text-[10px] uppercase tracking-widest font-extrabold text-on-surface-variant text-right">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr>
+<td class="py-6"><span class="bg-white px-3 py-1 rounded-md border border-outline-variant/30 font-mono font-bold text-sm">PRIMEIRACOMPRA</span></td>
+<td class="py-6 font-bold text-sm">15% OFF</td>
+<td class="py-6 text-sm">124 vezes</td>
+<td class="py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                ATIVO
+                                            </span>
+</td>
+<td class="py-6 text-right">
+<button class="p-2 hover:bg-white rounded-full transition-colors text-on-surface-variant"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr>
+<td class="py-6"><span class="bg-white px-3 py-1 rounded-md border border-outline-variant/30 font-mono font-bold text-sm">CLIENTEVIP20</span></td>
+<td class="py-6 font-bold text-sm">R$ 20,00</td>
+<td class="py-6 text-sm">45 vezes</td>
+<td class="py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                ATIVO
+                                            </span>
+</td>
+<td class="py-6 text-right">
+<button class="p-2 hover:bg-white rounded-full transition-colors text-on-surface-variant"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

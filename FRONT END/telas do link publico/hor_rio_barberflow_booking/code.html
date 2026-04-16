@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=390, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#574425",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e2e2e2",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-container-highest": "#e2e2e2",
+                        "primary-container": "#131b2e",
+                        "on-tertiary-fixed": "#271901",
+                        "on-tertiary-container": "#98805d",
+                        "on-primary-container": "#7c839b",
+                        "on-surface-variant": "#45464d",
+                        "inverse-surface": "#2f3130",
+                        "surface": "#f9f9f8",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#dae2fd",
+                        "secondary-container": "#fea619",
+                        "on-secondary-container": "#684000",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1a1c1c",
+                        "on-primary": "#ffffff",
+                        "secondary": "#855300",
+                        "outline": "#76777d",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "background": "#f9f9f8",
+                        "surface-container-low": "#f3f4f3",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f1f1f0",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#000000",
+                        "secondary-fixed": "#ffddb8",
+                        "inverse-primary": "#bec6e0",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-error": "#ffffff",
+                        "on-background": "#1a1c1c",
+                        "outline-variant": "#c6c6cd",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "primary": "#000000",
+                        "tertiary-fixed": "#fcdeb5",
+                        "surface-tint": "#565e74",
+                        "on-primary-fixed": "#131b2e",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "tertiary-container": "#271901",
+                        "surface-bright": "#f9f9f8",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#eeeeed",
+                        "surface-dim": "#dadad9",
+                        "surface-container-high": "#e8e8e7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .busy-pattern {
+            background-image: repeating-linear-gradient(45deg, #e2e2e2 25%, transparent 25%, transparent 50%, #e2e2e2 50%, #e2e2e2 75%, transparent 75%, transparent);
+            background-size: 10px 10px;
+        }
+        .glass-blur {
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-secondary-fixed">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 max-w-2xl mx-auto bg-[#FAFAF9] dark:bg-[#0F172A] transition-colors">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#0F172A] dark:text-[#FAFAF9] hover:opacity-80 transition-opacity cursor-pointer active:scale-95 duration-150" data-icon="arrow_back">arrow_back</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-lg text-[#0F172A] dark:text-[#FAFAF9]">BarberFlow</span>
+</div>
+<div class="h-10 w-10 rounded-full overflow-hidden bg-surface-container-high">
+<img alt="Barbershop Logo" class="w-full h-full object-cover" data-alt="Modern minimalist barbershop logo showing stylized scissors and comb on a clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDD0xWcHgJ-urne4CH2ayokINArdlULa6Wvw4l9-2tG-6MtWa5qHw8OeeNKkm3zLIm_l8KAxcxH1eLAnsIP3mstX6k1cM9RRPXDFMGG3qxpOot0nfHkCZlQIojLbk05yPsQxD_6CQ_ju0h_njMrXHjkqfJsgXWienPR61GTniwvInaXWKH_4EdxUbXft11swTI8-6KBw2SaEPjtZa63jAcICA6wbV0dTI0zuZyRyLr8CtKaBHDc0-NW0hStqkJqFKSS8T2c4sY5e3Y"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6">
+<!-- Progress Indicator -->
+<div class="mb-8">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[0.75rem] font-bold tracking-[0.05em] text-outline">PASSO 6 DE 8</span>
+<span class="text-[0.75rem] font-bold tracking-[0.05em] text-secondary">75%</span>
+</div>
+<div class="h-1 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-3/4 rounded-full"></div>
+</div>
+</div>
+<!-- Heading Section -->
+<div class="mb-10">
+<h2 class="text-[2.5rem] leading-tight font-bold tracking-[-0.02em] mb-2">Escolha o horário</h2>
+<p class="text-on-surface-variant font-medium text-lg">Quarta, 16 de abril · com João</p>
+</div>
+<!-- View Toggle -->
+<div class="flex justify-center mb-8">
+<div class="inline-flex bg-surface-container-low p-1.5 rounded-full">
+<button class="flex items-center gap-2 px-6 py-2.5 rounded-full bg-surface-container-lowest text-on-surface shadow-sm font-semibold text-sm transition-all">
+<span class="material-symbols-outlined text-[20px]" data-icon="timeline">timeline</span>
+                    Timeline
+                </button>
+<button class="flex items-center gap-2 px-6 py-2.5 rounded-full text-outline font-semibold text-sm hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="list">list</span>
+                    Lista
+                </button>
+</div>
+</div>
+<!-- Timeline View -->
+<div class="relative mt-4">
+<!-- Timeline Grid Background -->
+<div class="overflow-x-auto no-scrollbar pb-6">
+<div class="min-w-[800px] relative">
+<!-- Time Markers -->
+<div class="flex justify-between border-b border-outline-variant/15 pb-4 mb-4">
+<span class="text-[0.75rem] font-bold tracking-widest text-outline">09:00</span>
+<span class="text-[0.75rem] font-bold tracking-widest text-outline">12:00</span>
+<span class="text-[0.75rem] font-bold tracking-widest text-outline">15:00</span>
+<span class="text-[0.75rem] font-bold tracking-widest text-outline">18:00</span>
+<span class="text-[0.75rem] font-bold tracking-widest text-outline">21:00</span>
+</div>
+<!-- Visual Timeline Track -->
+<div class="flex gap-2 h-40">
+<!-- Busy Block -->
+<div class="busy-pattern w-20 h-full rounded-lg relative group">
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="bg-primary text-white text-[10px] px-2 py-1 rounded">OCUPADO</span>
+</div>
+</div>
+<!-- Available Block -->
+<div class="w-24 h-full bg-surface-container-lowest border-2 border-dashed border-secondary-container/30 rounded-lg flex items-center justify-center cursor-pointer hover:border-secondary-container transition-colors group">
+<div class="text-center">
+<span class="block text-sm font-bold">11:00</span>
+<span class="text-[10px] text-outline font-semibold">DISPONÍVEL</span>
+</div>
+</div>
+<!-- Busy Block -->
+<div class="busy-pattern w-16 h-full rounded-lg"></div>
+<!-- Busy Block -->
+<div class="busy-pattern w-32 h-full rounded-lg"></div>
+<!-- Selected Block -->
+<div class="w-28 h-full bg-secondary-container rounded-lg flex items-center justify-center shadow-lg border-2 border-secondary-container group scale-105 z-10">
+<div class="text-center text-on-secondary-container">
+<span class="block text-lg font-extrabold">14:00</span>
+<span class="text-[10px] font-bold tracking-wider uppercase">SELECIONADO</span>
+</div>
+</div>
+<!-- Available Block -->
+<div class="w-24 h-full bg-surface-container-lowest border-2 border-dashed border-secondary-container/30 rounded-lg flex items-center justify-center cursor-pointer hover:border-secondary-container transition-colors">
+<div class="text-center">
+<span class="block text-sm font-bold">16:30</span>
+<span class="text-[10px] text-outline font-semibold">DISPONÍVEL</span>
+</div>
+</div>
+<!-- Available Block -->
+<div class="w-24 h-full bg-surface-container-lowest border-2 border-dashed border-secondary-container/30 rounded-lg flex items-center justify-center cursor-pointer hover:border-secondary-container transition-colors">
+<div class="text-center">
+<span class="block text-sm font-bold">18:00</span>
+<span class="text-[10px] text-outline font-semibold">DISPONÍVEL</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Horizontal scroll indicator -->
+<div class="flex justify-center mt-2">
+<div class="w-12 h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="w-1/3 h-full bg-outline/20 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Appointment Info Card (Organic Layering) -->
+<div class="mt-12 bg-surface-container-lowest p-6 rounded-lg shadow-sm border border-outline-variant/10">
+<div class="flex items-start gap-4">
+<div class="h-12 w-12 rounded-full overflow-hidden flex-shrink-0">
+<img alt="João" class="w-full h-full object-cover" data-alt="Portrait of a professional male barber with a well-groomed beard wearing a clean apron in a bright studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIs3BoaELzQdVfnMtp3ZakVVBKZV1TKCrV_zeoHBlkdXnRRU2RCXabguwnEEfgruFrspp3zbUQt_iqO49REBVt83UzOMrzVPmxkORdcyBh6ZJZb3H063sc8BR1A1N1Clchf7nKdv55ESKV_y3PdAtV8btV3W3hKGox0gdSBxs7jPeaM_6cfu9KaYnWdQRX-sfpkK6rdzh5L_RMyRb8bV7TY8eaWSBPdIIqnU8iDjAoblc8fcQE8B5B9_b6APc0nmYpI30yDGwEs_4"/>
+</div>
+<div>
+<h4 class="font-bold text-lg">Corte de Cabelo + Barba</h4>
+<p class="text-sm text-on-surface-variant mb-1">Duração: 60 min</p>
+<div class="inline-flex items-center px-2 py-0.5 rounded-md bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold">
+                        R$ 85,00
+                    </div>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Navigation -->
+<div class="fixed bottom-0 left-0 right-0 max-w-2xl mx-auto px-6 pb-8 pt-6 glass-blur bg-surface/80">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[10px] font-bold tracking-widest text-outline uppercase">Selecionado</span>
+<span class="text-xl font-extrabold text-on-surface">14:00</span>
+</div>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-full font-bold flex items-center gap-3 hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-primary/20">
+                Continuar
+                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full px-8 py-12 flex flex-col gap-6 bg-[#F3F4F3] dark:bg-[#131B2E] rounded-t-[32px] mt-8 mb-24">
+<div class="flex flex-col gap-2">
+<h3 class="font-bold text-[#0F172A] dark:text-[#F59E0B]">BarberFlow</h3>
+<p class="font-['Inter'] text-sm leading-relaxed text-[#0F172A] dark:text-[#FAFAF9]">O melhor do grooming no seu tempo.</p>
+</div>
+<div class="flex flex-wrap gap-4 text-slate-500 font-['Inter'] text-sm">
+<span class="hover:text-[#F59E0B] transition-colors cursor-pointer">Endereço</span>
+<span class="hover:text-[#F59E0B] transition-colors cursor-pointer">Telefone</span>
+<span class="hover:text-[#F59E0B] transition-colors cursor-pointer">Horários</span>
+</div>
+<p class="text-xs text-slate-400">Powered by BarberFlow</p>
+</footer>
+</body></html>

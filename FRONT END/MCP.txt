@@ -1,0 +1,103 @@
+## Stitch Instructions
+
+Get the images and code for the following Stitch project's screens:
+
+## Project
+
+ID: 2630811628509202072
+
+## Screens:
+1. Conexão WhatsApp - BarberFlow
+    ID: b6c2ecc0fa0b48e0a07cb030a21b5f72
+
+2. Profissionais - BarberFlow
+    ID: 5f6cf092c3f44181905598171dbfef65
+
+3. Definições da IA - BarberFlow
+    ID: e3b972f2aa3f434b9e847f4c94e2b510
+
+4. Definições - BarberFlow
+    ID: 28a16a41db5c4b1e905e7e54fdcf71c0
+
+5. Empresa - BarberFlow
+    ID: f0a45b1b0f374b69a5d00941884dcab9
+
+6. Contatos - BarberFlow
+    ID: 809a1649c71944ff80238128ce2b25ca
+
+7. Serviços - BarberFlow
+    ID: 3a7a04be60b844a1bea216b36985e3cf
+
+8. Agenda - BarberFlow
+    ID: c13d08f870cb47cab26956209ba382ef
+
+9. Dashboard - BarberFlow
+    ID: 17b7e2368647470c9f7e39e319105b84
+
+10. Login - BarberFlow
+    ID: cd1151b0f43149faab8891314b866ffb
+
+11. Cadastro - BarberFlow
+    ID: fb721520d0314370831ea59f49f6a887
+
+12. Design System
+    ID: asset-stub-assets-6391160649700891348-1775879150821
+
+13. Design System
+    ID: asset-stub-assets-6e597f9d8ecc4300a967be7e0ff953e8-1775879170773
+
+Use a utility like `curl -L` to download the hosted URLs.
+
+MCP link publico:
+## Stitch Instructions
+
+Get the images and code for the following Stitch project's screens:
+
+## Project
+
+ID: 2630811628509202072
+
+## Screens:
+1. Início - BarberFlow Booking
+    ID: d639e869eed2483884f9129016e4e4a8
+
+2. Unidade - BarberFlow Booking
+    ID: c3a7ae960f5e45ccac17675171de3230
+
+3. Serviços - BarberFlow Booking
+    ID: 008ed9b0cb7742ac8febd4f7e4a00337
+
+4. Profissional - BarberFlow Booking
+    ID: 0b04a446da7144b0a7b4845146f0ece3
+
+5. Sucesso - BarberFlow Booking
+    ID: 0a32e2d5347d497ea97c48b5d53e6e03
+
+6. Categorias - BarberFlow Booking
+    ID: 9c6efc40fb0148f494a189176d3b8f98
+
+7. Data - BarberFlow Booking
+    ID: 392f6bfba0b04151a418157e38ce3f6a
+
+8. Horário - BarberFlow Booking
+    ID: 2bc18988eca7466d90ced675178c32d5
+
+9. Confirmação - BarberFlow Booking
+    ID: a5b89318d5704fd282691a21a3959efe
+
+10. Gerenciar Agendamento - BarberFlow
+    ID: ded5f408c81742948965f5a68031a48a
+
+11. Data (Desktop) - BarberFlow Booking
+    ID: ff271add7b174fb7a42c3dc23803b971
+
+12. Horário (Desktop) - BarberFlow Booking
+    ID: 9c2aafc9b3c34553bd96575b867cea60
+
+13. Confirmação (Desktop) - BarberFlow Booking
+    ID: a81069544dea4932b1e68428b1284fc6
+
+14. Planos e Checkout - BarberFlow
+    ID: 33dee8d515054dbaad463ff351e41065
+
+Use a utility like `curl -L` to download the hosted URLs.

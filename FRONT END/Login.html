@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BarberFlow - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f1f1f0",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary-fixed": "#fcdeb5",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#bec6e0",
+                        "on-primary": "#ffffff",
+                        "surface": "#f9f9f8",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-error": "#ffffff",
+                        "background": "#f9f9f8",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1a1c1c",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-tint": "#565e74",
+                        "on-secondary-container": "#684000",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-bright": "#f9f9f8",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container": "#eeeeed",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "on-primary-container": "#7c839b",
+                        "on-error-container": "#93000a",
+                        "secondary": "#855300",
+                        "secondary-container": "#fea619",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary-container": "#271901",
+                        "on-tertiary-fixed": "#271901",
+                        "surface-container-low": "#f3f4f3",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#131b2e",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary-container": "#98805d",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#000000",
+                        "surface-dim": "#dadad9",
+                        "surface-container-high": "#e8e8e7",
+                        "on-primary-fixed": "#131b2e",
+                        "outline": "#76777d",
+                        "surface-variant": "#e2e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex items-center justify-center p-4 md:p-0">
+<!-- Main Shell: Split Screen Layout -->
+<main class="w-full max-w-[1440px] h-full md:h-[921px] bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden flex flex-col md:flex-row">
+<!-- Left Side: Login Form (60%) -->
+<section class="w-full md:w-[60%] flex flex-col justify-center items-center px-6 py-12 md:px-20 bg-surface-container-lowest">
+<div class="w-full max-w-[400px]">
+<!-- Brand Anchor -->
+<div class="flex items-center gap-2 mb-10">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed" style="font-variation-settings: 'FILL' 1;">content_cut</span>
+</div>
+<span class="text-xl font-bold tracking-tight text-primary">BarberFlow</span>
+</div>
+<!-- Header Typography -->
+<div class="mb-8">
+<h1 class="text-3xl font-bold text-on-surface tracking-tight mb-2">Bem-vindo de volta 👋</h1>
+<p class="text-on-surface-variant font-body">Entre na sua conta para gerenciar sua barbearia</p>
+</div>
+<!-- Form -->
+<form class="space-evenly flex flex-col gap-5">
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-outline mb-2 ml-1" for="email">E-mail</label>
+<input class="w-full h-12 px-4 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface outline-none" id="email" placeholder="nome@exemplo.com" type="email"/>
+</div>
+<div class="relative">
+<div class="flex justify-between items-center mb-2 ml-1">
+<label class="text-xs font-bold uppercase tracking-widest text-outline" for="password">Senha</label>
+<a class="text-xs font-semibold text-secondary hover:underline transition-all" href="#">Esqueci minha senha</a>
+</div>
+<div class="relative">
+<input class="w-full h-12 px-4 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface outline-none" id="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<button class="w-full h-12 bg-primary-container text-on-primary font-bold rounded-md hover:opacity-90 transition-all transform active:scale-95 mt-4" type="submit">
+                        Entrar
+                    </button>
+<div class="relative flex py-4 items-center">
+<div class="flex-grow border-t border-outline-variant/30"></div>
+<span class="flex-shrink mx-4 text-outline text-sm font-medium">ou</span>
+<div class="flex-grow border-t border-outline-variant/30"></div>
+</div>
+<button class="w-full h-12 bg-surface-container-lowest border border-outline-variant/50 text-on-surface font-semibold rounded-md flex items-center justify-center gap-3 hover:bg-surface-container-low transition-all" type="button">
+<img alt="Google Logo" class="w-5 h-5" data-alt="Official Google multicolor G logo icon isolated on transparent background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAus0I4iVIVlR8UU1-O1zf8giVIr_E9yXUu1kQU7PZCi4o2TkdQlESLejcPHTsZpt2YvLkTrdVdfwjnWbb11wQMQGQmVdtAqHFtXEiFB7vXMwJabYjrTp1BlqmI4HMl2vkx3nABxmL3p9Xc0hq9-7SjHWHvFx9gChv2-T6pIODLUnm3JFTdUfhy7ObSSvbiZAwvZ47thXeA6Q1A4gVJcY5GZB9ot-WUXXGAxr4Ucr2Pc9mUhDuyEqpvsFpptGVC7WHZ2TXhEahe7-k"/>
+                        Entrar com Google
+                    </button>
+</form>
+<!-- Footer -->
+<p class="mt-10 text-center text-on-surface-variant font-medium text-sm">
+                    Não tem conta? <a class="text-secondary font-bold hover:underline" href="#">Cadastre-se grátis</a>
+</p>
+</div>
+</section>
+<!-- Right Side: Marketing/Aesthetic (40%) -->
+<section class="hidden md:flex w-[40%] bg-gradient-to-br from-[#F59E0B] via-secondary-container to-[#F59E0B] relative flex-col items-center justify-center overflow-hidden p-12">
+<!-- Background Decoration (Abstract Shapes) -->
+<div class="absolute inset-0 opacity-10">
+<div class="absolute -top-20 -right-20 w-80 h-80 bg-white rounded-full blur-3xl"></div>
+<div class="absolute -bottom-40 -left-20 w-96 h-96 bg-primary-container rounded-full blur-3xl"></div>
+</div>
+<!-- Stylized Content -->
+<div class="relative z-10 w-full h-full flex flex-col justify-between">
+<div class="flex-grow flex flex-col items-center justify-center text-on-secondary-fixed text-center space-y-8">
+<!-- Central Graphic -->
+<div class="w-48 h-48 bg-white/20 backdrop-blur-xl rounded-lg flex items-center justify-center shadow-xl mb-6">
+<span class="material-symbols-outlined text-8xl text-on-secondary-fixed" style="font-variation-settings: 'wght' 200;">chair</span>
+</div>
+<div class="max-w-[300px]">
+<h2 class="text-2xl font-bold tracking-tight mb-2">Excelência no Detalhe</h2>
+<p class="text-on-secondary-fixed/80">O software que entende o ritmo da sua tesoura e a agenda do seu cliente.</p>
+</div>
+</div>
+<!-- Testimonial Card Floating -->
+<div class="bg-white/80 backdrop-blur-2xl p-6 rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.1)] transform rotate-2 hover:rotate-0 transition-transform duration-500">
+<div class="flex items-center gap-1 mb-3">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-primary font-semibold italic text-lg leading-snug mb-4">
+                        "Reduzi 50% das faltas no primeiro mês"
+                    </p>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden">
+<img alt="João avatar" class="w-full h-full object-cover" data-alt="Portrait of a smiling middle-aged professional barber with a well-groomed beard in a modern barbershop setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKFjggGUVdfFcAcqJHtfkL3AX4jbVYkKdBHdDbnTaXRDKm-2bQeGkXIZsMWvm0geytwAHR3qE8uUoZF9DYG7r-wI-TndCmDDi25RfD04uBTMpwEkz1jJmCpStfvsX2fs18coTSy3l43gwRooTJXdM-dg-n5mysUTZHWZ5P--IJmjo18fQYkGGLyWVE9Wp3LwJ0CpKFhx455ShcA12as9tLEb5I5BQNmC20CC-2otmTOlNkmnycZxo0aOXAPt4c2kgnO9yyecZlCPM"/>
+</div>
+<div>
+<p class="text-primary font-bold text-sm">João Silva</p>
+<p class="text-outline text-xs uppercase tracking-wider">Barbearia Corte Fino</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Absolute Texture Layer -->
+<div class="absolute inset-0 pointer-events-none opacity-5 mix-blend-overlay" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCc27EqO-4e1a0xWuSZCGsD2Cs234_wXK0RpLrCU-3fiGePRlwGGF3zu8kSPf6WOkXrdlO2d10SMTm_hcdgsvdUrhDxmDVCPEhhRjmEeTVS1a2UaDVWvp9Z36af-Agatj0unoZMwRIsSBaPYLtinjDlLEiNhukDUXtA2eivdlm1vkIMlGgZY0XpP0KfN5wxnsNCYKJ70xT8yEldvhRxBYK1ycWkpNlIoNFGhrOc2xNF1HAwzW400Q7KeKG7uj9qk5CPFzaSaHGNW64');"></div>
+</section>
+</main>
+</body></html>

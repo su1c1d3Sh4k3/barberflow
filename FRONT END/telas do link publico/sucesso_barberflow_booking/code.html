@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#574425",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e2e2e2",
+                    "on-secondary-fixed": "#2a1700",
+                    "surface-container-highest": "#e2e2e2",
+                    "primary-container": "#131b2e",
+                    "on-tertiary-fixed": "#271901",
+                    "on-tertiary-container": "#98805d",
+                    "on-primary-container": "#7c839b",
+                    "on-surface-variant": "#45464d",
+                    "inverse-surface": "#2f3130",
+                    "surface": "#f9f9f8",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#dae2fd",
+                    "secondary-container": "#fea619",
+                    "on-secondary-container": "#684000",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#1a1c1c",
+                    "on-primary": "#ffffff",
+                    "secondary": "#855300",
+                    "outline": "#76777d",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "background": "#f9f9f8",
+                    "surface-container-low": "#f3f4f3",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f1f1f0",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#000000",
+                    "secondary-fixed": "#ffddb8",
+                    "inverse-primary": "#bec6e0",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-error": "#ffffff",
+                    "on-background": "#1a1c1c",
+                    "outline-variant": "#c6c6cd",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "primary": "#000000",
+                    "tertiary-fixed": "#fcdeb5",
+                    "surface-tint": "#565e74",
+                    "on-primary-fixed": "#131b2e",
+                    "tertiary-fixed-dim": "#dec29a",
+                    "tertiary-container": "#271901",
+                    "surface-bright": "#f9f9f8",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eeeeed",
+                    "surface-dim": "#dadad9",
+                    "surface-container-high": "#e8e8e7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        .success-gradient {
+            background: radial-gradient(circle at top right, #131b2e, #000000);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col items-center">
+<!-- Top Navigation Anchor (Suppressed shell per rules for Success screen, showing context only) -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 max-w-[390px] mx-auto bg-[#FAFAF9]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="check_circle">check_circle</span>
+<span class="font-headline font-bold text-xl tracking-tight text-primary">BarberFlow</span>
+</div>
+<div class="text-xs font-label font-medium uppercase tracking-widest text-outline">Etapa 8 de 8</div>
+</header>
+<main class="w-full max-w-[390px] px-6 pt-24 pb-32 flex flex-col items-center">
+<!-- Success State Header -->
+<div class="flex flex-col items-center text-center mb-10 mt-4">
+<div class="w-24 h-24 rounded-full bg-secondary-container flex items-center justify-center mb-6 shadow-xl shadow-secondary-container/20">
+<span class="material-symbols-outlined text-[48px] text-on-secondary-container" data-icon="task_alt">task_alt</span>
+</div>
+<h1 class="text-display-lg font-headline font-bold text-3xl text-on-surface tracking-tight mb-2">Tudo certo! 🎉</h1>
+<p class="text-body-md text-outline font-medium">Seu agendamento foi confirmado</p>
+</div>
+<!-- Recap Card (Bento Style) -->
+<div class="w-full bg-surface-container-lowest rounded-lg p-6 mb-8 border border-outline-variant/15 shadow-sm">
+<div class="flex items-start justify-between mb-6">
+<div>
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-outline block mb-1">SERVIÇO</span>
+<h3 class="text-lg font-headline font-bold text-on-surface">Corte Degradê &amp; Barba</h3>
+</div>
+<div class="bg-surface-container-low p-2 rounded-full">
+<span class="material-symbols-outlined text-primary" data-icon="content_cut">content_cut</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col">
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-outline mb-1">DATA</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="calendar_today">calendar_today</span>
+<span class="text-sm font-semibold text-on-surface">15 Out, 2023</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-outline mb-1">HORÁRIO</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="schedule">schedule</span>
+<span class="text-sm font-semibold text-on-surface">14:30</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-6 border-t border-surface-container border-dashed flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional barber with styled hair and beard smiling in a modern barbershop setting, warm atmospheric lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoWle6RrNIMoO_XkZZf3PrQSjcRv0Ac9vawZQawXNwtgqcn_brG2LsK9ZXMUtzcrg6heb1Eqwixnir5ysL6dpyO0xXRn_rE5qLqc7lLQrBwtv9ePnBahHkZU8IFL7OPwLEueu3P4Vrn3Hcfk1F3a3AfS9h_Rs2lz0oOm9ytBNB_KSA-74H1ntfMkLI806gBOAZ28URf5P36iKCZD7ALwb-CgvEhZS8Bm8hcPPuivvvNrGRBlAwwuQIFjVD2cYKAXXErpXevkCTPW4"/>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-outline">PROFISSIONAL</span>
+<span class="text-sm font-bold text-on-surface">Ricardo Silva</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="w-full flex flex-col gap-3 mb-10">
+<button class="w-full py-4 bg-primary text-on-primary rounded-full font-headline font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 success-gradient shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+                Adicionar à minha agenda
+            </button>
+<button class="w-full py-4 bg-surface-container-highest text-on-surface rounded-full font-headline font-semibold flex items-center justify-center gap-2 transition-transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+                Compartilhar
+            </button>
+</div>
+<!-- Upsell Card -->
+<div class="w-full bg-surface-container-low rounded-lg p-6 relative overflow-hidden">
+<div class="relative z-10">
+<h4 class="text-lg font-headline font-bold text-on-surface mb-1">Quer agendar outro serviço?</h4>
+<p class="text-sm text-outline mb-6 leading-relaxed">Aproveite para garantir seu horário para barba ou sobrancelha.</p>
+<div class="flex gap-3">
+<button class="flex-1 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold text-sm transition-colors hover:bg-secondary-container/90 active:scale-95">
+                        Sim
+                    </button>
+<button class="flex-1 py-3 bg-surface-container-lowest text-on-surface rounded-lg font-bold text-sm transition-colors hover:bg-surface-bright active:scale-95">
+                        Não
+                    </button>
+</div>
+</div>
+<!-- Decorative Grain/Shape -->
+<div class="absolute -right-8 -bottom-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
+</div>
+</main>
+<!-- Footer Component Anchor -->
+<footer class="w-full max-w-[390px] px-8 py-12 flex flex-col gap-6 bg-[#F3F4F3] rounded-t-lg">
+<div class="flex flex-col items-center gap-4">
+<span class="font-bold text-[#0F172A] text-lg">BarberFlow</span>
+<div class="flex gap-6 text-slate-500 font-['Inter'] text-sm">
+<span class="hover:text-[#F59E0B] transition-colors cursor-pointer">Endereço</span>
+<span class="hover:text-[#F59E0B] transition-colors cursor-pointer">Telefone</span>
+<span class="hover:text-[#F59E0B] transition-colors cursor-pointer">Horários</span>
+</div>
+</div>
+<p class="text-slate-400 text-xs text-center mt-4">Powered by BarberFlow</p>
+</footer>
+</body></html>

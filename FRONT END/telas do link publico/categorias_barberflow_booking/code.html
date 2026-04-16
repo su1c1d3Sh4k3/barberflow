@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=390, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#574425",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e2e2e2",
+                    "on-secondary-fixed": "#2a1700",
+                    "surface-container-highest": "#e2e2e2",
+                    "primary-container": "#131b2e",
+                    "on-tertiary-fixed": "#271901",
+                    "on-tertiary-container": "#98805d",
+                    "on-primary-container": "#7c839b",
+                    "on-surface-variant": "#45464d",
+                    "inverse-surface": "#2f3130",
+                    "surface": "#f9f9f8",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#dae2fd",
+                    "secondary-container": "#fea619",
+                    "on-secondary-container": "#684000",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#1a1c1c",
+                    "on-primary": "#ffffff",
+                    "secondary": "#855300",
+                    "outline": "#76777d",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "background": "#f9f9f8",
+                    "surface-container-low": "#f3f4f3",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f1f1f0",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#000000",
+                    "secondary-fixed": "#ffddb8",
+                    "inverse-primary": "#bec6e0",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-error": "#ffffff",
+                    "on-background": "#1a1c1c",
+                    "outline-variant": "#c6c6cd",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "primary": "#000000",
+                    "tertiary-fixed": "#fcdeb5",
+                    "surface-tint": "#565e74",
+                    "on-primary-fixed": "#131b2e",
+                    "tertiary-fixed-dim": "#dec29a",
+                    "tertiary-container": "#271901",
+                    "surface-bright": "#f9f9f8",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eeeeed",
+                    "surface-dim": "#dadad9",
+                    "surface-container-high": "#e8e8e7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9f8; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="max-w-[390px] mx-auto min-h-screen flex flex-col text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 max-w-[390px] mx-auto bg-[#FAFAF9] dark:bg-[#0F172A] transition-colors">
+<div class="flex items-center gap-3">
+<button class="hover:opacity-80 transition-opacity flex items-center justify-center p-2 rounded-full surface-container-high">
+<span class="material-symbols-outlined text-[#0F172A] dark:text-[#FAFAF9]">arrow_back</span>
+</button>
+<span class="font-['Inter'] font-semibold tracking-tight text-lg text-[#0F172A] dark:text-[#FAFAF9]">BarberFlow</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img alt="Barbershop Logo" class="w-full h-full object-cover" data-alt="minimalist modern logo for a premium barbershop featuring abstract clean lines and sophisticated dark aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5_zenz_QeR4lr-PbjusnAVaYBBZ1NNEpgMmgykHLA60kGrytKPu1nfCbnt2d7TIXVr6YDEaBt5cBB1GSinYSbMVNUc8tzvSANJXtlnmdBlHcf3bFG4tgoEirAOXpZRvdRN7lKyljsRZ3uIfthfA5brWVrE2gMqnbbkUgcflYAfrZcg0n3KUWszzbwE4ua2EffSUwSUAEdEdVc-DdNSu_6JKybEiCvPwW8pgB5tuhqoeFekC3CxxDS5Tm4kbmRoSxvjyqtDMSRD30"/>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-32 px-6">
+<!-- Progress Indicator -->
+<div class="flex items-center gap-2 mb-8">
+<div class="flex-grow h-1.5 rounded-full bg-surface-container flex overflow-hidden">
+<div class="w-[25%] h-full bg-secondary-container rounded-full"></div>
+</div>
+<span class="text-[0.75rem] font-bold uppercase tracking-wider text-outline">Etapa 2 de 8</span>
+</div>
+<!-- Hero Section -->
+<div class="mb-10">
+<h2 class="text-[2.25rem] font-bold leading-tight tracking-tight mb-2 text-primary">O que você quer fazer hoje?</h2>
+<p class="text-on-surface-variant font-medium">Escolha uma categoria de serviço</p>
+</div>
+<!-- Asymmetric Category Grid -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Category Card 1 -->
+<button class="group relative aspect-square w-full rounded-lg bg-surface-container-lowest flex flex-col items-start justify-end p-5 text-left transition-all duration-200 hover:ring-2 hover:ring-secondary-container/40">
+<div class="absolute top-5 right-5 text-3xl">✂️</div>
+<div>
+<h3 class="font-bold text-lg leading-none mb-1">Corte de Cabelo</h3>
+<p class="text-[0.75rem] font-bold uppercase tracking-widest text-secondary-container">12 Serviços</p>
+</div>
+<div class="absolute inset-0 bg-secondary-fixed/10 rounded-lg -z-10 group-hover:bg-secondary-fixed/20 transition-colors"></div>
+</button>
+<!-- Category Card 2 -->
+<button class="group relative aspect-square w-full rounded-lg bg-surface-container-lowest flex flex-col items-start justify-end p-5 text-left transition-all duration-200 hover:ring-2 hover:ring-secondary-container/40">
+<div class="absolute top-5 right-5 text-3xl">🧔</div>
+<div>
+<h3 class="font-bold text-lg leading-none mb-1">Barba &amp; Toalha</h3>
+<p class="text-[0.75rem] font-bold uppercase tracking-widest text-secondary-container">8 Serviços</p>
+</div>
+<div class="absolute inset-0 bg-primary-fixed/30 rounded-lg -z-10 group-hover:bg-primary-fixed/40 transition-colors"></div>
+</button>
+<!-- Category Card 3 -->
+<button class="group relative aspect-square w-full rounded-lg bg-surface-container-lowest flex flex-col items-start justify-end p-5 text-left transition-all duration-200 hover:ring-2 hover:ring-secondary-container/40">
+<div class="absolute top-5 right-5 text-3xl">💆</div>
+<div>
+<h3 class="font-bold text-lg leading-none mb-1">Tratamentos</h3>
+<p class="text-[0.75rem] font-bold uppercase tracking-widest text-secondary-container">5 Serviços</p>
+</div>
+<div class="absolute inset-0 bg-tertiary-fixed/40 rounded-lg -z-10 group-hover:bg-tertiary-fixed/50 transition-colors"></div>
+</button>
+<!-- Category Card 4 -->
+<button class="group relative aspect-square w-full rounded-lg bg-surface-container-lowest flex flex-col items-start justify-end p-5 text-left transition-all duration-200 hover:ring-2 hover:ring-secondary-container/40">
+<div class="absolute top-5 right-5 text-3xl">✨</div>
+<div>
+<h3 class="font-bold text-lg leading-none mb-1">Combos Vip</h3>
+<p class="text-[0.75rem] font-bold uppercase tracking-widest text-secondary-container">4 Serviços</p>
+</div>
+<div class="absolute inset-0 bg-[#E2F2E2] rounded-lg -z-10 group-hover:bg-[#D4EAD4] transition-colors"></div>
+</button>
+</div>
+<!-- Featured Card (Asymmetry/Bento Pattern) -->
+<div class="mt-4 col-span-2">
+<div class="relative overflow-hidden rounded-lg bg-primary-container p-6 flex flex-col gap-2">
+<div class="flex justify-between items-start">
+<span class="text-[0.75rem] font-bold uppercase tracking-widest text-secondary-container">Destaque da Semana</span>
+<span class="material-symbols-outlined text-white/40">star</span>
+</div>
+<h4 class="text-white text-xl font-bold">Pacote Experiência Completa</h4>
+<p class="text-on-primary-container text-sm leading-relaxed max-w-[80%]">Corte, barba, hidratação e massagem capilar para revigorar seu visual.</p>
+<div class="absolute -right-4 -bottom-4 opacity-20">
+<span class="material-symbols-outlined text-8xl text-white" style="font-variation-settings: 'FILL' 1;">content_cut</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer / Sticky Action -->
+<footer class="w-full px-8 py-12 flex flex-col gap-6 bg-[#F3F4F3] dark:bg-[#131B2E] rounded-t-[32px] mt-auto">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="font-bold text-[#0F172A] dark:text-[#F59E0B]">BarberFlow</span>
+<div class="flex gap-4">
+<span class="text-slate-500 hover:text-[#F59E0B] transition-colors text-sm font-['Inter']">Address</span>
+<span class="text-slate-500 hover:text-[#F59E0B] transition-colors text-sm font-['Inter']">Phone</span>
+</div>
+</div>
+<p class="font-['Inter'] text-sm leading-relaxed text-[#0F172A] dark:text-[#FAFAF9] opacity-60">
+                Powered by BarberFlow © 2024
+            </p>
+</div>
+</footer>
+<!-- Bottom Action Floating Panel (Custom Pattern) -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] glass-card p-4 rounded-xl flex items-center justify-between shadow-xl z-40">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase font-bold text-outline tracking-wider">Próximo Passo</span>
+<span class="font-bold">Escolher Profissional</span>
+</div>
+<button class="bg-primary text-on-primary h-12 px-6 rounded-full font-bold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all">
+            Continuar
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</body></html>

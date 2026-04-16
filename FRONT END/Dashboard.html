@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f1f1f0",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary-fixed": "#fcdeb5",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#bec6e0",
+                        "on-primary": "#ffffff",
+                        "surface": "#f9f9f8",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-error": "#ffffff",
+                        "background": "#f9f9f8",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1a1c1c",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-tint": "#565e74",
+                        "on-secondary-container": "#684000",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-bright": "#f9f9f8",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container": "#eeeeed",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "on-primary-container": "#7c839b",
+                        "on-error-container": "#93000a",
+                        "secondary": "#855300",
+                        "secondary-container": "#fea619",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary-container": "#271901",
+                        "on-tertiary-fixed": "#271901",
+                        "surface-container-low": "#f3f4f3",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#131b2e",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary-container": "#98805d",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#000000",
+                        "surface-dim": "#dadad9",
+                        "surface-container-high": "#e8e8e7",
+                        "on-primary-fixed": "#131b2e",
+                        "outline": "#76777d",
+                        "surface-variant": "#e2e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9f8; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 h-screen w-[240px] border-none bg-[#f3f4f3] dark:bg-slate-900 z-50">
+<div class="mb-10 px-4">
+<h1 class="text-xl font-bold text-[#0F172A] dark:text-slate-100 tracking-tight">BarberFlow</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">SaaS Premium</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-[#0F172A] dark:text-white border-r-4 border-[#F59E0B] bg-white/50 dark:bg-slate-800/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-800 hover:text-[#0F172A] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span>Agenda</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-800 hover:text-[#0F172A] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Contatos</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-800 hover:text-[#0F172A] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="store">store</span>
+<span>Empresa</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-800 hover:text-[#0F172A] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="content_cut">content_cut</span>
+<span>Profissionais</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-800 hover:text-[#0F172A] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="content_paste">content_paste</span>
+<span>Serviços</span>
+</a>
+<div class="pt-4 mt-4 border-t border-slate-200 dark:border-slate-800">
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-800 hover:text-[#0F172A] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Definições</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-800 hover:text-[#0F172A] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span>Definições da IA</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-800 hover:text-[#0F172A] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span>Conexão WhatsApp</span>
+</a>
+</div>
+</nav>
+<div class="mt-auto px-2">
+<button class="w-full py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[0.98] active:scale-[0.95] transition-all">
+                Novo Agendamento
+            </button>
+<div class="mt-6 flex items-center gap-3 px-2 py-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Close up portrait of a professional barber in a modern minimalist barber shop setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdo_9aZVRfLjSTjsRv_qAzImwLCa3-goMIQKmDj6cGTNVJLjHcUtXzjpt0J68WKs2Dw-MvLJEKS9eDm5WlOZ7lceMyCms68INPBRRdjd7sOCQ4Ya4Q3hbmD2F6M-9rwXJwMIKbYAl1a3Q9L1G4N54v5wgR7e-jKXD7PUkk-bCdqgtaXUe-xIIT-l4og8zqS4oArfIHqx5246c2O8wMQQZJ1JRK6lnWHYVKawGuKmYnWoQ3wAvRopOYdYLgJ_z9N1FuPj8xXwh018g"/>
+<div class="flex-1 overflow-hidden">
+<p class="text-sm font-bold truncate">Carlos Silva</p>
+<p class="text-[10px] text-slate-500">Master Barber</p>
+</div>
+<span class="material-symbols-outlined text-slate-400" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[240px] min-h-screen flex flex-col">
+<!-- TopNavBar Shell -->
+<header class="h-16 w-full sticky top-0 z-40 bg-[#FAFAF9]/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm flex justify-between items-center px-8">
+<div class="flex items-center gap-6 w-full max-w-4xl">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-secondary/40 transition-all" placeholder="Buscar clientes ou agendamentos..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-slate-600">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-slate-600">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+</button>
+<button class="ml-2 flex items-center gap-2 bg-surface-container-lowest px-4 py-2 rounded-full text-sm font-bold shadow-sm hover:shadow-md transition-all">
+<span>Perfil</span>
+<span class="material-symbols-outlined" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<div class="p-8 space-y-10 max-w-[1440px] mx-auto w-full">
+<!-- Greeting & Filter -->
+<section class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<h2 class="text-4xl font-bold tracking-tight text-on-background">Olá, Carlos 👋</h2>
+<p class="text-on-surface-variant font-medium mt-1">Hoje é Segunda-feira, 12 de Junho de 2024</p>
+</div>
+<div class="flex bg-surface-container-low p-1.5 rounded-full shadow-inner">
+<button class="px-5 py-2 text-xs font-bold rounded-full bg-surface-container-lowest text-primary shadow-sm">Hoje</button>
+<button class="px-5 py-2 text-xs font-bold rounded-full text-on-surface-variant hover:text-primary transition-colors">7 dias</button>
+<button class="px-5 py-2 text-xs font-bold rounded-full text-on-surface-variant hover:text-primary transition-colors">30 dias</button>
+<button class="px-5 py-2 text-xs font-bold rounded-full text-on-surface-variant hover:text-primary transition-colors">Personalizado</button>
+</div>
+</section>
+<!-- Row 1: KPI Cards -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-primary-fixed rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-on-primary-fixed" data-icon="group">group</span>
+</div>
+<div class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+                            12%
+                        </div>
+</div>
+<div class="mt-4">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Contatos Totais</p>
+<h3 class="text-3xl font-bold mt-1">1.284</h3>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-secondary-fixed rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-on-secondary-fixed" data-icon="calendar_check">calendar_check</span>
+</div>
+<div class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+                            8%
+                        </div>
+</div>
+<div class="mt-4">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Agendamentos</p>
+<h3 class="text-3xl font-bold mt-1">342</h3>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-tertiary-fixed rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-on-tertiary-fixed" data-icon="query_stats">query_stats</span>
+</div>
+<div class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+                            5%
+                        </div>
+</div>
+<div class="mt-4">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Taxa de Conversão</p>
+<h3 class="text-3xl font-bold mt-1">64.2%</h3>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-primary-container rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-white" data-icon="payments">payments</span>
+</div>
+<div class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+                            15%
+                        </div>
+</div>
+<div class="mt-4">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Faturamento Previsto</p>
+<h3 class="text-3xl font-bold mt-1">R$ 8.450</h3>
+</div>
+</div>
+</section>
+<!-- Row 2: Status Pill Cards -->
+<section class="flex flex-wrap gap-4">
+<div class="flex-1 min-w-[140px] bg-white border border-green-100 p-4 rounded-xl flex flex-col items-center justify-center text-center shadow-sm hover:border-green-300 transition-colors">
+<span class="w-2 h-2 bg-green-500 rounded-full mb-2"></span>
+<span class="text-2xl font-bold">18</span>
+<span class="text-[10px] uppercase font-bold text-slate-500 mt-1">Confirmados</span>
+</div>
+<div class="flex-1 min-w-[140px] bg-white border border-blue-100 p-4 rounded-xl flex flex-col items-center justify-center text-center shadow-sm hover:border-blue-300 transition-colors">
+<span class="w-2 h-2 bg-blue-500 rounded-full mb-2"></span>
+<span class="text-2xl font-bold">24</span>
+<span class="text-[10px] uppercase font-bold text-slate-500 mt-1">Concluídos</span>
+</div>
+<div class="flex-1 min-w-[140px] bg-white border border-red-100 p-4 rounded-xl flex flex-col items-center justify-center text-center shadow-sm hover:border-red-300 transition-colors">
+<span class="w-2 h-2 bg-red-500 rounded-full mb-2"></span>
+<span class="text-2xl font-bold">3</span>
+<span class="text-[10px] uppercase font-bold text-slate-500 mt-1">Cancelados</span>
+</div>
+<div class="flex-1 min-w-[140px] bg-white border border-amber-100 p-4 rounded-xl flex flex-col items-center justify-center text-center shadow-sm hover:border-amber-300 transition-colors">
+<span class="w-2 h-2 bg-amber-500 rounded-full mb-2"></span>
+<span class="text-2xl font-bold">7</span>
+<span class="text-[10px] uppercase font-bold text-slate-500 mt-1">Reagendados</span>
+</div>
+<div class="flex-1 min-w-[140px] bg-white border border-purple-100 p-4 rounded-xl flex flex-col items-center justify-center text-center shadow-sm hover:border-purple-300 transition-colors">
+<span class="w-2 h-2 bg-purple-500 rounded-full mb-2"></span>
+<span class="text-2xl font-bold">12</span>
+<span class="text-[10px] uppercase font-bold text-slate-500 mt-1">Em follow-up</span>
+</div>
+</section>
+<!-- Row 3: Main Chart & Connection -->
+<section class="grid grid-cols-1 lg:grid-cols-10 gap-6">
+<!-- Bar Chart -->
+<div class="lg:col-span-6 bg-surface-container-lowest p-8 rounded-lg shadow-sm">
+<div class="flex justify-between items-center mb-10">
+<h4 class="text-lg font-bold">Agendamentos por dia da semana</h4>
+<span class="material-symbols-outlined text-slate-400" data-icon="more_vert">more_vert</span>
+</div>
+<div class="h-64 flex items-end justify-between gap-4 px-4">
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full bg-secondary-fixed rounded-full hover:bg-secondary-container transition-all" style="height: 60%"></div>
+<span class="text-[10px] font-bold text-slate-500">Seg</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full bg-secondary-fixed rounded-full hover:bg-secondary-container transition-all" style="height: 85%"></div>
+<span class="text-[10px] font-bold text-slate-500">Ter</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full bg-secondary rounded-full hover:bg-secondary-container transition-all" style="height: 100%"></div>
+<span class="text-[10px] font-bold text-slate-800">Qua</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full bg-secondary-fixed rounded-full hover:bg-secondary-container transition-all" style="height: 75%"></div>
+<span class="text-[10px] font-bold text-slate-500">Qui</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full bg-secondary-fixed rounded-full hover:bg-secondary-container transition-all" style="height: 90%"></div>
+<span class="text-[10px] font-bold text-slate-500">Sex</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full bg-secondary-fixed rounded-full hover:bg-secondary-container transition-all" style="height: 40%"></div>
+<span class="text-[10px] font-bold text-slate-500">Sáb</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full bg-surface-container-highest rounded-full" style="height: 10%"></div>
+<span class="text-[10px] font-bold text-slate-500">Dom</span>
+</div>
+</div>
+</div>
+<!-- WhatsApp Status -->
+<div class="lg:col-span-4 bg-[#E1F2E8] p-8 rounded-lg flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-sm font-bold text-green-800">Status da conexão WhatsApp</p>
+<div class="flex items-center gap-2 mt-2">
+<div class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-green-600"></span>
+</div>
+<span class="text-xs font-bold text-green-700 uppercase tracking-tight">Conectado</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-green-800" data-icon="bolt">bolt</span>
+</div>
+<div class="mt-8">
+<h5 class="text-4xl font-extrabold text-green-900 tracking-tighter">+55 11 99876-5432</h5>
+<p class="text-xs text-green-700 mt-2">Última sincronização há 4 minutos</p>
+</div>
+<div class="mt-10 space-y-3">
+<button class="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="sync">sync</span>
+                            Testar Sincronização
+                        </button>
+<button class="w-full py-4 bg-transparent border-2 border-green-600/20 text-green-800 rounded-xl font-bold hover:bg-green-600/5 transition-all">
+                            Configurações da API
+                        </button>
+</div>
+</div>
+</section>
+<!-- Row 4: Professional Table & Appointments -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+<!-- Billing by Prof -->
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm">
+<h4 class="text-lg font-bold mb-8">Faturamento por profissional</h4>
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between items-center text-sm">
+<span class="font-bold">Carlos Silva</span>
+<span class="font-bold">R$ 4.250</span>
+</div>
+<div class="h-3 w-full bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-sm">
+<span class="font-bold">Roberto Junior</span>
+<span class="font-bold">R$ 2.890</span>
+</div>
+<div class="h-3 w-full bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary/60 rounded-full" style="width: 60%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-sm">
+<span class="font-bold">Marcos Antunes</span>
+<span class="font-bold">R$ 1.310</span>
+</div>
+<div class="h-3 w-full bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary/30 rounded-full" style="width: 35%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Next Appointments -->
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm">
+<div class="flex justify-between items-center mb-8">
+<h4 class="text-lg font-bold">Próximos agendamentos</h4>
+<button class="text-xs font-bold text-secondary-container hover:underline">Ver todos</button>
+</div>
+<div class="space-y-6">
+<!-- Item 1 -->
+<div class="flex items-center gap-4 group">
+<img class="w-12 h-12 rounded-full object-cover ring-2 ring-transparent group-hover:ring-secondary/20 transition-all" data-alt="Portrait of a stylish man with a well-groomed beard and undercut haircut" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTHHeLzPJq9bhzXkRoa-QTGzQkSZ7x8Ro_6K12FYKodLQ-m41gy3e5mNmPasU_gwhRdjGT-8npnEmpeVHCPzVbeGDF_lH1BFTPxjMuAR5HvilIFFNiQN5YcY69ge6Wyo96a-kSaSdf9Nx6wkMVIrT6n18QB_79CC-ae4vYGJ7soOnNVnHhrx5ptNEeTyM0v8GMPW9wjS4_-C9AoVitNMRNdyHhR_Ef4BVLmS9t9zPg9ha2ygBuve5cDw6LJtLPw07VWTQ-4kHBL6M"/>
+<div class="flex-1">
+<p class="text-sm font-bold">Ricardo Oliveira</p>
+<p class="text-xs text-on-surface-variant">Corte Degradê + Barba</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">09:00</p>
+<span class="text-[10px] px-2 py-0.5 bg-green-50 text-green-700 rounded-full font-bold">Hoje</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-4 group">
+<img class="w-12 h-12 rounded-full object-cover ring-2 ring-transparent group-hover:ring-secondary/20 transition-all" data-alt="Close up portrait of a young woman with a short blonde pixie cut in soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsnymUHhpIYPN0N3aUkBD89JMe9x1HCfpclKq1GptPPoeMdX0s8UMhVuab6_N0IsCiAyrmsa8AWGx_PlFzAKaPKaNx8v-OeF1iRXh3-BjPTbpjNs4OewnQOwb6BDOR5cYLpgjmS7EWw9JMBSyiEfCYGr9j2wk5xBPpNyYJZcMU5F3vXbPGGPvPFLa5XM5A6jFoNVqraftvNzE7jfWfzb68OR-YVULATcOok8nJjyh6Gv1Dc6sJz3dztnHQihMSaIKtrZ1RRWOrQVQ"/>
+<div class="flex-1">
+<p class="text-sm font-bold">Juliana Mendes</p>
+<p class="text-xs text-on-surface-variant">Coloração Completa</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">10:30</p>
+<span class="text-[10px] px-2 py-0.5 bg-green-50 text-green-700 rounded-full font-bold">Hoje</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center gap-4 group">
+<img class="w-12 h-12 rounded-full object-cover ring-2 ring-transparent group-hover:ring-secondary/20 transition-all" data-alt="Portrait of a man with spectacles and a friendly smile in a high-key lighting studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE5uF2Jp5u-dtwb_wpPNMt8d3X9RpTVj2zO8G7g-Nt0VTkaEf54tDJP7ETJgj1tviwZqbpSYYub9WZ2TeGxPH1gr2h6yjKRaUpYK2N-UJppD523ls-9__oub5MT02G05U09zT48lwc0FGDUYclUJeA21EpRVScEZMAj5sxEbUwhQj9k-18QfDxQjQ8rvac_7r9EQRhmEEPmi0OKEBJPCZkLbMeGuI2xKPIpZuqkWxtXkW-G6TyM0XFtR9lmUWaH6P8U1VofQ5cmJ8"/>
+<div class="flex-1">
+<p class="text-sm font-bold">Felipe Santos</p>
+<p class="text-xs text-on-surface-variant">Corte Máquina</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">11:15</p>
+<span class="text-[10px] px-2 py-0.5 bg-green-50 text-green-700 rounded-full font-bold">Hoje</span>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="flex items-center gap-4 group">
+<img class="w-12 h-12 rounded-full object-cover ring-2 ring-transparent group-hover:ring-secondary/20 transition-all" data-alt="Portrait of a young woman with dramatic lighting against a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDlg_OoRBJARItgvgDf8PL5Gg_X3Ba4O-jU8h2oeBMbDknVEy9ynJunov8DA2SV9sZWqOEFDncAAHrcGf2EzYirzG-DskMVUk-Dk6A9S3hDNOHCLpqTlE9X2iLawmh9qDklHYu6xHqgdScdvhaIfwFF25HSJcmRIfTSudeSMZZqZj1sfixTmjyMzbj2Y1Gidky9nr9NGY_j3aGTAnkxSsM1Lq8RSyWRiCGaiE5m6rpqQqXhuUNX3S-EpKL9xHRDTVzN-n5ZJFAz-8"/>
+<div class="flex-1">
+<p class="text-sm font-bold">Amanda Costa</p>
+<p class="text-xs text-on-surface-variant">Hidratação Premium</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">14:00</p>
+<span class="text-[10px] px-2 py-0.5 bg-green-50 text-green-700 rounded-full font-bold">Hoje</span>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="flex items-center gap-4 group">
+<img class="w-12 h-12 rounded-full object-cover ring-2 ring-transparent group-hover:ring-secondary/20 transition-all" data-alt="Confident businessman in a suit with a modern clean shave" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbbSkSMeoTVsrmZyK41Ib-BdG9j5hgpbPM8-FqAvRT6yoP9CfzrSAK4THHgVQ3jFcmiSvruhqXWOqpaVf0rea58iZRQLdz1MQrFOSPdgcsDxMagOwPzyxR1sbR0qsaFHh6EzpjD_14hViLDWaYz4G7dym5tBFtMPAVRcFAt9jH__gkxrTkufQqoaBkDRkn9f3babhsSNP0X_efWefg2vLbTCwJoD5IujrTrXj8cMPX7u6Slj2w54faHJ5VY-pFxNurwiP3vhFR2og"/>
+<div class="flex-1">
+<p class="text-sm font-bold">Gustavo Lima</p>
+<p class="text-xs text-on-surface-variant">Barba e Toalha Quente</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">15:30</p>
+<span class="text-[10px] px-2 py-0.5 bg-green-50 text-green-700 rounded-full font-bold">Hoje</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

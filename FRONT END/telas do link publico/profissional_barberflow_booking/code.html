@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#574425",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e2e2e2",
+                    "on-secondary-fixed": "#2a1700",
+                    "surface-container-highest": "#e2e2e2",
+                    "primary-container": "#131b2e",
+                    "on-tertiary-fixed": "#271901",
+                    "on-tertiary-container": "#98805d",
+                    "on-primary-container": "#7c839b",
+                    "on-surface-variant": "#45464d",
+                    "inverse-surface": "#2f3130",
+                    "surface": "#f9f9f8",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#dae2fd",
+                    "secondary-container": "#fea619",
+                    "on-secondary-container": "#684000",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#1a1c1c",
+                    "on-primary": "#ffffff",
+                    "secondary": "#855300",
+                    "outline": "#76777d",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "background": "#f9f9f8",
+                    "surface-container-low": "#f3f4f3",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f1f1f0",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#000000",
+                    "secondary-fixed": "#ffddb8",
+                    "inverse-primary": "#bec6e0",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-error": "#ffffff",
+                    "on-background": "#1a1c1c",
+                    "outline-variant": "#c6c6cd",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "primary": "#000000",
+                    "tertiary-fixed": "#fcdeb5",
+                    "surface-tint": "#565e74",
+                    "on-primary-fixed": "#131b2e",
+                    "tertiary-fixed-dim": "#dec29a",
+                    "tertiary-container": "#271901",
+                    "surface-bright": "#f9f9f8",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eeeeed",
+                    "surface-dim": "#dadad9",
+                    "surface-container-high": "#e8e8e7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface max-w-[390px] mx-auto min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 max-w-[390px] mx-auto bg-[#FAFAF9] dark:bg-[#0F172A] transition-colors duration-300">
+<div class="flex items-center gap-3">
+<button class="hover:opacity-80 transition-opacity scale-95 duration-150">
+<span class="material-symbols-outlined text-[#0F172A] dark:text-[#FAFAF9]">arrow_back</span>
+</button>
+<span class="font-['Inter'] font-semibold tracking-tight text-lg text-[#0F172A] dark:text-[#FAFAF9]">BarberFlow</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="User" data-alt="close-up portrait of a professional barber with a styled beard in a modern barbershop setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcb34CRDmx-FxqMbJjhFutO2HIQz0q74CdeASSVser8OyfHBDsj5E1CLLGlGNs3wuMYxCm-n72u53zozbs-j9NxDaFVYckEGs9Rk1tPBBGUHWNoNx_xGMjQN9UZd7k_Wot84IYvn6cw5oXjQvxd_00_cGcWdJTcG0IIXM4tDAZx8rAFjFQdusa1O6thXCT4zvlSn9QlwtF0hQCcfAsko-u0Xtjc-3JCbixVXiGdeYj6hZ_eZsnRiroEUYAaEAx8Q1iJKAx22gvjQk"/>
+</div>
+</header>
+<main class="flex-1 mt-20 px-6 pb-24">
+<!-- Progress Indicator -->
+<div class="flex items-center gap-2 mb-8">
+<div class="h-1.5 flex-1 bg-secondary-container rounded-full"></div>
+<div class="h-1.5 flex-1 bg-secondary-container rounded-full"></div>
+<div class="h-1.5 flex-1 bg-secondary-container rounded-full"></div>
+<div class="h-1.5 flex-1 bg-secondary-container rounded-full"></div>
+<div class="h-1.5 flex-1 bg-secondary-container rounded-full"></div>
+<div class="h-1.5 flex-1 bg-surface-container-highest rounded-full"></div>
+<div class="h-1.5 flex-1 bg-surface-container-highest rounded-full"></div>
+<div class="h-1.5 flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+<!-- Header Content -->
+<div class="mb-8">
+<h2 class="text-3xl font-bold tracking-tight text-on-surface mb-2">Quem vai te atender?</h2>
+<p class="text-on-surface-variant leading-relaxed">Escolha um profissional ou deixe que escolhamos por você</p>
+</div>
+<!-- Featured Card: Any Professional -->
+<div class="relative overflow-hidden mb-10 group cursor-pointer transition-all duration-300 active:scale-[0.98]">
+<div class="absolute inset-0 bg-gradient-to-br from-secondary-container to-on-secondary-container opacity-90 rounded-lg"></div>
+<div class="relative p-8 flex flex-col items-center text-center gap-4">
+<div class="flex -space-x-3 mb-2">
+<img alt="Barber 1" class="w-12 h-12 rounded-full border-4 border-secondary-container object-cover" data-alt="professional barber headshot with a friendly smile and trendy haircut" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIMWl86Y0JRWVYTXxmvSfiqBKWZ8ySw7_HapyQKkAwC4sWie30bBKf7dNZPT5iY_XsS-9924ngAbOEY9WjjHPMV5dZM1DigfOed9PC_Uulscb9IZox_b4oD3SF9yIMI9HcFeaVxOzpydkD1zzv0YPPL53IulqqOQze_28Vpd2gy4yNFO4nUvzfejBaR0ot7ZSNMnMwGdGYfeCzJaCsP9dre1-gWgN2R35De61DXOhmvP0JsbT6KsPdZCCdY_yAslwO6uxynPa2Mho"/>
+<img alt="Barber 2" class="w-12 h-12 rounded-full border-4 border-secondary-container object-cover" data-alt="young professional barber in a white shirt with a focused expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQK7C1o-V_PEC1GJbAOYMMXDp7UsgeBWQPk8QliK1-mhh6KhYIBeFbMtGaML6X2AggtZG36HAlij9HHbq3N0r6OFO-m2T8xeAqmI5fHS08gfXzfjR2b88SPKWrKw6yPNlS9IS7GUCadUKbM2jRyJqf_eUdORohVtGE5PctLiqV4ybedq30y5shIHKIm6ePT-ZCiMl-3SE1fYnIG-dobTnpY68x2l4BNs5O9LteSAoC_0wbKmVUgTfD20pTmdb5bWEdmogiUgjD_0I"/>
+<img alt="Barber 3" class="w-12 h-12 rounded-full border-4 border-secondary-container object-cover" data-alt="experienced male barber with glasses and a stylish beard looking at the camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVn2u98w5M0sIqwkL6WqElvEV7IuXfXxfFjiWkj2ga-ORs4zVvJs7BvwAG1mCWja9yBWLup2kE50HnSUKf-h4YgthbSMeokSCHsskyZURKFK17eXqrxtDqcpC6oLcMLIgkI4MfpFeB0WZAl7p2FRpK1chvVr2EdbbTfOLi5UpCptGm_PY-HLmI-N38rwbMzghkKUBm8Ym3_N_0D7P69PijO8vMbp9MQNJyWejkr99HFROv-QQjOcxMYxdZQ2ybovTX0iMhB1tdnv8"/>
+<div class="w-12 h-12 rounded-full border-4 border-secondary-container bg-primary-container flex items-center justify-center text-on-primary-container text-xs font-bold">+5</div>
+</div>
+<div>
+<h3 class="text-white font-bold text-xl mb-1">Sem preferência ✨</h3>
+<p class="text-white/80 text-sm">O próximo profissional disponível</p>
+</div>
+</div>
+</div>
+<!-- Professional List Section -->
+<div class="space-y-6">
+<!-- Professional 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-5 flex items-center gap-5 transition-all hover:bg-surface-bright shadow-sm">
+<div class="relative">
+<img alt="Ricardo Santos" class="w-16 h-16 rounded-full object-cover" data-alt="headshot of a handsome male barber with short hair and clean shave in professional attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDG-lRNIYxT0kVvxRLS8YFGIi6mEDot3bdMrarPaJRnQ_m7oMi8CA02syZHLlZDci-lBNN8zX5h6uJQYaxB7MzG6Aux5s8EmfRiFEFQYh546TaasmJHlvDJoLhbI9Iz7Gr_lX0ggJmlVo6ZLnCNal_qgoKhXGwa5T3RyoP-dkg_R7ommMBeJ7T8XSu6tQUyDgescRb1W80mXWGHy7Yj5Ie0Px19VDf-zmt39rM1_HZufbaZPoFs1q17q3alz9wdvb1aFDXTUlnKABw"/>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-bold text-lg text-on-surface">Ricardo Santos</h4>
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-secondary text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.9</span>
+</div>
+</div>
+<p class="text-sm text-on-surface-variant mb-3">Mestre em Degradê &amp; Barba</p>
+<div class="flex gap-2">
+<span class="text-[10px] uppercase tracking-wider font-bold bg-secondary-fixed text-on-secondary-fixed px-2 py-1 rounded-sm">SÊNIOR</span>
+<span class="text-[10px] uppercase tracking-wider font-bold bg-surface-container-high text-on-surface-variant px-2 py-1 rounded-sm">POPULAR</span>
+</div>
+</div>
+</div>
+<!-- Professional 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-5 flex items-center gap-5 transition-all hover:bg-surface-bright shadow-sm">
+<div class="relative">
+<img alt="André Costa" class="w-16 h-16 rounded-full object-cover" data-alt="portrait of a creative male hairstylist with blonde hair and modern accessories" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGGzPVwnCrdppgmi5GPBIw8M1riDmcJJTtWiiWejKmrmUEkESyFX1l-JaV_b4TnEjMzKU9hoeLna4jTAGroNV2E4nSIo8p4gFd6LIHPT0T5lVeh8MHo1OaFdumUW2Nr0aI5ZkOxZTqkA3O-mAtWNpLrWu2DkrpkOzWlE9MHlBZvSqUbTnZUvjL7xAj4QzbWTml3v2MFS4l-Et6ecDlV2__Rgved-1ou3CeSpDMEmUQMvXIffaOB2eAVdKrW1bkgqE0ilI9Gutiztc"/>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-bold text-lg text-on-surface">André Costa</h4>
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-secondary text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.8</span>
+</div>
+</div>
+<p class="text-sm text-on-surface-variant mb-3">Especialista em Tesoura</p>
+<div class="flex gap-2">
+<span class="text-[10px] uppercase tracking-wider font-bold bg-surface-container-high text-on-surface-variant px-2 py-1 rounded-sm">VAGAS HOJE</span>
+</div>
+</div>
+</div>
+<!-- Professional 3 -->
+<div class="bg-surface-container-lowest rounded-lg p-5 flex items-center gap-5 transition-all hover:bg-surface-bright shadow-sm">
+<div class="relative">
+<img alt="Lucas Lima" class="w-16 h-16 rounded-full object-cover" data-alt="charming male barber with a well-groomed beard and stylish hair in a boutique salon setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuwvkKfMgo-R3sdpIQDs4GyQR_GpgQGgLntlJPWiw0PSmhz3KotXwl8EtomVXg-vdRsxMlIlq2FHUMx--dDPWwlco3mRdyuBcBa5L7eQjbWpqqG8sgHT97mObwsV4-yfYpr7RUuvqv3lCHhqkQdRqpOR0SVVTkxsSQrbnjCBOOSBBIRaZ5BxnEmk88QZbprHXvj7ISktfxsHmXubrdEQCYYPzrjU4yiKGYwej0WIK3mr40cmTIUupIhlnZfPYZOMo6p4lZ57laS7Y"/>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-slate-300 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-bold text-lg text-on-surface">Lucas Lima</h4>
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-secondary text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">5.0</span>
+</div>
+</div>
+<p class="text-sm text-on-surface-variant mb-3">Visagista &amp; Químicas</p>
+<div class="flex gap-2">
+<span class="text-[10px] uppercase tracking-wider font-bold bg-tertiary-fixed text-on-tertiary-fixed px-2 py-1 rounded-sm">PREMIUM</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Identity Shell -->
+<footer class="w-full px-8 py-12 flex flex-col gap-6 bg-[#F3F4F3] dark:bg-[#131B2E] rounded-t-lg transition-colors duration-300">
+<div class="flex flex-col gap-4">
+<span class="font-bold text-[#0F172A] dark:text-[#F59E0B] text-xl">BarberFlow</span>
+<p class="font-['Inter'] text-sm leading-relaxed text-[#0F172A] dark:text-[#FAFAF9]">A melhor experiência em agendamento para sua barbearia.</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-2">
+<span class="text-xs font-bold uppercase tracking-widest text-slate-500">Links</span>
+<a class="font-['Inter'] text-sm text-[#0F172A] dark:text-[#FAFAF9] hover:text-[#F59E0B] transition-colors" href="#">Endereço</a>
+<a class="font-['Inter'] text-sm text-[#0F172A] dark:text-[#FAFAF9] hover:text-[#F59E0B] transition-colors" href="#">Telefone</a>
+</div>
+<div class="flex flex-col gap-2">
+<span class="text-xs font-bold uppercase tracking-widest text-slate-500">Info</span>
+<a class="font-['Inter'] text-sm text-[#0F172A] dark:text-[#FAFAF9] hover:text-[#F59E0B] transition-colors" href="#">Horários</a>
+</div>
+</div>
+<div class="pt-8 border-t border-slate-200 dark:border-slate-800">
+<p class="font-['Inter'] text-sm text-slate-500">Powered by BarberFlow</p>
+</div>
+</footer>
+<!-- Fixed Bottom Action (Invisible trigger or padding provider) -->
+<div class="fixed bottom-0 w-full max-w-[390px] p-6 bg-gradient-to-t from-background via-background to-transparent">
+<button class="w-full bg-primary text-on-primary py-4 rounded-lg font-bold text-lg shadow-lg active:scale-95 transition-transform">
+            Próximo Passo
+        </button>
+</div>
+</body></html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f1f1f0",
+                    "on-surface-variant": "#45464d",
+                    "surface-container-highest": "#e2e2e2",
+                    "tertiary-fixed": "#fcdeb5",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#bec6e0",
+                    "on-primary": "#ffffff",
+                    "surface": "#f9f9f8",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "on-error": "#ffffff",
+                    "background": "#f9f9f8",
+                    "on-secondary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-background": "#1a1c1c",
+                    "on-tertiary-fixed-variant": "#574425",
+                    "primary-fixed": "#dae2fd",
+                    "on-secondary-fixed": "#2a1700",
+                    "surface-tint": "#565e74",
+                    "on-secondary-container": "#684000",
+                    "secondary-fixed": "#ffddb8",
+                    "surface-bright": "#f9f9f8",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "surface-container": "#eeeeed",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "tertiary-fixed-dim": "#dec29a",
+                    "on-primary-container": "#7c839b",
+                    "on-error-container": "#93000a",
+                    "secondary": "#855300",
+                    "secondary-container": "#fea619",
+                    "outline-variant": "#c6c6cd",
+                    "tertiary": "#000000",
+                    "primary-fixed-dim": "#bec6e0",
+                    "tertiary-container": "#271901",
+                    "on-tertiary-fixed": "#271901",
+                    "surface-container-low": "#f3f4f3",
+                    "on-surface": "#1a1c1c",
+                    "primary-container": "#131b2e",
+                    "inverse-surface": "#2f3130",
+                    "on-tertiary-container": "#98805d",
+                    "on-tertiary": "#ffffff",
+                    "primary": "#000000",
+                    "surface-dim": "#dadad9",
+                    "surface-container-high": "#e8e8e7",
+                    "on-primary-fixed": "#131b2e",
+                    "outline": "#76777d",
+                    "surface-variant": "#e2e2e2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 h-screen w-[240px] border-none bg-[#f3f4f3] dark:bg-slate-900 z-50">
+<div class="mb-8 px-4">
+<h1 class="text-xl font-bold text-[#0F172A] dark:text-slate-100 tracking-tight">BarberFlow</h1>
+<p class="text-xs text-slate-500 font-medium">SaaS Premium</p>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto scrollbar-hide">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+                Agenda
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">group</span>
+                Contatos
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">store</span>
+                Empresa
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#0F172A] dark:text-white font-bold border-r-4 border-[#F59E0B] bg-white/50 dark:bg-slate-800/50 font-['Inter'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">content_cut</span>
+                Profissionais
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">content_paste</span>
+                Serviços
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Definições
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">psychology</span>
+                Definições da IA
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 font-['Inter'] font-semibold tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">chat</span>
+                Conexão WhatsApp
+            </a>
+</nav>
+<div class="mt-auto pt-6 px-4">
+<button class="w-full bg-[#0F172A] text-white py-3 rounded-xl font-bold text-sm mb-6 active:scale-95 duration-150 transition-all">
+                Novo Agendamento
+            </button>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-500">account_circle</span>
+<span class="text-sm font-semibold text-slate-500">Perfil do Usuário</span>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-[240px] min-h-screen">
+<!-- TopNavBar -->
+<header class="h-16 w-full sticky top-0 z-40 bg-[#FAFAF9]/80 backdrop-blur-xl flex justify-between items-center px-8 shadow-sm">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-[#F59E0B]/40 transition-all" placeholder="Buscar profissional..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-slate-600 hover:text-[#F59E0B] cursor-pointer transition-colors">notifications</span>
+<span class="material-symbols-outlined text-slate-600 hover:text-[#F59E0B] cursor-pointer transition-colors">location_on</span>
+</div>
+<div class="flex items-center gap-3 pl-6 border-l border-surface-container-highest">
+<span class="text-sm font-semibold">Perfil</span>
+<img class="w-8 h-8 rounded-full object-cover" data-alt="close-up portrait of a professional male barber in a stylish barbershop with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-UaOYVdIbdDRcElanjK0oDB2V_aCCbJm-lI7dxgLHHB_rDCBh0EU-0JfBR8gFWq_y5bj1f1SK5B-z0_zflJOm3djmHxbQplzERhZTQiC9CuiVxxasD3SMYmfe3D2guyJW04D3-ve_KKtoFaQ1JuGgsUrpsIemt06NRCegBFcnyqPM47l7c_1VRCfrJ48K2NpsoB2XaIrK0o1zICGLoHb57w-haiWf0qR1H4CL18-WF6AhJPmRNJ6YLhlAd5q6XP9gECm8K8Qm9BM"/>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-10 max-w-[1440px] mx-auto">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="text-4xl font-bold tracking-tight mb-2">Profissionais</h2>
+<p class="text-on-surface-variant max-w-lg">Gerencie sua equipe de talentos, defina comissões e acompanhe o desempenho individual de cada barbeiro.</p>
+</div>
+</div>
+<!-- Bento Grid of Professional Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-8 group hover:shadow-xl hover:shadow-on-surface/5 transition-all duration-300">
+<div class="flex flex-col items-center text-center">
+<div class="relative mb-6">
+<img class="w-24 h-24 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="professional male portrait with clean haircut and beard smiling confidently in a modern studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDjHtGoEtdXqklPtDo9FF-AT8KtBJiYAZ21hOMiGCcevSMpYU2I5cADxj8PedHbnmc2k9awT9WZfeJTeFHMwK4ZwsWbGefS0YJdEjj-nE3g-HyiIaSQF34JWLpKd_0sUQb-_dOpKN0PsptQoF1hPjb2Ym2nAHhoPs2JdmegdrZRaZh78lsCRE0NrAADib-iHeKA3BBrlGXpdxQsZT2y24L7xsFN0_7DcRWK0YOYEe5CwsDr5G8azugISsNmc_TUc40aCxyKa4zBGw"/>
+<div class="absolute -bottom-1 -right-1 bg-[#F59E0B] text-white p-1 rounded-full border-4 border-white">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<h3 class="text-xl font-bold mb-1">Ricardo Santos</h3>
+<p class="text-sm text-on-surface-variant font-medium mb-4">Master Barber</p>
+<div class="w-full flex justify-between items-center bg-surface-container-low rounded-xl px-4 py-3 mb-6">
+<div class="text-left">
+<span class="block text-[10px] uppercase tracking-wider text-outline mb-1 font-bold">Avaliação</span>
+<span class="text-sm font-bold flex items-center gap-1">4.9 <span class="text-slate-400 font-normal">(128)</span></span>
+</div>
+<div class="text-right">
+<span class="block text-[10px] uppercase tracking-wider text-outline mb-1 font-bold">Comissão</span>
+<span class="text-sm font-bold text-secondary">60%</span>
+</div>
+</div>
+<button class="w-full py-3 rounded-full border border-outline-variant hover:border-primary hover:bg-primary hover:text-on-primary transition-all font-semibold text-sm">
+                            Ver detalhes
+                        </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-8 group hover:shadow-xl hover:shadow-on-surface/5 transition-all duration-300">
+<div class="flex flex-col items-center text-center">
+<div class="relative mb-6">
+<img class="w-24 h-24 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="cheerful woman with professional hairstyle posing in a brightly lit modern salon environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaktYFDGvFILvwEwEBYfq2fGIXswQ-92sVIj4ZCPucUiA6dmuxvoZdhFcr6kp0fBCBm3ZQbRtJpHoEwAxBb4J51BkhnBVqBAL507HeECyEunSNObaVPFekzrg1xKlZAycn_RwEYo2XK_1D10-BjOyX2zXoaPXTrd5v0gCrkpFH6PXyHKE-_BBgz_Z4gaJblpemDWZRvaw5CtVfg1lFpKU34Fa8ZLocWOwB-51y1JDMZ8R4BfkdJYydUlbaSiGuvP_BUFs4F1TqCEE"/>
+<div class="absolute -bottom-1 -right-1 bg-[#F59E0B] text-white p-1 rounded-full border-4 border-white">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<h3 class="text-xl font-bold mb-1">Juliana Lima</h3>
+<p class="text-sm text-on-surface-variant font-medium mb-4">Especialista Visagismo</p>
+<div class="w-full flex justify-between items-center bg-surface-container-low rounded-xl px-4 py-3 mb-6">
+<div class="text-left">
+<span class="block text-[10px] uppercase tracking-wider text-outline mb-1 font-bold">Avaliação</span>
+<span class="text-sm font-bold flex items-center gap-1">5.0 <span class="text-slate-400 font-normal">(92)</span></span>
+</div>
+<div class="text-right">
+<span class="block text-[10px] uppercase tracking-wider text-outline mb-1 font-bold">Comissão</span>
+<span class="text-sm font-bold text-secondary">55%</span>
+</div>
+</div>
+<button class="w-full py-3 rounded-full border border-outline-variant hover:border-primary hover:bg-primary hover:text-on-primary transition-all font-semibold text-sm">
+                            Ver detalhes
+                        </button>
+</div>
+</div>
+<!-- Add New Professional (Empty State Card) -->
+<button class="rounded-lg border-2 border-dashed border-outline-variant flex flex-col items-center justify-center p-8 hover:border-[#F59E0B] hover:bg-surface-container-low transition-all duration-300 group">
+<div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mb-4 group-hover:bg-[#F59E0B] transition-colors">
+<span class="material-symbols-outlined text-3xl group-hover:text-white transition-colors">add</span>
+</div>
+<span class="text-lg font-bold">Adicionar profissional</span>
+<p class="text-sm text-on-surface-variant mt-2 text-center">Expanda sua equipe de especialistas e cresça seu negócio.</p>
+</button>
+</div>
+</div>
+</main>
+<!-- Open Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-primary/20 backdrop-blur-sm">
+<div class="w-full max-w-2xl bg-surface-container-lowest rounded-lg shadow-2xl overflow-hidden max-h-[921px] flex flex-col">
+<!-- Modal Header -->
+<div class="px-8 py-6 border-b border-surface-container-high flex justify-between items-center">
+<h2 class="text-2xl font-bold">Novo Profissional</h2>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Content (Scrollable) -->
+<div class="px-8 py-6 overflow-y-auto scrollbar-hide flex-1">
+<form class="space-y-8">
+<!-- Avatar Upload & Identity -->
+<div class="flex gap-8 items-start">
+<div class="flex-shrink-0">
+<div class="w-28 h-28 rounded-full bg-surface-container-low border-2 border-dashed border-outline flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden">
+<span class="material-symbols-outlined text-outline">add_a_photo</span>
+<span class="text-[10px] font-bold text-outline uppercase mt-1">Carregar Foto</span>
+</div>
+</div>
+<div class="flex-1 space-y-4">
+<div class="space-y-1">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Nome Completo</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#F59E0B]/40 transition-all" placeholder="Ex: Lucas Ferreira" type="text"/>
+</div>
+<div class="space-y-1">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Bio / Especialidade</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#F59E0B]/40 transition-all" placeholder="Descreva brevemente as habilidades do profissional..." rows="2"></textarea>
+</div>
+</div>
+</div>
+<!-- Services & Commission -->
+<div class="grid grid-cols-2 gap-8">
+<div class="space-y-4">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Serviços que realiza</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full bg-[#F59E0B] text-white text-xs font-bold transition-all" type="button">Corte Masculino</button>
+<button class="px-4 py-2 rounded-full bg-[#F59E0B] text-white text-xs font-bold transition-all" type="button">Barba</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold hover:bg-surface-container-highest transition-all" type="button">+ Ver todos</button>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Comissão</label>
+<span class="text-sm font-bold text-secondary">50%</span>
+</div>
+<input class="w-full h-2 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-[#F59E0B]" max="100" min="0" type="range" value="50"/>
+<div class="flex justify-between text-[10px] text-outline font-bold">
+<span>0%</span>
+<span>100%</span>
+</div>
+</div>
+</div>
+<!-- Availability -->
+<div class="space-y-4">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Disponibilidade Semanal</label>
+<div class="flex justify-between gap-2">
+<button class="w-10 h-10 rounded-full bg-surface-container-high text-xs font-bold hover:bg-primary hover:text-white transition-all" type="button">D</button>
+<button class="w-10 h-10 rounded-full bg-primary text-white text-xs font-bold" type="button">S</button>
+<button class="w-10 h-10 rounded-full bg-primary text-white text-xs font-bold" type="button">T</button>
+<button class="w-10 h-10 rounded-full bg-primary text-white text-xs font-bold" type="button">Q</button>
+<button class="w-10 h-10 rounded-full bg-primary text-white text-xs font-bold" type="button">Q</button>
+<button class="w-10 h-10 rounded-full bg-primary text-white text-xs font-bold" type="button">S</button>
+<button class="w-10 h-10 rounded-full bg-surface-container-high text-xs font-bold hover:bg-primary hover:text-white transition-all" type="button">S</button>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-4">
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-outline">Horário Início</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#F59E0B]/40 transition-all" type="time" value="09:00"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">schedule</span>
+</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-outline">Horário Término</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#F59E0B]/40 transition-all" type="time" value="19:00"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">schedule</span>
+</div>
+</div>
+</div>
+</div>
+</form>
+</div>
+<!-- Modal Footer -->
+<div class="px-8 py-6 bg-surface-container-low flex justify-end gap-4">
+<button class="px-6 py-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">Cancelar</button>
+<button class="px-8 py-2 bg-primary text-on-primary rounded-full font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-all">Salvar Profissional</button>
+</div>
+</div>
+</div>
+</body></html>

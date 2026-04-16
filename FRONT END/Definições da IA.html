@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f1f1f0",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary-fixed": "#fcdeb5",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#bec6e0",
+                        "on-primary": "#ffffff",
+                        "surface": "#f9f9f8",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-error": "#ffffff",
+                        "background": "#f9f9f8",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1a1c1c",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-tint": "#565e74",
+                        "on-secondary-container": "#684000",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-bright": "#f9f9f8",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container": "#eeeeed",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "on-primary-container": "#7c839b",
+                        "on-error-container": "#93000a",
+                        "secondary": "#855300",
+                        "secondary-container": "#fea619",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary-container": "#271901",
+                        "on-tertiary-fixed": "#271901",
+                        "surface-container-low": "#f3f4f3",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#131b2e",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary-container": "#98805d",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#000000",
+                        "surface-dim": "#dadad9",
+                        "surface-container-high": "#e8e8e7",
+                        "on-primary-fixed": "#131b2e",
+                        "outline": "#76777d",
+                        "surface-variant": "#e2e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased flex">
+<!-- SideNavBar (Authority Source: JSON) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 h-screen w-[240px] border-none bg-[#f3f4f3] dark:bg-slate-900 z-50">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 bg-primary-container flex items-center justify-center rounded-lg shadow-inner">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">content_cut</span>
+</div>
+<div>
+<h1 class="text-xl font-bold text-[#0F172A] dark:text-slate-100 leading-none">BarberFlow</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">SaaS Premium</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 font-['Inter'] font-semibold tracking-tight text-sm hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 font-['Inter'] font-semibold tracking-tight text-sm hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">calendar_month</span> Agenda
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 font-['Inter'] font-semibold tracking-tight text-sm hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">group</span> Contatos
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 font-['Inter'] font-semibold tracking-tight text-sm hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">store</span> Empresa
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 font-['Inter'] font-semibold tracking-tight text-sm hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">content_cut</span> Profissionais
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 font-['Inter'] font-semibold tracking-tight text-sm hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">content_paste</span> Serviços
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 font-['Inter'] font-semibold tracking-tight text-sm hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">settings</span> Definições
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#0F172A] dark:text-white font-bold border-r-4 border-[#F59E0B] bg-white/50 dark:bg-slate-800/50 font-['Inter'] tracking-tight text-sm transition-all duration-200 rounded-l-xl" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span> Definições da IA
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 font-['Inter'] font-semibold tracking-tight text-sm hover:bg-white/80 dark:hover:bg-slate-800 transition-all duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">chat</span> Conexão WhatsApp
+            </a>
+</nav>
+<div class="mt-auto px-2">
+<button class="w-full bg-primary-container text-white py-3 rounded-2xl font-bold text-sm mb-6 flex items-center justify-center gap-2 shadow-lg shadow-black/10 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-sm">add</span> Novo Agendamento
+            </button>
+<div class="flex items-center gap-3 p-2 rounded-2xl hover:bg-white/80 transition-all cursor-pointer">
+<div class="w-8 h-8 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a professional male barber with styled hair and groomed beard in a modern barbershop setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCXU5kCAkyux__MOUj-h6vBfeFLAG6X60SD7zY3ohW-r4NAT-5qhchT06TjrS9FeFGRlhlcPxgYYlpY-arAv-xZeonDzPgFWNRmdsnMvLPTiv0rFz9O8KDQ3mZEvADaD37mNxDehtEDwwPAvsxlWaIBL1W-vP4XxIH7aYykSzDxrUfirXgbmCrMot4MxMz2GgSpqcaQnUM5ut1ZG1UTo6vPV0S7TtA8ASGFIHfD2UASIQxtxQJQovzwSj0xieDp9v9ws4wgO-gAk4"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-[#0F172A]">Perfil do Usuário</span>
+<span class="text-[10px] text-slate-500 uppercase tracking-wider">Administrador</span>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex-1 ml-[240px]">
+<!-- TopNavBar (Authority Source: JSON) -->
+<header class="h-16 w-full sticky top-0 z-40 bg-[#FAFAF9]/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-between items-center px-8 max-w-[1440px] shadow-sm dark:shadow-none">
+<div class="flex items-center bg-surface-container-low px-4 py-2 rounded-full w-[400px] border border-outline-variant/10 focus-within:ring-2 focus-within:ring-[#F59E0B]/40 transition-all">
+<span class="material-symbols-outlined text-slate-400 mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full font-['Inter']" placeholder="Pesquisar configurações..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-[#F59E0B] transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-[#F59E0B] transition-colors">
+<span class="material-symbols-outlined">location_on</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/20 mx-2"></div>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest rounded-full text-sm font-bold shadow-sm border border-outline-variant/10 hover:bg-surface-bright transition-all">
+<span>Perfil</span>
+<div class="w-6 h-6 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional male profile photo with a neutral background, high resolution studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACs0Q81r_pLXJSrDXVd8alDHJOeCTdbYYnmvljdZ9iZXbBKXtrpsJzGVbAmZbwfV64RLAOf7zkaVX9zKEiUBnbjRFuRZXfqfPDXscSKTN3JDC81-jlQf64AqNn4iD4vYPSQPWL0naHQnB4G5_Lqq5OOWeHrdlAOy7lQbjjq1Z2H6LpJGjoAnobvaAhGzu_iFKdyev-tyhb9hy9HWY1_mRsc1t7kLUOFI33uel5lTgvmLnphGFZNR_ZX-MUSVSz-BEK588B4fS1CeM"/>
+</div>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="p-8 max-w-5xl mx-auto space-y-8">
+<!-- Header Section -->
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<div class="inline-flex items-center gap-2 bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest">
+                        Plano IA ✨
+                    </div>
+<h2 class="text-4xl font-bold tracking-tight text-on-surface">Definições da IA</h2>
+<p class="text-on-surface-variant max-w-md">Personalize o comportamento e a base de conhecimento do seu assistente inteligente BarberFlow.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-2.5 rounded-full text-sm font-bold border border-outline-variant/30 hover:bg-white transition-all">Descartar</button>
+<button class="px-6 py-2.5 rounded-full text-sm font-bold bg-primary text-white hover:opacity-90 transition-all shadow-lg shadow-black/10">Salvar Alterações</button>
+</div>
+</div>
+<!-- Row 1: Mini Dashboard Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm flex items-center justify-between group hover:bg-surface-bright transition-all">
+<div class="space-y-1">
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Tokens consumidos</p>
+<p class="text-3xl font-bold tracking-tighter">124,850</p>
+<p class="text-xs text-green-600 font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_down</span> -12% em relação ao mês anterior
+                        </p>
+</div>
+<div class="w-14 h-14 bg-surface-container-low rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">database</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm flex items-center justify-between group hover:bg-surface-bright transition-all">
+<div class="space-y-1">
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Custo estimado</p>
+<p class="text-3xl font-bold tracking-tighter">R$ 42,90</p>
+<p class="text-xs text-on-surface-variant font-medium">Faturamento em 05 Nov</p>
+</div>
+<div class="w-14 h-14 bg-secondary-fixed rounded-2xl flex items-center justify-center text-on-secondary-fixed group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">payments</span>
+</div>
+</div>
+</div>
+<!-- Row 2: Active Switch -->
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm flex items-center justify-between border border-transparent hover:border-secondary-container/20 transition-all">
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 bg-secondary-container/10 rounded-full flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div>
+<h3 class="text-xl font-bold">IA ativada</h3>
+<p class="text-on-surface-variant">O assistente responderá automaticamente no WhatsApp e agendará horários.</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-14 h-8 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<!-- Row 3: Configuration Card -->
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm space-y-8">
+<div class="space-y-4">
+<label class="text-sm font-bold uppercase tracking-wider text-on-surface-variant block">Tom de voz</label>
+<div class="flex flex-wrap gap-3">
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low border border-outline-variant/20 hover:bg-white transition-all flex items-center gap-2 active:scale-95">
+                            Formal 🎩
+                        </button>
+<button class="px-5 py-2.5 rounded-full text-sm font-bold bg-primary text-white border border-transparent flex items-center gap-2 shadow-md shadow-black/20">
+                            Bem humorado 😄
+                        </button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low border border-outline-variant/20 hover:bg-white transition-all flex items-center gap-2 active:scale-95">
+                            Educado 🙏
+                        </button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low border border-outline-variant/20 hover:bg-white transition-all flex items-center gap-2 active:scale-95">
+                            Simpático 😊
+                        </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-4">
+<label class="text-sm font-bold uppercase tracking-wider text-on-surface-variant block">Observações</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl p-4 text-sm focus:ring-2 focus:ring-secondary/40 resize-none transition-all" placeholder="Ex: Sempre ofereça café ao cliente. Não agende cortes após às 19h..." rows="5"></textarea>
+</div>
+<div class="space-y-4">
+<label class="text-sm font-bold uppercase tracking-wider text-on-surface-variant block">Base de conhecimento</label>
+<div class="h-[148px] border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center justify-center gap-2 bg-surface-container-low/50 hover:bg-white transition-all cursor-pointer group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors text-3xl">upload_file</span>
+<p class="text-xs font-bold text-on-surface-variant">Arraste manuais ou tabelas de preços</p>
+<p class="text-[10px] text-slate-400">Suporta PDF, DOCX ou TXT (Máx. 10MB)</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Row 4: Test Mode Card -->
+<div class="bg-surface-container-low p-8 rounded-lg shadow-inner">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface">bug_report</span>
+<h3 class="text-lg font-bold">Modo teste</h3>
+</div>
+<p class="text-xs text-on-surface-variant">Apenas estes números receberão respostas da IA enquanto estiver em desenvolvimento.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<div class="px-4 py-2 bg-surface-container-lowest rounded-full text-sm font-bold flex items-center gap-3 shadow-sm border border-outline-variant/10">
+                        +55 (11) 99876-5432
+                        <button class="hover:text-error transition-colors"><span class="material-symbols-outlined text-xs">close</span></button>
+</div>
+<div class="px-4 py-2 bg-surface-container-lowest rounded-full text-sm font-bold flex items-center gap-3 shadow-sm border border-outline-variant/10">
+                        +55 (21) 98888-0011
+                        <button class="hover:text-error transition-colors"><span class="material-symbols-outlined text-xs">close</span></button>
+</div>
+<button class="px-4 py-2 bg-white/40 border border-dashed border-outline-variant/40 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-white transition-all">
+<span class="material-symbols-outlined text-sm">add</span> Adicionar Número
+                    </button>
+</div>
+</div>
+<div class="pt-8 text-center opacity-40">
+<p class="text-[10px] uppercase font-extrabold tracking-widest">Tecnologia BarberFlow AI v2.4.0</p>
+</div>
+</main>
+</div>
+</body></html>

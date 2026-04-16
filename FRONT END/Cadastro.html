@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f1f1f0",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary-fixed": "#fcdeb5",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#bec6e0",
+                        "on-primary": "#ffffff",
+                        "surface": "#f9f9f8",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-error": "#ffffff",
+                        "background": "#f9f9f8",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1a1c1c",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-tint": "#565e74",
+                        "on-secondary-container": "#684000",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-bright": "#f9f9f8",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container": "#eeeeed",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "on-primary-container": "#7c839b",
+                        "on-error-container": "#93000a",
+                        "secondary": "#855300",
+                        "secondary-container": "#fea619",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary-container": "#271901",
+                        "on-tertiary-fixed": "#271901",
+                        "surface-container-low": "#f3f4f3",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#131b2e",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary-container": "#98805d",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#000000",
+                        "surface-dim": "#dadad9",
+                        "surface-container-high": "#e8e8e7",
+                        "on-primary-fixed": "#131b2e",
+                        "outline": "#76777d",
+                        "surface-variant": "#e2e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "20px",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .amber-gradient {
+            background: radial-gradient(circle at top right, #F59E0B 0%, #855300 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body overflow-x-hidden">
+<main class="min-h-screen flex flex-col md:flex-row">
+<!-- Left Side: Registration Form (60%) -->
+<section class="w-full md:w-[60%] bg-surface-container-lowest flex flex-col items-center justify-center p-8 md:p-16 lg:p-24">
+<div class="w-full max-w-xl">
+<!-- Brand Anchor -->
+<div class="flex items-center gap-3 mb-12">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-on-primary">content_cut</span>
+</div>
+<span class="text-xl font-bold tracking-tight text-on-surface">BarberFlow</span>
+</div>
+<div class="space-y-2 mb-10">
+<h1 class="text-4xl font-bold text-on-surface tracking-tight">Comece agora</h1>
+<p class="text-on-surface-variant text-lg">Crie sua conta em segundos e transforme sua barbearia.</p>
+</div>
+<form class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Full Name -->
+<div class="col-span-2">
+<label class="block text-xs font-semibold tracking-wider text-on-surface-variant uppercase mb-2">Nome completo</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface" placeholder="Ex: João Silva" type="text"/>
+</div>
+<!-- Barber Shop Name -->
+<div class="col-span-2 md:col-span-1">
+<label class="block text-xs font-semibold tracking-wider text-on-surface-variant uppercase mb-2">Nome da barbearia</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface" placeholder="Ex: Barber Precision" type="text"/>
+</div>
+<!-- Phone (BR Mask) -->
+<div class="col-span-2 md:col-span-1">
+<label class="block text-xs font-semibold tracking-wider text-on-surface-variant uppercase mb-2">Telefone</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface" placeholder="(00) 00000-0000" type="tel"/>
+</div>
+<!-- Email -->
+<div class="col-span-2">
+<label class="block text-xs font-semibold tracking-wider text-on-surface-variant uppercase mb-2">Email</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface" placeholder="seu@email.com" type="email"/>
+</div>
+<!-- CNPJ (Optional with Tooltip) -->
+<div class="col-span-2">
+<div class="flex items-center gap-1.5 mb-2">
+<label class="block text-xs font-semibold tracking-wider text-on-surface-variant uppercase">CNPJ (Opcional)</label>
+<span class="material-symbols-outlined text-sm text-outline cursor-help" title="Usado para emissão de notas fiscais">info</span>
+</div>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface" placeholder="00.000.000/0000-00" type="text"/>
+</div>
+<!-- Password -->
+<div class="col-span-2 md:col-span-1">
+<label class="block text-xs font-semibold tracking-wider text-on-surface-variant uppercase mb-2">Senha</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface" placeholder="••••••••" type="password"/>
+<!-- Strength Meter -->
+<div class="mt-2 flex gap-1 items-center">
+<div class="h-1 w-full bg-secondary-container rounded-full"></div>
+<div class="h-1 w-full bg-secondary-container rounded-full"></div>
+<div class="h-1 w-full bg-outline-variant rounded-full"></div>
+<div class="h-1 w-full bg-outline-variant rounded-full"></div>
+<span class="text-[10px] text-on-surface-variant ml-2 font-medium">Médio</span>
+</div>
+</div>
+<!-- Confirm Password -->
+<div class="col-span-2 md:col-span-1">
+<label class="block text-xs font-semibold tracking-wider text-on-surface-variant uppercase mb-2">Confirmar senha</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface" placeholder="••••••••" type="password"/>
+</div>
+<!-- Terms Checkbox -->
+<div class="col-span-2 flex items-start gap-3 mt-2">
+<input class="mt-1 rounded-sm border-outline-variant text-secondary focus:ring-secondary h-4 w-4" id="terms" type="checkbox"/>
+<label class="text-sm text-on-surface-variant leading-relaxed" for="terms">
+                            Li e aceito os <a class="text-secondary font-semibold hover:underline" href="#">Termos de Uso</a> e a <a class="text-secondary font-semibold hover:underline" href="#">Política de Privacidade</a>.
+                        </label>
+</div>
+<!-- CTA Section -->
+<div class="col-span-2 mt-4">
+<button class="w-full py-4 bg-primary text-on-primary font-bold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2" type="submit">
+                            Criar minha conta grátis
+                            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<p class="text-center text-sm text-on-surface-variant mt-4 font-medium italic">
+                            14 dias grátis, sem cartão de crédito
+                        </p>
+</div>
+</form>
+<div class="mt-12 pt-8 border-t border-surface-container-high text-center">
+<p class="text-on-surface-variant">Já possui uma conta? <a class="text-secondary font-bold hover:underline" href="#">Fazer login</a></p>
+</div>
+</div>
+</section>
+<!-- Right Side: Visual & Gradient (40%) -->
+<section class="hidden md:flex md:w-[40%] amber-gradient relative overflow-hidden items-center justify-center p-12">
+<!-- Decorative Elements -->
+<div class="absolute inset-0 opacity-20" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCMoJXw7WK4rgl08NadQB7a8fusbxYV0-O2m3ZfrmsNZ24YyswU5gIfDmOiUa4nTG_L_9LxOpnZTxqQhgzhcgoZfaq6V3y34YrYVFkWIXjd6DNFRBYuGkl2Yj_-mYIm1BExkek1RT-vhkGmKWdE5-519UkAjNQahlpFMnzi7YG8j2XKYkshPDJUKFMQrDokSnL5pIk56PvsnmprWCdX4Kn7qq8r9AIdKSOFs-hh3YFVK_tAqMzkJvnh7tAWYt-bRbacT9aaQ_QguN0');"></div>
+<div class="relative z-10 w-full max-w-md">
+<div class="glass-card p-8 rounded-lg space-y-8">
+<div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-3xl" data-weight="fill">verified_user</span>
+</div>
+<div class="space-y-4">
+<h2 class="text-white text-3xl font-bold leading-tight">A ferramenta definitiva para o barbeiro moderno.</h2>
+<p class="text-white/80 text-lg leading-relaxed">Gerencie agendamentos, estoque e financeiro em um só lugar com o design mais elegante do mercado.</p>
+</div>
+<div class="pt-6 flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed text-xs">check</span>
+</div>
+<span class="text-white font-medium">Controle total da agenda</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed text-xs">check</span>
+</div>
+<span class="text-white font-medium">Relatórios financeiros automáticos</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed text-xs">check</span>
+</div>
+<span class="text-white font-medium">Marketing via WhatsApp</span>
+</div>
+</div>
+</div>
+<!-- Floating Badge -->
+<div class="absolute -bottom-6 -right-6 glass-card px-6 py-4 rounded-lg flex items-center gap-3 shadow-xl">
+<div class="flex -space-x-3">
+<img alt="Client 1" class="w-8 h-8 rounded-full border-2 border-white/20" data-alt="portrait of a confident barber in his shop with warm ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuLw0a_NN0FF5hGnE0i9ulkT4A257WCSg8m1qg05xbocy0F40l4mYW6BB_TToEA-nsshW9vqHArWOdSMPcTLXDtwTcrw9_mt2bt49WNIPbT3TN4xQu7AQ4HWN3fvTP0WIBc4dxSfwgFdNamB7xWQrq5mR1q_c1XO5cS-3FBRwmB0ESxuXZ325Uv5Yl-ZPA3SZX-GeACqX_Q61I0doOIh0nYQCazIqroaXF2gEzHzzkiDvOJQOWjnP9xRoR5ucRfgb81aGh6X7v_AI"/>
+<img alt="Client 2" class="w-8 h-8 rounded-full border-2 border-white/20" data-alt="professional portrait of a man smiling with soft focus background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBC1ibOSvrgT_i_BNk8cenpPgDLdhHqoF-cRJIuX9Fj9bwtiHv3XgeRujSIVGS5wGwNfKLmGVATUn5wbRdsRm8953L838aXSptX8v5S7OdIuP75GC-_wKnJR_Qi37HaTN-kEADSv1B5C3QJoWhzkr5sz5_ertyALG730FkEbPIW7wTMIJieDHw66_Id9l3numyS08zSK-FtlmqHm4TKw1Sz93iaueFIcMxFz0kbaPl4oJoabR6ITUVNPPSIpEwo5MhqdPdD6V-jmOw"/>
+</div>
+<div>
+<p class="text-white text-[10px] font-bold uppercase tracking-widest">Aprovado por</p>
+<p class="text-white text-xs">+2.000 Barbearias</p>
+</div>
+</div>
+</div>
+<!-- Background Aesthetic Image -->
+<div class="absolute inset-0 -z-10 opacity-30">
+<img alt="Barbershop interior" class="w-full h-full object-cover" data-alt="luxury modern barbershop interior with leather chairs and wooden details at night with warm atmospheric lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABeKQ5fZ-S3Pf2EOkPpLxL8eTJ1Pn4amOWGlMgjzhiKAbCz_00XEsQkAElD9w0yVim2UlAVmaDQtLqaUuc42L0SYWWXEKzmr1Vcb9I0bFQ3r0DbnepyVagzpenM1JjPgIOMbfYGToUN4kYh8wL8HbFDooXcnLPP6OZr58MjQBSSWmRd0EVnYqyukewDrCzjA4Ob-Oy_UkBJLHL_VwUYW3NlzQVcrP4oVVKUvl7OoDOI2svhKLiirZj-yTEq3cjUj2UmUGPZMo-7jc"/>
+</div>
+</section>
+</main>
+</body></html>
