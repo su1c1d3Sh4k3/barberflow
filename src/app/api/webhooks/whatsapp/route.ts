@@ -13,41 +13,63 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const supabase = createServiceRoleClient();
 
-    // Extract message data from uazapi webhook payload
-    const { event, data, instance } = body;
+    // uazapi webhook payload can use "EventType" OR "event" for the event name
+    const eventType: string = body?.EventType || body?.event || "";
 
-    if (event !== "messages") {
-      return NextResponse.json({ success: true, skipped: true });
+    // Only process incoming messages
+    if (eventType !== "messages" && eventType !== "message") {
+      return NextResponse.json({ success: true, skipped: true, eventType });
     }
 
-    const phone = data?.key?.remoteJid?.replace("@s.whatsapp.net", "");
-    const message =
+    const data = body?.data || {};
+
+    // uazapi Message schema: data.sender / data.chatid / data.from contain the JID
+    // Fallback to Baileys-style data.key.remoteJid for compatibility
+    const rawJid: string =
+      data?.sender ||
+      data?.chatid ||
+      data?.from ||
+      data?.key?.remoteJid ||
+      "";
+
+    const phone = rawJid.replace(/@s\.whatsapp\.net$/, "").replace(/@.*$/, "");
+
+    // uazapi uses data.text; Baileys uses data.message.conversation etc.
+    const message: string =
+      data?.text ||
+      data?.buttonOrListid ||
       data?.message?.conversation ||
       data?.message?.extendedTextMessage?.text ||
       data?.message?.buttonsResponseMessage?.selectedButtonId ||
       data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId ||
       "";
-    const isFromMe = data?.key?.fromMe;
+
+    // uazapi uses data.fromMe directly; Baileys uses data.key.fromMe
+    const isFromMe: boolean = data?.fromMe ?? data?.key?.fromMe ?? false;
+
+    // Contact name: uazapi uses senderName; Baileys uses pushName
+    const senderName: string = data?.senderName || data?.pushName || "";
 
     if (!phone || !message || isFromMe) {
+      console.log("WhatsApp webhook: skipping message", { phone: !!phone, message: !!message, isFromMe, eventType });
       return NextResponse.json({ success: true, skipped: true });
     }
 
-    // Find tenant by whatsapp_sessions instance
-    // uazapi sends: { event, instance: "string-id", token: "instance-token", data: {...} }
-    // instance field is a STRING (instance ID), not an object
+    const supabase = createServiceRoleClient();
+
+    // Find tenant by instance token (most reliable) or instance ID
+    const instance = body?.instance;
     const instanceId = typeof instance === "string"
       ? instance
       : (instance?.id || instance?.instanceId || body?.instanceId);
-    const payloadToken: string | null = body?.token || null; // uazapi includes instance token in payload
+    const payloadToken: string | null = body?.token || null;
 
     let tenantId: string | null = null;
     let instanceToken: string | null = null;
     let serviceActive = false;
 
-    // Priority 1: lookup by instance token (most reliable)
+    // Priority 1: lookup by instance token
     if (payloadToken) {
       const { data: session } = await supabase
         .from("whatsapp_sessions")
@@ -79,8 +101,8 @@ export async function POST(request: Request) {
       }
     }
 
-    if (!tenantId || !instanceToken) {
-      // Fallback: try to find session by phone match from instance
+    // Priority 3: fallback by phone number
+    if (!tenantId) {
       const instancePhone = typeof instance === "object" ? (instance?.phone || body?.phone) : body?.phone;
       if (instancePhone) {
         const { data: session } = await supabase
@@ -102,7 +124,7 @@ export async function POST(request: Request) {
       console.error("WhatsApp webhook: could not identify tenant", {
         instanceId,
         payloadToken: payloadToken ? payloadToken.slice(0, 8) + "..." : null,
-        event,
+        eventType,
         bodyKeys: Object.keys(body),
       });
       return NextResponse.json({ success: false, error: "tenant_not_found" }, { status: 404 });
@@ -117,13 +139,11 @@ export async function POST(request: Request) {
       .single();
 
     if (!contact) {
-      // Create new contact
-      const pushName = data?.pushName || `Cliente ${phone.slice(-4)}`;
       const { data: newContact } = await supabase
         .from("contacts")
         .insert({
           tenant_id: tenantId,
-          name: pushName,
+          name: senderName || `Cliente ${phone.slice(-4)}`,
           phone: phone,
           source: "whatsapp",
           status: "pendente",
@@ -152,7 +172,7 @@ export async function POST(request: Request) {
       .update({ last_message_at: new Date().toISOString() })
       .eq("id", contact.id);
 
-    // If service is not active, log the message but do not process through bot
+    // If service is not active, log but do not process through bot
     if (!serviceActive) {
       return NextResponse.json({ success: true, skipped: true, reason: "service_inactive" });
     }
