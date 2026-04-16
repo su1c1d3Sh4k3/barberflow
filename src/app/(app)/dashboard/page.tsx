@@ -181,7 +181,7 @@ export default function DashboardPage() {
     // No upper date limit: future pendente/confirmado are included in previsão
     const { data: profAppts } = await supabase
       .from("appointments")
-      .select("total_price, status, professionals(id, name, commission_pct)")
+      .select("total_price, status, start_at, professionals(id, name, commission_pct)")
       .eq("tenant_id", tenant.id)
       .in("status", ["pendente", "confirmado", "concluido"])
       .gte("start_at", dateFrom.toISOString());
@@ -193,9 +193,11 @@ export default function DashboardPage() {
       const commPct = prof?.commission_pct || 0;
       if (!profMap[profName]) profMap[profName] = { previsao: 0, faturamento: 0, commission_pct: commPct };
       const price = Number(a.total_price || 0);
+      const isFuture = new Date((a as any).start_at) > now;
       if (a.status === "concluido") {
         profMap[profName].faturamento += price;
-      } else {
+      } else if (isFuture) {
+        // Only future pendente/confirmado count as previsão (past-due overdue excluded)
         profMap[profName].previsao += price;
       }
     }

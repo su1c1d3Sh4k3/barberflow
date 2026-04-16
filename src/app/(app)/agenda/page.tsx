@@ -356,10 +356,11 @@ export default function AgendaPage() {
       const last = monthDays[monthDays.length - 1];
       return { start: `${toDateStr(first)}T00:00:00`, end: `${toDateStr(last)}T23:59:59` };
     }
-    // list: 30 days from selectedDate
+    // list: from start of current month to +30 days from selectedDate (shows past overdue)
+    const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
     const listEnd = new Date(selectedDate);
     listEnd.setDate(listEnd.getDate() + 29);
-    return { start: `${toDateStr(selectedDate)}T00:00:00`, end: `${toDateStr(listEnd)}T23:59:59` };
+    return { start: `${toDateStr(monthStart)}T00:00:00`, end: `${toDateStr(listEnd)}T23:59:59` };
   }, [viewMode, selectedDate]);
 
   // Fetch appointments for date range
@@ -597,9 +598,10 @@ export default function AgendaPage() {
   function getHeaderText(): string {
     if (viewMode === "day") return formatDateHeader(selectedDate);
     if (viewMode === "list") {
+      const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
       const listEnd = new Date(selectedDate);
       listEnd.setDate(listEnd.getDate() + 29);
-      const startStr = `${selectedDate.getDate()}/${(selectedDate.getMonth() + 1).toString().padStart(2, "0")}`;
+      const startStr = `${monthStart.getDate().toString().padStart(2, "0")}/${(monthStart.getMonth() + 1).toString().padStart(2, "0")}`;
       const endStr = `${listEnd.getDate()}/${(listEnd.getMonth() + 1).toString().padStart(2, "0")}`;
       return `${startStr} — ${endStr}`;
     }

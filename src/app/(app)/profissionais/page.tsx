@@ -74,14 +74,14 @@ function ProfessionalDetailModal({
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
       const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
 
-      // Previsão: pendente + confirmado this month
+      // Previsão: pendente + confirmado this month, future only (exclude past-due)
       const { data: activeAppts } = await supabase
         .from("appointments")
         .select("total_price")
         .eq("tenant_id", tenant.id)
         .eq("professional_id", professional.id)
         .in("status", ["pendente", "confirmado"])
-        .gte("start_at", monthStart)
+        .gte("start_at", now.toISOString())
         .lt("start_at", monthEnd);
 
       // Faturamento: concluido this month
