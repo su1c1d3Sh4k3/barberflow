@@ -41,7 +41,9 @@ export async function POST(request: NextRequest) {
       return apiError("Instance token not available", 400);
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://your-app.vercel.app";
+    // Derive the base URL: prefer explicit env var, fall back to request host
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ||
+      `${request.headers.get("x-forwarded-proto") || "https"}://${request.headers.get("host")}`;
     const webhookUrl = `${appUrl}/api/webhooks/whatsapp`;
 
     // Call uazapi to configure the webhook
@@ -49,8 +51,8 @@ export async function POST(request: NextRequest) {
       url: webhookUrl,
       events: ["messages", "messages_update", "connection"],
       enabled: true,
-      addUrlEvents: true,
-      addUrlTypesMessages: true,
+      addUrlEvents: false,
+      addUrlTypesMessages: false,
       excludeMessages: ["fromMe"],
     });
 

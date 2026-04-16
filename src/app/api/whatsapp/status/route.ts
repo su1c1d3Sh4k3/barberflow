@@ -43,25 +43,25 @@ export async function GET(request: NextRequest) {
 
     // If just became connected, auto-configure webhook
     if (liveStatus === "connected" && session.status !== "connected") {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-      if (!appUrl) {
-        console.error("WhatsApp webhook config FAILED: NEXT_PUBLIC_APP_URL is not set. Messages will NOT be received.");
-      } else {
-        const webhookUrl = `${appUrl}/api/webhooks/whatsapp`;
-        console.log(`WhatsApp: configuring webhook to ${webhookUrl}`);
-        try {
-          await uazapi.setWebhook(session.instance_token, {
-            url: webhookUrl,
-            events: ["messages", "messages_update", "connection"],
-            enabled: true,
-            addUrlEvents: false,
-            addUrlTypesMessages: false,
-            excludeMessages: ["fromMe"],
-          });
-          console.log("WhatsApp: webhook configured successfully");
-        } catch (err) {
-          console.error("WhatsApp: failed to configure webhook", err);
-        }
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ||
+        `${request.headers.get("x-forwarded-proto") || "https"}://${request.headers.get("host")}`;
+      if (appUrl.includes("localhost")) {
+        console.warn("WhatsApp webhook: URL is localhost — uazapi cannot reach it. Set NEXT_PUBLIC_APP_URL to the VPS public URL.");
+      }
+      const webhookUrl = `${appUrl}/api/webhooks/whatsapp`;
+      console.log(`WhatsApp: configuring webhook to ${webhookUrl}`);
+      try {
+        await uazapi.setWebhook(session.instance_token, {
+          url: webhookUrl,
+          events: ["messages", "messages_update", "connection"],
+          enabled: true,
+          addUrlEvents: false,
+          addUrlTypesMessages: false,
+          excludeMessages: ["fromMe"],
+        });
+        console.log("WhatsApp: webhook configured successfully");
+      } catch (err) {
+        console.error("WhatsApp: failed to configure webhook", err);
       }
 
       await supabase

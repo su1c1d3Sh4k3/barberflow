@@ -12,6 +12,7 @@ import {
   Loader2,
   MessageCircle,
   CheckCircle2,
+  Webhook,
 } from "lucide-react";
 import { useTenantStore } from "@/stores/tenant-store";
 import { maskPhone } from "@/lib/masks";
@@ -41,6 +42,8 @@ export default function WhatsAppPage() {
   // Form fields
   const [instanceName, setInstanceName] = useState("");
   const [phone, setPhone] = useState("");
+  const [webhookStatus, setWebhookStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+  const [webhookMsg, setWebhookMsg] = useState<string | null>(null);
 
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tenantId = tenant?.id;
@@ -156,6 +159,31 @@ export default function WhatsAppPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao conectar");
       setConnecting(false);
+    }
+  }
+
+  // Reconfigure webhook
+  async function handleReconfigureWebhook() {
+    if (!instanceName) return;
+    setWebhookStatus("loading");
+    setWebhookMsg(null);
+    try {
+      const res = await fetch("/api/whatsapp/configure-webhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ instance_id: instanceName }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setWebhookStatus("error");
+        setWebhookMsg(json.error || "Falha ao configurar webhook");
+      } else {
+        setWebhookStatus("ok");
+        setWebhookMsg(`Webhook configurado: ${json.data?.webhook_url}`);
+      }
+    } catch {
+      setWebhookStatus("error");
+      setWebhookMsg("Erro ao conectar com o servidor");
     }
   }
 
@@ -316,14 +344,34 @@ export default function WhatsAppPage() {
                   <p className="text-sm text-muted-foreground">WhatsApp Business ativo</p>
                 </div>
               </div>
-              <button
-                onClick={handleDisconnect}
-                className="flex items-center gap-2 rounded-lg border-2 border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition"
-              >
-                <WifiOff className="h-4 w-4" />
-                Desconectar
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleReconfigureWebhook}
+                  disabled={webhookStatus === "loading"}
+                  title="Reconfigurar webhook do bot"
+                  className="flex items-center gap-2 rounded-lg border-2 border-amber-200 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50 transition disabled:opacity-50"
+                >
+                  {webhookStatus === "loading" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Webhook className="h-4 w-4" />
+                  )}
+                  Reconfigurar Webhook
+                </button>
+                <button
+                  onClick={handleDisconnect}
+                  className="flex items-center gap-2 rounded-lg border-2 border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition"
+                >
+                  <WifiOff className="h-4 w-4" />
+                  Desconectar
+                </button>
+              </div>
             </div>
+            {webhookMsg && (
+              <div className={`mt-3 rounded-lg px-4 py-2 text-sm ${webhookStatus === "ok" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+                {webhookMsg}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
