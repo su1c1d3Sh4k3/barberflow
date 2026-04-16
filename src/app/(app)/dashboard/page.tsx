@@ -8,6 +8,7 @@ import {
   DollarSign,
   Download,
   ChevronDown,
+  CheckCircle2,
 } from "lucide-react";
 import {
   BarChart,
@@ -31,7 +32,8 @@ interface Stats {
   canceled: number;
   rescheduled: number;
   followup: number;
-  revenue: number;
+  previsao: number;
+  faturamento: number;
   conversionRate: number;
 }
 
@@ -42,7 +44,10 @@ interface DayOfWeekData {
 
 interface ProfessionalRevenue {
   name: string;
-  total: number;
+  previsao: number;
+  faturamento: number;
+  commission_pct: number;
+  comissao: number;
 }
 
 interface ExportAppointment {
@@ -54,9 +59,10 @@ interface ExportAppointment {
   value: number;
 }
 
-interface UpcomingAppointment {
+interface AppointmentItem {
   id: string;
   start_at: string;
+  status: string;
   contacts: { name: string } | null;
   professionals: { name: string } | null;
   appointment_services: Array<{ services: { name: string } | null }>;
@@ -64,14 +70,30 @@ interface UpcomingAppointment {
 
 const DAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
 
+const STATUS_LABELS: Record<string, string> = {
+  pendente: "Pendente",
+  confirmado: "Confirmado",
+  concluido: "Concluído",
+  cancelado: "Cancelado",
+  reagendado: "Reagendado",
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  pendente: "bg-amber-100 text-amber-700",
+  confirmado: "bg-emerald-100 text-emerald-700",
+  concluido: "bg-blue-100 text-blue-700",
+  cancelado: "bg-red-100 text-red-700",
+  reagendado: "bg-purple-100 text-purple-700",
+};
+
 export default function DashboardPage() {
   const { user, tenant } = useTenantStore();
   const supabase = createClient();
   const [stats, setStats] = useState<Stats>({
     contacts: 0, appointments: 0, confirmed: 0, completed: 0,
-    canceled: 0, rescheduled: 0, followup: 0, revenue: 0, conversionRate: 0,
+    canceled: 0, rescheduled: 0, followup: 0, previsao: 0, faturamento: 0, conversionRate: 0,
   });
-  const [upcoming, setUpcoming] = useState<UpcomingAppointment[]>([]);
+  const [lastAppointments, setLastAppointments] = useState<AppointmentItem[]>([]);
   const [dayOfWeekData, setDayOfWeekData] = useState<DayOfWeekData[]>(
     DAY_LABELS.map((day) => ({ day, count: 0 }))
   );
@@ -120,6 +142,13 @@ export default function DashboardPage() {
       .eq("status", "follow_up");
 
     const apt = appointments || [];
+    const previsao = apt
+      .filter(a => ["pendente", "confirmado"].includes(a.status))
+      .reduce((sum, a) => sum + Number(a.total_price || 0), 0);
+    const faturamento = apt
+      .filter(a => a.status === "concluido")
+      .reduce((sum, a) => sum + Number(a.total_price || 0), 0);
+
     setStats({
       contacts: contactsCount || 0,
       appointments: apt.length,
@@ -128,8 +157,8 @@ export default function DashboardPage() {
       canceled: apt.filter(a => a.status === "cancelado").length,
       rescheduled: apt.filter(a => a.status === "reagendado").length,
       followup: followupCount || 0,
-      revenue: apt.filter(a => ["confirmado", "concluido"].includes(a.status))
-        .reduce((sum, a) => sum + (a.total_price || 0), 0),
+      previsao: Math.round(previsao * 100) / 100,
+      faturamento: Math.round(faturamento * 100) / 100,
       conversionRate: contactsCount ? Math.round((apt.length / contactsCount) * 100) : 0,
     });
 
@@ -141,24 +170,38 @@ export default function DashboardPage() {
     }
     setDayOfWeekData(DAY_LABELS.map((day, i) => ({ day, count: byDow[i] })));
 
-    // Revenue by professional
+    // Revenue by professional (previsao + faturamento + comissao)
     const { data: profAppts } = await supabase
       .from("appointments")
-      .select("total_price, professionals(name)")
+      .select("total_price, status, professionals(id, name, commission_pct)")
       .eq("tenant_id", tenant.id)
-      .in("status", ["confirmado", "concluido"])
+      .in("status", ["pendente", "confirmado", "concluido"])
       .gte("start_at", dateFrom.toISOString())
       .lte("start_at", now.toISOString());
 
-    const profMap: Record<string, number> = {};
+    const profMap: Record<string, { previsao: number; faturamento: number; commission_pct: number }> = {};
     for (const a of profAppts || []) {
-      const profName = (a.professionals as unknown as { name: string } | null)?.name || "Sem profissional";
-      profMap[profName] = (profMap[profName] || 0) + Number(a.total_price || 0);
+      const prof = a.professionals as unknown as { name: string; commission_pct: number } | null;
+      const profName = prof?.name || "Sem profissional";
+      const commPct = prof?.commission_pct || 0;
+      if (!profMap[profName]) profMap[profName] = { previsao: 0, faturamento: 0, commission_pct: commPct };
+      const price = Number(a.total_price || 0);
+      if (a.status === "concluido") {
+        profMap[profName].faturamento += price;
+      } else {
+        profMap[profName].previsao += price;
+      }
     }
     setProfRevenue(
       Object.entries(profMap)
-        .map(([name, total]) => ({ name, total: Math.round(total * 100) / 100 }))
-        .sort((a, b) => b.total - a.total)
+        .map(([name, d]) => ({
+          name,
+          previsao: Math.round(d.previsao * 100) / 100,
+          faturamento: Math.round(d.faturamento * 100) / 100,
+          commission_pct: d.commission_pct,
+          comissao: Math.round(d.faturamento * d.commission_pct / 100 * 100) / 100,
+        }))
+        .sort((a, b) => (b.faturamento + b.previsao) - (a.faturamento + a.previsao))
     );
 
     // Export data
@@ -184,17 +227,17 @@ export default function DashboardPage() {
       }))
     );
 
-    // Upcoming
-    const { data: upcomingData } = await supabase
+    // Last appointments (most recent in period)
+    const { data: lastData } = await supabase
       .from("appointments")
-      .select("id, start_at, contacts(name), professionals(name), appointment_services(services(name))")
+      .select("id, start_at, status, contacts(name), professionals(name), appointment_services(services(name))")
       .eq("tenant_id", tenant.id)
-      .gte("start_at", now.toISOString())
-      .in("status", ["pendente", "confirmado"])
-      .order("start_at")
-      .limit(5);
+      .gte("start_at", dateFrom.toISOString())
+      .lte("start_at", now.toISOString())
+      .order("start_at", { ascending: false })
+      .limit(6);
 
-    setUpcoming((upcomingData as unknown as UpcomingAppointment[]) || []);
+    setLastAppointments((lastData as unknown as AppointmentItem[]) || []);
   }, [tenant?.id, period, supabase]);
 
   useEffect(() => {
@@ -217,7 +260,8 @@ export default function DashboardPage() {
     { label: "Contatos totais", value: stats.contacts.toString(), icon: Users, color: "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" },
     { label: "Agendamentos", value: stats.appointments.toString(), icon: Calendar, color: "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" },
     { label: "Taxa de conversao", value: `${stats.conversionRate}%`, icon: TrendingUp, color: "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400" },
-    { label: "Faturamento previsto", value: formatCurrency(stats.revenue), icon: DollarSign, color: "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400" },
+    { label: "Previsão", value: formatCurrency(stats.previsao), icon: DollarSign, color: "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400" },
+    { label: "Faturamento", value: formatCurrency(stats.faturamento), icon: CheckCircle2, color: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" },
   ];
 
   const statusCards = [
@@ -245,7 +289,8 @@ export default function DashboardPage() {
     lines.push(`Contatos totais;${stats.contacts}`);
     lines.push(`Agendamentos;${stats.appointments}`);
     lines.push(`Taxa de conversao;${stats.conversionRate}%`);
-    lines.push(`Faturamento previsto;${stats.revenue.toFixed(2)}`);
+    lines.push(`Previsao;${stats.previsao.toFixed(2)}`);
+    lines.push(`Faturamento;${stats.faturamento.toFixed(2)}`);
     lines.push(`Confirmados;${stats.confirmed}`);
     lines.push(`Concluidos;${stats.completed}`);
     lines.push(`Cancelados;${stats.canceled}`);
@@ -287,10 +332,10 @@ export default function DashboardPage() {
         table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
         th { background: #F59E0B; color: #fff; padding: 8px 12px; text-align: left; }
         td { border-bottom: 1px solid #e5e7eb; padding: 6px 12px; }
-        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 12px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 12px; }
         .kpi-card { background: #fef3c7; border-radius: 12px; padding: 16px; text-align: center; }
-        .kpi-value { font-size: 24px; font-weight: 700; }
-        .kpi-label { font-size: 12px; color: #666; text-transform: uppercase; }
+        .kpi-value { font-size: 20px; font-weight: 700; }
+        .kpi-label { font-size: 11px; color: #666; text-transform: uppercase; }
         @media print { body { padding: 20px; } }
       </style></head><body>
       <h1>BarberFlow - Relatorio</h1>
@@ -300,12 +345,13 @@ export default function DashboardPage() {
         <div class="kpi-card"><div class="kpi-value">${stats.contacts}</div><div class="kpi-label">Contatos</div></div>
         <div class="kpi-card"><div class="kpi-value">${stats.appointments}</div><div class="kpi-label">Agendamentos</div></div>
         <div class="kpi-card"><div class="kpi-value">${stats.conversionRate}%</div><div class="kpi-label">Conversao</div></div>
-        <div class="kpi-card"><div class="kpi-value">R$ ${stats.revenue.toFixed(2)}</div><div class="kpi-label">Faturamento</div></div>
+        <div class="kpi-card"><div class="kpi-value">R$ ${stats.previsao.toFixed(2)}</div><div class="kpi-label">Previsao</div></div>
+        <div class="kpi-card"><div class="kpi-value">R$ ${stats.faturamento.toFixed(2)}</div><div class="kpi-label">Faturamento</div></div>
       </div>
       ${profRevenue.length > 0 ? `
       <h2>Faturamento por Profissional</h2>
-      <table><tr><th>Profissional</th><th>Faturamento</th></tr>
-      ${profRevenue.map(p => `<tr><td>${p.name}</td><td>R$ ${p.total.toFixed(2)}</td></tr>`).join("")}
+      <table><tr><th>Profissional</th><th>Previsao</th><th>Faturamento</th><th>Comissao (${profRevenue[0]?.commission_pct || 0}%)</th></tr>
+      ${profRevenue.map(p => `<tr><td>${p.name}</td><td>R$ ${p.previsao.toFixed(2)}</td><td>R$ ${p.faturamento.toFixed(2)}</td><td>R$ ${p.comissao.toFixed(2)}</td></tr>`).join("")}
       </table>` : ""}
       <h2>Agendamentos</h2>
       <table>
@@ -328,8 +374,6 @@ export default function DashboardPage() {
     }
     setExportOpen(false);
   }, [period, periodLabel, stats, profRevenue, exportData]);
-
-  const maxProfRevenue = Math.max(...profRevenue.map(p => p.total), 1);
 
   return (
     <div className="space-y-6">
@@ -391,8 +435,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* KPI Cards — 5 cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {kpis.map((kpi) => {
           const Icon = kpi.icon;
           return (
@@ -426,7 +470,7 @@ export default function DashboardPage() {
 
       {/* Charts row */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-        {/* Bar chart: Agendamentos por dia da semana (REAL DATA) */}
+        {/* Bar chart */}
         <div className="col-span-3 rounded-card bg-surface-container-lowest p-6 shadow-card">
           <h3 className="mb-4 text-title text-foreground">Agendamentos por dia da semana</h3>
           <div className="h-48">
@@ -449,15 +493,35 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Ultimos agendamentos (replaces WhatsApp status) */}
         <div className="col-span-2 rounded-card bg-surface-container-lowest p-6 shadow-card">
-          <h3 className="mb-4 text-title text-foreground">Status WhatsApp</h3>
-          <div className="flex flex-col items-center gap-4 py-6">
-            <div className="relative">
-              <div className="h-4 w-4 rounded-full bg-surface-container-high" />
+          <h3 className="mb-4 text-title text-foreground">Últimos agendamentos</h3>
+          {lastAppointments.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">Nenhum agendamento no período</p>
+          ) : (
+            <div className="space-y-2">
+              {lastAppointments.map((apt) => {
+                const svcName = apt.appointment_services?.[0]?.services?.name || "Serviço";
+                const timeStr = new Date(apt.start_at).toLocaleString("pt-BR", {
+                  day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+                });
+                return (
+                  <div key={apt.id} className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-surface-container-low">
+                    <div className="flex-1 min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{apt.contacts?.name || "Cliente"}</p>
+                      <p className="truncate text-xs text-muted-foreground">{svcName} · {apt.professionals?.name || ""}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-xs text-muted-foreground">{timeStr}</p>
+                      <span className={cn("mt-0.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold", STATUS_COLORS[apt.status] || "bg-gray-100 text-gray-600")}>
+                        {STATUS_LABELS[apt.status] || apt.status}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <p className="text-lg font-semibold text-muted-foreground">Desconectado</p>
-            <p className="text-xs text-muted-foreground">Configure em Conexao WhatsApp</p>
-          </div>
+          )}
         </div>
       </div>
 
@@ -469,21 +533,26 @@ export default function DashboardPage() {
           {profRevenue.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">Nenhum dado no periodo selecionado</p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {profRevenue.map((prof) => (
-                <div key={prof.name} className="space-y-1">
+                <div key={prof.name} className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">{prof.name}</span>
-                    <span className="text-sm font-semibold text-foreground">{formatCurrency(prof.total)}</span>
+                    <span className="text-sm font-semibold text-foreground">{prof.name}</span>
+                    <span className="text-xs text-muted-foreground">comissão {prof.commission_pct}%</span>
                   </div>
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-surface-container-low">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${(prof.total / maxProfRevenue) * 100}%`,
-                        background: "linear-gradient(90deg, #F59E0B, #fbbf24)",
-                      }}
-                    />
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="rounded-lg bg-purple-50 px-2 py-1.5">
+                      <p className="text-[10px] font-semibold uppercase text-purple-500">Previsão</p>
+                      <p className="text-xs font-bold text-purple-700">{formatCurrency(prof.previsao)}</p>
+                    </div>
+                    <div className="rounded-lg bg-emerald-50 px-2 py-1.5">
+                      <p className="text-[10px] font-semibold uppercase text-emerald-500">Faturamento</p>
+                      <p className="text-xs font-bold text-emerald-700">{formatCurrency(prof.faturamento)}</p>
+                    </div>
+                    <div className="rounded-lg bg-amber-50 px-2 py-1.5">
+                      <p className="text-[10px] font-semibold uppercase text-amber-500">Comissão</p>
+                      <p className="text-xs font-bold text-amber-700">{formatCurrency(prof.comissao)}</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -494,27 +563,30 @@ export default function DashboardPage() {
         {/* Upcoming appointments */}
         <div className="rounded-card bg-surface-container-lowest p-6 shadow-card">
           <h3 className="mb-4 text-title text-foreground">Proximos agendamentos</h3>
-          {upcoming.length === 0 ? (
+          {lastAppointments.filter(a => ["pendente", "confirmado"].includes(a.status)).length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">Nenhum agendamento proximo</p>
           ) : (
             <div className="space-y-3">
-              {upcoming.map((apt) => (
-                <div key={apt.id} className="flex items-center gap-3 rounded-btn p-3 hover:bg-surface-container-low">
-                  <div className="h-9 w-9 rounded-full bg-surface-container-high" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-foreground">{apt.contacts?.name || "Cliente"}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {apt.appointment_services?.map(s => s.services?.name).join(", ") || "Servico"}
-                    </p>
+              {lastAppointments
+                .filter(a => ["pendente", "confirmado"].includes(a.status))
+                .slice(0, 5)
+                .map((apt) => (
+                  <div key={apt.id} className="flex items-center gap-3 rounded-btn p-3 hover:bg-surface-container-low">
+                    <div className="h-9 w-9 rounded-full bg-surface-container-high" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">{apt.contacts?.name || "Cliente"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {apt.appointment_services?.map(s => s.services?.name).join(", ") || "Servico"}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-foreground">
+                        {new Date(apt.start_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{apt.professionals?.name || ""}</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-foreground">
-                      {new Date(apt.start_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{apt.professionals?.name || ""}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           )}
         </div>

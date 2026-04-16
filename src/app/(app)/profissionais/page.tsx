@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Star, Plus, X, Clock, Loader2 } from "lucide-react";
+import { Star, Plus, X, Clock, Loader2, Phone, Mail, Scissors } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { maskPhone } from "@/lib/masks";
 import { createClient } from "@/lib/supabase/client";
 import { useTenantStore } from "@/stores/tenant-store";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { formatCurrency } from "@/lib/utils";
 
 interface Professional {
   id: string;
@@ -25,6 +26,207 @@ interface Service {
 }
 
 const daysOfWeek = ["D", "S", "T", "Q", "Q", "S", "S"];
+const DAY_NAMES = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+// ─── Professional Detail Modal ────────────────────────────────────────────────
+
+function ProfessionalDetailModal({
+  professional,
+  onClose,
+}: {
+  professional: Professional;
+  onClose: () => void;
+}) {
+  const { tenant } = useTenantStore();
+  const [loading, setLoading] = useState(true);
+  const [linkedServices, setLinkedServices] = useState<Service[]>([]);
+  const [schedule, setSchedule] = useState<Array<{ weekday: number; start_time: string; end_time: string }>>([]);
+  const [commissionEarned, setCommissionEarned] = useState(0);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [appointmentCount, setAppointmentCount] = useState(0);
+
+  useEffect(() => {
+    async function load() {
+      if (!tenant?.id) return;
+      const supabase = createClient();
+
+      // Services linked to this professional
+      const { data: links } = await supabase
+        .from("professional_services")
+        .select("service_id, services(id, name)")
+        .eq("professional_id", professional.id);
+      setLinkedServices(
+        (links || [])
+          .map((l) => (l.services as unknown as Service | null))
+          .filter(Boolean) as Service[]
+      );
+
+      // Schedule
+      const { data: sched } = await supabase
+        .from("professional_schedules")
+        .select("weekday, start_time, end_time")
+        .eq("professional_id", professional.id)
+        .order("weekday");
+      setSchedule(sched || []);
+
+      // Commission earned this month (concluido appointments)
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const { data: appts } = await supabase
+        .from("appointments")
+        .select("total_price")
+        .eq("tenant_id", tenant.id)
+        .eq("professional_id", professional.id)
+        .eq("status", "concluido")
+        .gte("start_at", monthStart);
+
+      const total = (appts || []).reduce((sum, a) => sum + Number(a.total_price || 0), 0);
+      setMonthlyRevenue(Math.round(total * 100) / 100);
+      setCommissionEarned(Math.round(total * professional.commission_pct / 100 * 100) / 100);
+
+      // Total appointments this month (all statuses)
+      const { count } = await supabase
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenant.id)
+        .eq("professional_id", professional.id)
+        .gte("start_at", monthStart);
+      setAppointmentCount(count || 0);
+
+      setLoading(false);
+    }
+    load();
+  }, [professional.id, professional.commission_pct, tenant?.id]);
+
+  const monthName = new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[20px] bg-surface-container-lowest p-8 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-foreground">Detalhes do Profissional</h2>
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-muted-foreground transition hover:bg-surface-container-low"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Profile */}
+        <div className="mb-6 flex items-center gap-5">
+          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full bg-surface-container-low">
+            {professional.avatar_url ? (
+              <img src={professional.avatar_url} alt={professional.name} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-xl font-bold text-muted-foreground">
+                {professional.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+              </div>
+            )}
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-foreground">{professional.name}</h3>
+            {professional.bio && <p className="mt-1 text-sm text-muted-foreground">{professional.bio}</p>}
+            <div className="mt-2 flex flex-wrap gap-3">
+              {professional.phone && (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Phone size={12} /> {professional.phone}
+                </span>
+              )}
+              {professional.email && (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Mail size={12} /> {professional.email}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 size={28} className="animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Month summary */}
+            <div>
+              <p className="mb-3 text-xs font-semibold uppercase text-muted-foreground">
+                Resumo de {monthName}
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-xl bg-surface-container-low p-3 text-center">
+                  <p className="text-lg font-bold text-foreground">{appointmentCount}</p>
+                  <p className="text-[10px] font-semibold uppercase text-muted-foreground">Agendamentos</p>
+                </div>
+                <div className="rounded-xl bg-emerald-50 p-3 text-center">
+                  <p className="text-lg font-bold text-emerald-700">{formatCurrency(monthlyRevenue)}</p>
+                  <p className="text-[10px] font-semibold uppercase text-emerald-500">Faturamento</p>
+                </div>
+                <div className="rounded-xl bg-amber-50 p-3 text-center">
+                  <p className="text-lg font-bold text-amber-700">{formatCurrency(commissionEarned)}</p>
+                  <p className="text-[10px] font-semibold uppercase text-amber-500">Comissão ({professional.commission_pct}%)</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Services */}
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
+                <Scissors size={11} className="mr-1 inline" />
+                Serviços
+              </p>
+              {linkedServices.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Nenhum serviço vinculado</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {linkedServices.map((svc) => (
+                    <span
+                      key={svc.id}
+                      className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800"
+                    >
+                      {svc.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Schedule */}
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
+                <Clock size={11} className="mr-1 inline" />
+                Agenda semanal
+              </p>
+              {schedule.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Sem horários cadastrados</p>
+              ) : (
+                <div className="space-y-1">
+                  {schedule.map((s) => (
+                    <div key={s.weekday} className="flex items-center justify-between rounded-lg bg-surface-container-low px-3 py-2">
+                      <span className="text-sm font-medium text-foreground">{DAY_NAMES[s.weekday]}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {s.start_time.slice(0, 5)} – {s.end_time.slice(0, 5)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── New Professional Modal ───────────────────────────────────────────────────
 
 function NewProfessionalModal({
   open,
@@ -77,7 +279,6 @@ function NewProfessionalModal({
       const tenantId = tenant.id;
       const companyId = company?.id;
 
-      // Create professional
       const { data: prof, error: profError } = await supabase
         .from("professionals")
         .insert({
@@ -98,51 +299,26 @@ function NewProfessionalModal({
         return;
       }
 
-      // Link services
       if (selectedServices.length > 0) {
-        const { error: servError } = await supabase
-          .from("professional_services")
-          .insert(
-            selectedServices.map((sid) => ({
-              professional_id: prof.id,
-              service_id: sid,
-            }))
-          );
-        if (servError) {
-          console.error("Erro ao vincular serviços:", servError);
-          // Continue - professional was created, services can be linked later
-        }
+        await supabase.from("professional_services").insert(
+          selectedServices.map((sid) => ({ professional_id: prof.id, service_id: sid }))
+        );
       }
 
-      // Create schedule for active days
       if (selectedDays.length > 0) {
-        const { error: schedError } = await supabase
-          .from("professional_schedules")
-          .insert(
-            selectedDays.map((day) => ({
-              professional_id: prof.id,
-              weekday: day,
-              start_time: horarioInicio,
-              end_time: horarioTermino,
-            }))
-          );
-        if (schedError) {
-          console.error("Erro ao criar agenda:", schedError);
-          // Continue - professional was created, schedule can be set later
-        }
+        await supabase.from("professional_schedules").insert(
+          selectedDays.map((day) => ({
+            professional_id: prof.id,
+            weekday: day,
+            start_time: horarioInicio,
+            end_time: horarioTermino,
+          }))
+        );
       }
 
-      // Reset form
-      setNome("");
-      setPhone("");
-      setEmail("");
-      setBio("");
-      setAvatarUrl(null);
-      setSelectedServices([]);
-      setCommission(30);
-      setSelectedDays([1, 2, 3, 4, 5]);
-      setHorarioInicio("09:00");
-      setHorarioTermino("18:00");
+      setNome(""); setPhone(""); setEmail(""); setBio(""); setAvatarUrl(null);
+      setSelectedServices([]); setCommission(30); setSelectedDays([1, 2, 3, 4, 5]);
+      setHorarioInicio("09:00"); setHorarioTermino("18:00");
 
       onSuccess();
     } catch (err) {
@@ -161,22 +337,14 @@ function NewProfessionalModal({
         className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[20px] bg-surface-container-lowest p-8 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-foreground">
-            Novo Profissional
-          </h2>
-          <button
-            onClick={onClose}
-            className="rounded-full p-2 text-muted-foreground transition hover:bg-surface-container-low"
-          >
+          <h2 className="text-2xl font-bold text-foreground">Novo Profissional</h2>
+          <button onClick={onClose} className="rounded-full p-2 text-muted-foreground transition hover:bg-surface-container-low">
             <X size={20} />
           </button>
         </div>
 
-        {/* Form */}
         <div className="space-y-6">
-          {/* Avatar Upload */}
           <div className="flex justify-center">
             <ImageUpload
               currentUrl={avatarUrl}
@@ -188,11 +356,8 @@ function NewProfessionalModal({
             />
           </div>
 
-          {/* Nome Completo */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Nome Completo
-            </label>
+            <label className="text-sm font-medium text-foreground">Nome Completo</label>
             <input
               type="text"
               value={nome}
@@ -202,11 +367,8 @@ function NewProfessionalModal({
             />
           </div>
 
-          {/* Telefone */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Telefone
-            </label>
+            <label className="text-sm font-medium text-foreground">Telefone</label>
             <input
               type="tel"
               value={phone}
@@ -216,11 +378,8 @@ function NewProfessionalModal({
             />
           </div>
 
-          {/* Email */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Email
-            </label>
+            <label className="text-sm font-medium text-foreground">Email</label>
             <input
               type="email"
               value={email}
@@ -230,11 +389,8 @@ function NewProfessionalModal({
             />
           </div>
 
-          {/* Bio / Especialidade */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Bio / Especialidade
-            </label>
+            <label className="text-sm font-medium text-foreground">Bio / Especialidade</label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
@@ -244,11 +400,8 @@ function NewProfessionalModal({
             />
           </div>
 
-          {/* Serviços */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Serviços
-            </label>
+            <label className="text-sm font-medium text-foreground">Serviços</label>
             <div className="flex flex-wrap gap-2">
               {services.map((service) => (
                 <button
@@ -265,22 +418,15 @@ function NewProfessionalModal({
                 </button>
               ))}
               {services.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Nenhum serviço cadastrado ainda.
-                </p>
+                <p className="text-sm text-muted-foreground">Nenhum serviço cadastrado ainda.</p>
               )}
             </div>
           </div>
 
-          {/* Comissão Slider */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-foreground">
-                Comissão
-              </label>
-              <span className="text-sm font-bold text-primary">
-                {commission}%
-              </span>
+              <label className="text-sm font-medium text-foreground">Comissão</label>
+              <span className="text-sm font-bold text-primary">{commission}%</span>
             </div>
             <input
               type="range"
@@ -292,11 +438,8 @@ function NewProfessionalModal({
             />
           </div>
 
-          {/* Disponibilidade */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Disponibilidade
-            </label>
+            <label className="text-sm font-medium text-foreground">Disponibilidade</label>
             <div className="flex gap-2">
               {daysOfWeek.map((day, index) => (
                 <button
@@ -315,12 +458,10 @@ function NewProfessionalModal({
             </div>
           </div>
 
-          {/* Horário */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="flex items-center gap-1 text-sm font-medium text-foreground">
-                <Clock size={14} />
-                Horário Início
+                <Clock size={14} /> Horário Início
               </label>
               <input
                 type="time"
@@ -331,8 +472,7 @@ function NewProfessionalModal({
             </div>
             <div className="space-y-2">
               <label className="flex items-center gap-1 text-sm font-medium text-foreground">
-                <Clock size={14} />
-                Horário Término
+                <Clock size={14} /> Horário Término
               </label>
               <input
                 type="time"
@@ -344,7 +484,6 @@ function NewProfessionalModal({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="mt-8 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
@@ -367,9 +506,12 @@ function NewProfessionalModal({
   );
 }
 
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
 export default function ProfissionaisPage() {
   const { tenant } = useTenantStore();
   const [modalOpen, setModalOpen] = useState(false);
+  const [detailProfessional, setDetailProfessional] = useState<Professional | null>(null);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -409,9 +551,7 @@ export default function ProfissionaisPage() {
   useEffect(() => {
     if (!tenant?.id) return;
     setLoading(true);
-    Promise.all([fetchProfessionals(), fetchServices()]).finally(() =>
-      setLoading(false)
-    );
+    Promise.all([fetchProfessionals(), fetchServices()]).finally(() => setLoading(false));
   }, [tenant?.id, fetchProfessionals, fetchServices]);
 
   const handleSuccess = () => {
@@ -443,12 +583,8 @@ export default function ProfissionaisPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-container-low">
             <Plus size={28} className="text-muted-foreground" />
           </div>
-          <p className="mb-2 text-lg font-medium text-foreground">
-            Nenhum profissional cadastrado
-          </p>
-          <p className="mb-6 text-sm text-muted-foreground">
-            Adicione seu primeiro profissional
-          </p>
+          <p className="mb-2 text-lg font-medium text-foreground">Nenhum profissional cadastrado</p>
+          <p className="mb-6 text-sm text-muted-foreground">Adicione seu primeiro profissional</p>
           <button
             onClick={() => setModalOpen(true)}
             className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition hover:opacity-90"
@@ -461,7 +597,6 @@ export default function ProfissionaisPage() {
       {/* Grid */}
       {professionals.length > 0 && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {/* Professional Cards */}
           {professionals.map((professional) => (
             <div
               key={professional.id}
@@ -479,14 +614,10 @@ export default function ProfissionaisPage() {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-muted-foreground">
-                        {professional.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
+                        {professional.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                       </div>
                     )}
                   </div>
-                  {/* Star badge */}
                   <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-amber-500 shadow-md">
                     <Star size={14} className="fill-white text-white" />
                   </div>
@@ -495,28 +626,23 @@ export default function ProfissionaisPage() {
 
               {/* Name & Bio */}
               <div className="mb-4 text-center">
-                <h3 className="text-xl font-bold text-foreground">
-                  {professional.name}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {professional.bio || "Profissional"}
-                </p>
+                <h3 className="text-xl font-bold text-foreground">{professional.name}</h3>
+                <p className="text-sm text-muted-foreground">{professional.bio || "Profissional"}</p>
               </div>
 
               {/* Stats Row */}
               <div className="mb-6 flex items-center justify-center rounded-xl bg-surface-container-low px-4 py-3">
                 <div className="text-center">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Comissão
-                  </p>
-                  <p className="text-lg font-bold text-foreground">
-                    {professional.commission_pct}%
-                  </p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Comissão</p>
+                  <p className="text-lg font-bold text-foreground">{professional.commission_pct}%</p>
                 </div>
               </div>
 
               {/* Button */}
-              <button className="w-full rounded-full border border-primary py-3 text-sm font-medium text-primary transition hover:bg-primary hover:text-white">
+              <button
+                onClick={() => setDetailProfessional(professional)}
+                className="w-full rounded-full border border-primary py-3 text-sm font-medium text-primary transition hover:bg-primary hover:text-white"
+              >
                 Ver detalhes
               </button>
             </div>
@@ -528,10 +654,7 @@ export default function ProfissionaisPage() {
             className="group flex flex-col items-center justify-center gap-4 rounded-[20px] border-2 border-dashed border-muted-foreground/30 p-8 transition hover:border-amber-500 hover:bg-surface-container-low"
           >
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-container-low transition group-hover:bg-amber-500/10">
-              <Plus
-                size={28}
-                className="text-muted-foreground transition group-hover:text-amber-500"
-              />
+              <Plus size={28} className="text-muted-foreground transition group-hover:text-amber-500" />
             </div>
             <span className="text-sm font-medium text-muted-foreground transition group-hover:text-foreground">
               Adicionar profissional
@@ -540,13 +663,20 @@ export default function ProfissionaisPage() {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modals */}
       <NewProfessionalModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onSuccess={handleSuccess}
         services={services}
       />
+
+      {detailProfessional && (
+        <ProfessionalDetailModal
+          professional={detailProfessional}
+          onClose={() => setDetailProfessional(null)}
+        />
+      )}
     </div>
   );
 }
