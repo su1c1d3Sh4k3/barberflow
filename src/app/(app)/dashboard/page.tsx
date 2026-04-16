@@ -141,25 +141,32 @@ export default function DashboardPage() {
       .eq("tenant_id", tenant.id)
       .eq("status", "follow_up");
 
+    // Also fetch upcoming active appointments (future pendente/confirmado) for previsão
+    const { data: upcomingActive } = await supabase
+      .from("appointments")
+      .select("id, status, total_price, start_at")
+      .eq("tenant_id", tenant.id)
+      .in("status", ["pendente", "confirmado"])
+      .gt("start_at", now.toISOString());
+
     const apt = appointments || [];
-    const previsao = apt
-      .filter(a => ["pendente", "confirmado"].includes(a.status))
-      .reduce((sum, a) => sum + Number(a.total_price || 0), 0);
+    const allActive = [...apt.filter(a => ["pendente", "confirmado"].includes(a.status)), ...(upcomingActive || [])];
+    const previsao = allActive.reduce((sum, a) => sum + Number(a.total_price || 0), 0);
     const faturamento = apt
       .filter(a => a.status === "concluido")
       .reduce((sum, a) => sum + Number(a.total_price || 0), 0);
 
     setStats({
       contacts: contactsCount || 0,
-      appointments: apt.length,
-      confirmed: apt.filter(a => a.status === "confirmado").length,
+      appointments: apt.length + (upcomingActive?.length || 0),
+      confirmed: allActive.filter(a => a.status === "confirmado").length,
       completed: apt.filter(a => a.status === "concluido").length,
       canceled: apt.filter(a => a.status === "cancelado").length,
       rescheduled: apt.filter(a => a.status === "reagendado").length,
       followup: followupCount || 0,
       previsao: Math.round(previsao * 100) / 100,
       faturamento: Math.round(faturamento * 100) / 100,
-      conversionRate: contactsCount ? Math.round((apt.length / contactsCount) * 100) : 0,
+      conversionRate: contactsCount ? Math.round(((apt.length + (upcomingActive?.length || 0)) / contactsCount) * 100) : 0,
     });
 
     // Appointments by day of week (real data)
@@ -171,13 +178,13 @@ export default function DashboardPage() {
     setDayOfWeekData(DAY_LABELS.map((day, i) => ({ day, count: byDow[i] })));
 
     // Revenue by professional (previsao + faturamento + comissao)
+    // No upper date limit: future pendente/confirmado are included in previsão
     const { data: profAppts } = await supabase
       .from("appointments")
       .select("total_price, status, professionals(id, name, commission_pct)")
       .eq("tenant_id", tenant.id)
       .in("status", ["pendente", "confirmado", "concluido"])
-      .gte("start_at", dateFrom.toISOString())
-      .lte("start_at", now.toISOString());
+      .gte("start_at", dateFrom.toISOString());
 
     const profMap: Record<string, { previsao: number; faturamento: number; commission_pct: number }> = {};
     for (const a of profAppts || []) {

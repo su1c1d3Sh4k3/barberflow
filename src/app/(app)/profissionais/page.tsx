@@ -41,8 +41,8 @@ function ProfessionalDetailModal({
   const [loading, setLoading] = useState(true);
   const [linkedServices, setLinkedServices] = useState<Service[]>([]);
   const [schedule, setSchedule] = useState<Array<{ weekday: number; start_time: string; end_time: string }>>([]);
-  const [commissionEarned, setCommissionEarned] = useState(0);
-  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [previsao, setPrevisao] = useState(0);
+  const [faturamento, setFaturamento] = useState(0);
   const [appointmentCount, setAppointmentCount] = useState(0);
 
   useEffect(() => {
@@ -69,34 +69,50 @@ function ProfessionalDetailModal({
         .order("weekday");
       setSchedule(sched || []);
 
-      // Commission earned this month (concluido appointments)
+      // Current month bounds
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      const { data: appts } = await supabase
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+
+      // Previsão: pendente + confirmado this month
+      const { data: activeAppts } = await supabase
+        .from("appointments")
+        .select("total_price")
+        .eq("tenant_id", tenant.id)
+        .eq("professional_id", professional.id)
+        .in("status", ["pendente", "confirmado"])
+        .gte("start_at", monthStart)
+        .lt("start_at", monthEnd);
+
+      // Faturamento: concluido this month
+      const { data: completedAppts } = await supabase
         .from("appointments")
         .select("total_price")
         .eq("tenant_id", tenant.id)
         .eq("professional_id", professional.id)
         .eq("status", "concluido")
-        .gte("start_at", monthStart);
+        .gte("start_at", monthStart)
+        .lt("start_at", monthEnd);
 
-      const total = (appts || []).reduce((sum, a) => sum + Number(a.total_price || 0), 0);
-      setMonthlyRevenue(Math.round(total * 100) / 100);
-      setCommissionEarned(Math.round(total * professional.commission_pct / 100 * 100) / 100);
+      const prevTotal = (activeAppts || []).reduce((sum, a) => sum + Number(a.total_price || 0), 0);
+      const fatTotal = (completedAppts || []).reduce((sum, a) => sum + Number(a.total_price || 0), 0);
+      setPrevisao(Math.round(prevTotal * 100) / 100);
+      setFaturamento(Math.round(fatTotal * 100) / 100);
 
-      // Total appointments this month (all statuses)
+      // Count: all appointments this month (bounded to month)
       const { count } = await supabase
         .from("appointments")
         .select("id", { count: "exact", head: true })
         .eq("tenant_id", tenant.id)
         .eq("professional_id", professional.id)
-        .gte("start_at", monthStart);
+        .gte("start_at", monthStart)
+        .lt("start_at", monthEnd);
       setAppointmentCount(count || 0);
 
       setLoading(false);
     }
     load();
-  }, [professional.id, professional.commission_pct, tenant?.id]);
+  }, [professional.id, tenant?.id]);
 
   const monthName = new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
@@ -160,17 +176,23 @@ function ProfessionalDetailModal({
               <p className="mb-3 text-xs font-semibold uppercase text-muted-foreground">
                 Resumo de {monthName}
               </p>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl bg-surface-container-low p-3 text-center">
-                  <p className="text-lg font-bold text-foreground">{appointmentCount}</p>
+                  <p className="text-xl font-bold text-foreground">{appointmentCount}</p>
                   <p className="text-[10px] font-semibold uppercase text-muted-foreground">Agendamentos</p>
                 </div>
+                <div className="rounded-xl bg-purple-50 p-3 text-center">
+                  <p className="text-sm font-bold text-purple-700">{formatCurrency(previsao)}</p>
+                  <p className="text-[10px] font-semibold uppercase text-purple-500">Previsão</p>
+                </div>
                 <div className="rounded-xl bg-emerald-50 p-3 text-center">
-                  <p className="text-lg font-bold text-emerald-700">{formatCurrency(monthlyRevenue)}</p>
+                  <p className="text-sm font-bold text-emerald-700">{formatCurrency(faturamento)}</p>
                   <p className="text-[10px] font-semibold uppercase text-emerald-500">Faturamento</p>
                 </div>
                 <div className="rounded-xl bg-amber-50 p-3 text-center">
-                  <p className="text-lg font-bold text-amber-700">{formatCurrency(commissionEarned)}</p>
+                  <p className="text-sm font-bold text-amber-700">
+                    {formatCurrency(Math.round((previsao + faturamento) * professional.commission_pct / 100 * 100) / 100)}
+                  </p>
                   <p className="text-[10px] font-semibold uppercase text-amber-500">Comissão ({professional.commission_pct}%)</p>
                 </div>
               </div>
