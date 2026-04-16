@@ -8,6 +8,49 @@ function json(data: unknown, status = 200) {
 // UUID v4 regex
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/**
+ * Normalize phone to digits-only + Brazil country code (55).
+ * Ensures consistent storage regardless of how the user typed the number.
+ * Examples:
+ *   "(11) 99999-9999"  → "5511999999999"
+ *   "11999999999"      → "5511999999999"
+ *   "5511999999999"    → "5511999999999"
+ *   "+55 11 99999-9999"→ "5511999999999"
+ */
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  // Already has country code 55 and at least 12 digits
+  if (digits.startsWith("55") && digits.length >= 12) return digits;
+  // 10-11 digit number without country code → add 55
+  if (digits.length >= 10 && digits.length <= 11) return `55${digits}`;
+  return digits;
+}
+
+/**
+ * Find a contact by matching the last 8 digits of the phone.
+ * Returns the best match: exact normalized match first, then any suffix match.
+ * This prevents duplicate contacts when phones are stored with/without country code.
+ */
+async function findContactByPhone(
+  supabase: ReturnType<typeof createServiceRoleClient>,
+  tenantId: string,
+  phone: string
+) {
+  const normalized = normalizePhone(phone);
+  const last8 = normalized.slice(-8);
+
+  const { data: matches } = await supabase
+    .from("contacts")
+    .select("id, name, phone")
+    .eq("tenant_id", tenantId)
+    .like("phone", `%${last8}`)
+    .limit(10);
+
+  if (!matches || matches.length === 0) return null;
+  // Prefer exact normalized match; fall back to first suffix match
+  return matches.find((c) => normalizePhone(c.phone || "") === normalized) ?? matches[0];
+}
+
 // Resolve slug → tenant_id + company_id
 async function resolveTenant(supabase: ReturnType<typeof createServiceRoleClient>, slug: string) {
   // Try tenant slug first
@@ -149,14 +192,7 @@ export async function GET(
     const phone = searchParams.get("phone");
     if (!phone) return json({ error: "phone obrigatório" }, 400);
 
-    const phoneDigits = phone.replace(/\D/g, "");
-
-    const { data: contact } = await supabase
-      .from("contacts")
-      .select("id, name")
-      .eq("tenant_id", tenant_id)
-      .eq("phone", phoneDigits)
-      .single();
+    const contact = await findContactByPhone(supabase, tenant_id, phone);
 
     if (!contact) return json({ appointments: [] });
 
@@ -316,21 +352,17 @@ export async function POST(
     return json({ error: "Horário não está mais disponível" }, 409);
   }
 
-  // 1. Upsert contact
-  const { data: existingContact } = await supabase
-    .from("contacts")
-    .select("id")
-    .eq("tenant_id", tenant_id)
-    .eq("phone", customer_phone)
-    .single();
+  // 1. Upsert contact — normalize phone before lookup and storage
+  const normalizedPhone = normalizePhone(customer_phone as string);
+  const existingContact = await findContactByPhone(supabase, tenant_id, customer_phone as string);
 
   let contactId: string;
 
   if (existingContact) {
-    // Update name if needed
+    // Update name and normalize stored phone if needed
     await supabase
       .from("contacts")
-      .update({ name: customer_name, status: "agendado" })
+      .update({ name: customer_name, status: "agendado", phone: normalizedPhone })
       .eq("id", existingContact.id);
     contactId = existingContact.id;
   } else {
@@ -339,7 +371,7 @@ export async function POST(
       .insert({
         tenant_id,
         name: customer_name,
-        phone: customer_phone,
+        phone: normalizedPhone,   // always store normalized
         status: "agendado",
         source: "booking_page",
       })
