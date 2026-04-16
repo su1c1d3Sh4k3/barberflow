@@ -58,6 +58,7 @@ interface AppointmentRow {
   status: AppointmentStatus;
   notes?: string;
   cancel_reason?: string | null;
+  rating?: number | null;
   contacts: {
     id: string;
     name: string;
@@ -1312,6 +1313,19 @@ export default function AgendaPage() {
                   <div className="mt-4 rounded-xl bg-red-50 p-3">
                     <p className="mb-1 text-[10px] font-semibold uppercase text-red-400">Motivo do cancelamento</p>
                     <p className="text-sm text-red-700">{apt.cancel_reason}</p>
+                  </div>
+                )}
+
+                {/* Satisfaction rating */}
+                {apt.rating != null && (
+                  <div className="mt-4 rounded-xl bg-amber-50 p-3">
+                    <p className="mb-1 text-[10px] font-semibold uppercase text-amber-500">Avaliação do cliente</p>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <span key={s} className={s <= apt.rating! ? "text-amber-400" : "text-gray-200"}>★</span>
+                      ))}
+                      <span className="ml-2 text-sm font-medium text-amber-700">{apt.rating}/5</span>
+                    </div>
                   </div>
                 )}
               </div>

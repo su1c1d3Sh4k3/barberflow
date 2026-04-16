@@ -363,6 +363,16 @@ async function handleSelectingUnit(ctx: BotContext, state: ConversationState, me
 async function handleMainMenuResponse(ctx: BotContext, state: ConversationState, message: string) {
   const supabase = getSupabase();
   const lowerMsg = message.toLowerCase().trim();
+  if (lowerMsg === "btn_confirm_apt" || lowerMsg.includes("confirmar") || lowerMsg.includes("confirmo")) {
+    const aptId = state.context.existingAppointmentId as string;
+    if (aptId) {
+      await supabase.from("appointments").update({ status: "confirmado", confirmed_at: new Date().toISOString() }).eq("id", aptId);
+      await supabase.from("appointment_history").insert({ appointment_id: aptId, action: "confirmed", reason: "Confirmado pelo cliente via WhatsApp", performed_by: "whatsapp_bot" });
+      await sendText(ctx.contactPhone, "✅ Agendamento confirmado! Te esperamos. 💈", ctx.instanceToken);
+      await updateState(supabase, state.id, "IDLE", {});
+      return;
+    }
+  }
   if (lowerMsg === "btn_cancel_apt" || lowerMsg.includes("cancelar")) {
     const aptId = state.context.existingAppointmentId as string;
     if (aptId) {
@@ -634,11 +644,30 @@ async function processMessage(ctx: BotContext, message: string) {
     await handleMainMenu(ctx, state, supabase); return;
   }
 
+  // ── AWAITING_RATING: capture satisfaction score sent by send-satisfaction cron ──
+  async function handleAwaitingRating(rCtx: BotContext, rState: ConversationState, rMsg: string) {
+    const supabase = getSupabase();
+    const rating = parseInt(rMsg.trim(), 10);
+    if (isNaN(rating) || rating < 1 || rating > 5) {
+      await sendText(rCtx.contactPhone, "Por favor, responda com um número de 1 a 5. 😊", rCtx.instanceToken);
+      return;
+    }
+    const aptId = rState.context.ratingAppointmentId as string | undefined;
+    if (aptId) {
+      await supabase.from("appointments").update({ rating }).eq("id", aptId);
+    }
+    await supabase.from("contacts").update({ last_rating: rating, last_rating_at: new Date().toISOString() }).eq("id", rCtx.contactId);
+    const stars = "⭐".repeat(rating);
+    await sendText(rCtx.contactPhone, `${stars} Obrigado pela avaliação, ${rCtx.contactName.split(" ")[0]}! Seu feedback é muito importante para nós. Até a próxima! 💈`, rCtx.instanceToken);
+    await updateState(supabase, rState.id, "IDLE", {});
+  }
+
   const handlers: Record<string, (ctx: BotContext, state: ConversationState, message: string) => Promise<void>> = {
     AWAITING_NAME: handleAwaitingName,
     SELECTING_UNIT: handleSelectingUnit,
     MAIN_MENU: handleMainMenuResponse,
     AWAITING_RESCHEDULE_REASON: handleAwaitingRescheduleReason,
+    AWAITING_RATING: handleAwaitingRating,
     SELECTING_CATEGORY: handleSelectingCategory,
     SELECTING_SERVICE: handleSelectingService,
     AWAITING_DATE: handleAwaitingDate,

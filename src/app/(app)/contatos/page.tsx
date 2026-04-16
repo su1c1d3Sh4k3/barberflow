@@ -20,6 +20,7 @@ interface Contact {
   status: ContactStatus;
   ia_enabled: boolean;
   last_message_at: string | null;
+  last_rating: number | null;
   tags: string[] | null;
   notes: string | null;
   created_at: string;
@@ -624,6 +625,7 @@ export default function ContatosPage() {
                   <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Telefone</th>
                   <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Status</th>
                   <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Última Mensagem</th>
+                  <th className="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Avaliação</th>
                   <th className="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground">IA</th>
                   <th className="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Ações</th>
                 </tr>
@@ -668,6 +670,15 @@ export default function ContatosPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">
                       {contact.last_message_at ? new Date(contact.last_message_at).toLocaleDateString("pt-BR") : "\u2014"}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {contact.last_rating != null ? (
+                        <span className="inline-flex items-center gap-0.5 text-sm font-medium text-amber-500">
+                          {"★".repeat(contact.last_rating)}{"☆".repeat(5 - contact.last_rating)}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-center">
