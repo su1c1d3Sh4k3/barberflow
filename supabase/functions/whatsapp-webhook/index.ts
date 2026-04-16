@@ -641,8 +641,15 @@ Deno.serve(async (req: Request) => {
     const data = body?.data || {};
 
     const rawJid: string = chatObj?.wa_chatid || msgObj?.sender || msgObj?.chatid || data?.sender || data?.chatid || data?.from || data?.key?.remoteJid || "";
+    // Skip group messages (@g.us JIDs)
+    if (rawJid.endsWith("@g.us")) {
+      return new Response(JSON.stringify({ success: true, skipped: true, reason: "group_message" }), { headers: { "Content-Type": "application/json" } });
+    }
     const phone = rawJid.replace(/@s\.whatsapp\.net$/, "").replace(/@.*$/, "");
-    const message: string = msgObj?.content || msgObj?.text || msgObj?.conversation || msgObj?.extendedTextMessage?.text || msgObj?.buttonOrListid || data?.text || data?.buttonOrListid || data?.message?.conversation || data?.message?.extendedTextMessage?.text || data?.message?.buttonsResponseMessage?.selectedButtonId || data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
+    // content may be a string or an object (with .text for extended messages)
+    const contentRaw = msgObj?.content;
+    const contentStr = typeof contentRaw === "string" ? contentRaw : (contentRaw?.text || contentRaw?.caption || "");
+    const message: string = contentStr || msgObj?.text || msgObj?.conversation || msgObj?.extendedTextMessage?.text || msgObj?.buttonOrListid || data?.text || data?.buttonOrListid || data?.message?.conversation || data?.message?.extendedTextMessage?.text || data?.message?.buttonsResponseMessage?.selectedButtonId || data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
     const isFromMe: boolean = msgObj?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? false;
     const senderName: string = chatObj?.name || chatObj?.wa_name || chatObj?.wa_contactName || msgObj?.senderName || msgObj?.pushName || data?.senderName || data?.pushName || "";
 
@@ -701,9 +708,10 @@ Deno.serve(async (req: Request) => {
     const { data: settingsData } = await supabase.from("settings").select("test_mode, test_numbers").eq("tenant_id", tenantId).single();
     if (settingsData?.test_mode) {
       // test_mode=true → ONLY whitelisted numbers pass; empty list = nobody passes
-      const normalizedContact = phone.replace(/\D/g, "").slice(-11);
+      // Use last 8 digits for comparison to handle BR 8-digit vs 9-digit number formats
+      const normalizedContact = phone.replace(/\D/g, "").slice(-8);
       const testNumbers: string[] = settingsData.test_numbers ?? [];
-      const isAllowed = testNumbers.some((n: string) => n.replace(/\D/g, "").slice(-11) === normalizedContact);
+      const isAllowed = testNumbers.some((n: string) => n.replace(/\D/g, "").slice(-8) === normalizedContact);
       if (!isAllowed) {
         console.log(`Test mode: blocked number ${phone} for tenant ${tenantId}`);
         return new Response(JSON.stringify({ success: true, skipped: true, reason: "test_mode_blocked" }), { headers: { "Content-Type": "application/json" } });
