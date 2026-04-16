@@ -646,12 +646,15 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ success: true, skipped: true, eventType }), { headers: { "Content-Type": "application/json" } });
     }
 
+    // Support both real uazapi format (body.chat + body.message) and test/Baileys format (body.data.*)
     const data = body?.data || {};
-    const rawJid: string = data?.sender || data?.chatid || data?.from || data?.key?.remoteJid || "";
+    const msg = body?.message || {};  // real uazapi format puts message object here
+
+    const rawJid: string = body?.chat || data?.sender || data?.chatid || data?.from || data?.key?.remoteJid || "";
     const phone = rawJid.replace(/@s\.whatsapp\.net$/, "").replace(/@.*$/, "");
-    const message: string = data?.text || data?.buttonOrListid || data?.message?.conversation || data?.message?.extendedTextMessage?.text || data?.message?.buttonsResponseMessage?.selectedButtonId || data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
-    const isFromMe: boolean = data?.fromMe ?? data?.key?.fromMe ?? false;
-    const senderName: string = data?.senderName || data?.pushName || "";
+    const message: string = msg?.text || msg?.conversation || data?.text || data?.buttonOrListid || data?.message?.conversation || data?.message?.extendedTextMessage?.text || data?.message?.buttonsResponseMessage?.selectedButtonId || data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
+    const isFromMe: boolean = msg?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? false;
+    const senderName: string = msg?.senderName || msg?.pushName || data?.senderName || data?.pushName || "";
 
     if (!phone || !message || isFromMe) {
       return new Response(JSON.stringify({ success: true, skipped: true, debug: { phone: !!phone, message: !!message, isFromMe } }), { headers: { "Content-Type": "application/json" } });
