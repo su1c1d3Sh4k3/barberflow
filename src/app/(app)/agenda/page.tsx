@@ -320,6 +320,34 @@ export default function AgendaPage() {
   const [apptError, setApptError] = useState<string | null>(null);
   const [services, setServices] = useState<{ id: string; name: string; duration_min: number; price: number }[]>([]);
 
+  // Filters
+  const [filterProfId, setFilterProfId] = useState<string | null>(null);
+  const [filterSvcId, setFilterSvcId] = useState<string | null>(null);
+  const [filterProfOpen, setFilterProfOpen] = useState(false);
+  const [filterSvcOpen, setFilterSvcOpen] = useState(false);
+  const filterProfRef = useRef<HTMLDivElement>(null);
+  const filterSvcRef = useRef<HTMLDivElement>(null);
+
+  // Close filter dropdowns on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (filterProfRef.current && !filterProfRef.current.contains(e.target as Node)) setFilterProfOpen(false);
+      if (filterSvcRef.current && !filterSvcRef.current.contains(e.target as Node)) setFilterSvcOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Filtered appointments (professional + service filters)
+  const filteredAppointments = useMemo(() => {
+    return appointments.filter((apt) => {
+      if (filterProfId && apt.professional_id !== filterProfId) return false;
+      if (filterSvcId && !apt.appointment_services.some((as_) => as_.services?.id === filterSvcId)) return false;
+      return true;
+    });
+  }, [appointments, filterProfId, filterSvcId]);
+
   // dnd-kit sensors
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -646,7 +674,7 @@ export default function AgendaPage() {
           {weekDays.map((day, dayIdx) => {
             const dayStr = toDateStr(day);
             const isToday = isSameDay(day, today);
-            const dayAppointments = appointments.filter((apt) => {
+            const dayAppointments = filteredAppointments.filter((apt) => {
               const aptDate = new Date(apt.start_at);
               return isSameDay(aptDate, day);
             });
@@ -755,7 +783,7 @@ export default function AgendaPage() {
             const dayStr = toDateStr(day);
             const isToday = isSameDay(day, today);
             const isCurrentMonth = day.getMonth() === currentMonth;
-            const dayAppointments = appointments.filter((apt) => {
+            const dayAppointments = filteredAppointments.filter((apt) => {
               const aptDate = new Date(apt.start_at);
               return isSameDay(aptDate, day);
             });
@@ -813,7 +841,7 @@ export default function AgendaPage() {
 
   // ===== LIST VIEW =====
   function renderListView() {
-    const sortedAppointments = [...appointments].sort(
+    const sortedAppointments = [...filteredAppointments].sort(
       (a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime()
     );
 
@@ -974,7 +1002,7 @@ export default function AgendaPage() {
                   })}
 
                   {/* Appointments */}
-                  {appointments
+                  {filteredAppointments
                     .filter((apt) => apt.professional_id === prof.id)
                     .map((apt) => {
                       const startTime = extractTime(apt.start_at);
@@ -1111,14 +1139,75 @@ export default function AgendaPage() {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 rounded-full bg-surface-container px-3 py-1.5 text-xs font-semibold text-foreground/70 hover:bg-surface-container-high transition-colors">
-            <User className="h-3.5 w-3.5" />
-            Profissional
-          </button>
-          <button className="flex items-center gap-1.5 rounded-full bg-surface-container px-3 py-1.5 text-xs font-semibold text-foreground/70 hover:bg-surface-container-high transition-colors">
-            <Filter className="h-3.5 w-3.5" />
-            Serviço
-          </button>
+          {/* Professional filter */}
+          <div className="relative" ref={filterProfRef}>
+            <button
+              onClick={() => { setFilterProfOpen((o) => !o); setFilterSvcOpen(false); }}
+              className={cn(
+                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
+                filterProfId
+                  ? "bg-primary text-white"
+                  : "bg-surface-container text-foreground/70 hover:bg-surface-container-high"
+              )}
+            >
+              <User className="h-3.5 w-3.5" />
+              {filterProfId ? (professionals.find((p) => p.id === filterProfId)?.name?.split(" ")[0] ?? "Profissional") : "Profissional"}
+            </button>
+            {filterProfOpen && (
+              <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-white shadow-lg py-1">
+                <button
+                  onClick={() => { setFilterProfId(null); setFilterProfOpen(false); }}
+                  className={cn("w-full px-3 py-2 text-left text-xs hover:bg-surface-container", !filterProfId && "font-bold text-primary")}
+                >
+                  Todos
+                </button>
+                {professionals.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => { setFilterProfId(p.id); setFilterProfOpen(false); }}
+                    className={cn("w-full px-3 py-2 text-left text-xs hover:bg-surface-container", filterProfId === p.id && "font-bold text-primary")}
+                  >
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Service filter */}
+          <div className="relative" ref={filterSvcRef}>
+            <button
+              onClick={() => { setFilterSvcOpen((o) => !o); setFilterProfOpen(false); }}
+              className={cn(
+                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
+                filterSvcId
+                  ? "bg-primary text-white"
+                  : "bg-surface-container text-foreground/70 hover:bg-surface-container-high"
+              )}
+            >
+              <Filter className="h-3.5 w-3.5" />
+              {filterSvcId ? (services.find((s) => s.id === filterSvcId)?.name ?? "Serviço") : "Serviço"}
+            </button>
+            {filterSvcOpen && (
+              <div className="absolute right-0 top-full z-50 mt-1 w-52 rounded-xl border border-border bg-white shadow-lg py-1">
+                <button
+                  onClick={() => { setFilterSvcId(null); setFilterSvcOpen(false); }}
+                  className={cn("w-full px-3 py-2 text-left text-xs hover:bg-surface-container", !filterSvcId && "font-bold text-primary")}
+                >
+                  Todos
+                </button>
+                {services.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => { setFilterSvcId(s.id); setFilterSvcOpen(false); }}
+                    className={cn("w-full px-3 py-2 text-left text-xs hover:bg-surface-container", filterSvcId === s.id && "font-bold text-primary")}
+                  >
+                    {s.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button onClick={() => { setShowNewModal(true); setApptError(null); setNewAppt({ clientName: "", clientPhone: "", professionalId: "", serviceIds: [], date: toDateStr(selectedDate), time: "09:00" }); }} className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-primary/90 transition-colors">
             <Plus className="h-4 w-4" />
             Novo agendamento
