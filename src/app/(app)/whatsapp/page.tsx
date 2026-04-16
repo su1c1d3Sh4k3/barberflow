@@ -47,6 +47,8 @@ export default function WhatsAppPage() {
   const [webhookMsg, setWebhookMsg] = useState<string | null>(null);
   const [diagData, setDiagData] = useState<Record<string, unknown> | null>(null);
   const [diagLoading, setDiagLoading] = useState(false);
+  const [webhookInfo, setWebhookInfo] = useState<Record<string, unknown> | null>(null);
+  const [webhookInfoLoading, setWebhookInfoLoading] = useState(false);
 
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tenantId = tenant?.id;
@@ -177,6 +179,21 @@ export default function WhatsAppPage() {
       setDiagData({ error: "Falha ao buscar diagnóstico" });
     } finally {
       setDiagLoading(false);
+    }
+  }
+
+  // Check what URL is registered in uazapi
+  async function handleWebhookInfo() {
+    setWebhookInfoLoading(true);
+    setWebhookInfo(null);
+    try {
+      const res = await fetch("/api/whatsapp/webhook-info");
+      const json = await res.json();
+      setWebhookInfo(json);
+    } catch {
+      setWebhookInfo({ error: "Falha ao consultar uazapi" });
+    } finally {
+      setWebhookInfoLoading(false);
     }
   }
 
@@ -373,6 +390,15 @@ export default function WhatsAppPage() {
                   Diagnóstico
                 </button>
                 <button
+                  onClick={handleWebhookInfo}
+                  disabled={webhookInfoLoading}
+                  title="Ver URL registrada no uazapi"
+                  className="flex items-center gap-2 rounded-lg border-2 border-purple-200 px-4 py-2 text-sm font-medium text-purple-700 hover:bg-purple-50 transition disabled:opacity-50"
+                >
+                  {webhookInfoLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Webhook className="h-4 w-4" />}
+                  URL Registrada
+                </button>
+                <button
                   onClick={handleReconfigureWebhook}
                   disabled={webhookStatus === "loading"}
                   title="Reconfigurar webhook do bot"
@@ -399,6 +425,12 @@ export default function WhatsAppPage() {
               <div className="mt-3 rounded-lg bg-slate-50 border border-slate-200 p-4 text-xs font-mono overflow-auto max-h-64">
                 <p className="font-semibold text-slate-700 mb-2 font-sans">Diagnóstico do Webhook:</p>
                 <pre className="text-slate-600 whitespace-pre-wrap break-all">{JSON.stringify(diagData, null, 2)}</pre>
+              </div>
+            )}
+            {webhookInfo && (
+              <div className="mt-3 rounded-lg bg-purple-50 border border-purple-200 p-4 text-xs font-mono overflow-auto max-h-64">
+                <p className="font-semibold text-purple-700 mb-2 font-sans">URL Registrada no uazapi:</p>
+                <pre className="text-purple-800 whitespace-pre-wrap break-all">{JSON.stringify(webhookInfo, null, 2)}</pre>
               </div>
             )}
           </div>
