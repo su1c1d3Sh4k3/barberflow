@@ -36,12 +36,35 @@ export async function POST(request: Request) {
     }
 
     // Find tenant by whatsapp_sessions instance
-    const instanceId = instance?.id || instance?.instanceId || body?.instanceId;
+    // uazapi sends: { event, instance: "string-id", token: "instance-token", data: {...} }
+    // instance field is a STRING (instance ID), not an object
+    const instanceId = typeof instance === "string"
+      ? instance
+      : (instance?.id || instance?.instanceId || body?.instanceId);
+    const payloadToken: string | null = body?.token || null; // uazapi includes instance token in payload
+
     let tenantId: string | null = null;
     let instanceToken: string | null = null;
     let serviceActive = false;
 
-    if (instanceId) {
+    // Priority 1: lookup by instance token (most reliable)
+    if (payloadToken) {
+      const { data: session } = await supabase
+        .from("whatsapp_sessions")
+        .select("tenant_id, instance_token, service_active")
+        .eq("instance_token", payloadToken)
+        .eq("status", "connected")
+        .single();
+
+      if (session) {
+        tenantId = session.tenant_id;
+        instanceToken = session.instance_token;
+        serviceActive = session.service_active ?? false;
+      }
+    }
+
+    // Priority 2: lookup by instance ID
+    if (!tenantId && instanceId) {
       const { data: session } = await supabase
         .from("whatsapp_sessions")
         .select("tenant_id, instance_token, service_active")
@@ -58,7 +81,7 @@ export async function POST(request: Request) {
 
     if (!tenantId || !instanceToken) {
       // Fallback: try to find session by phone match from instance
-      const instancePhone = instance?.phone || body?.phone;
+      const instancePhone = typeof instance === "object" ? (instance?.phone || body?.phone) : body?.phone;
       if (instancePhone) {
         const { data: session } = await supabase
           .from("whatsapp_sessions")
@@ -76,7 +99,12 @@ export async function POST(request: Request) {
     }
 
     if (!tenantId || !instanceToken) {
-      console.error("WhatsApp webhook: could not identify tenant for instance", instanceId);
+      console.error("WhatsApp webhook: could not identify tenant", {
+        instanceId,
+        payloadToken: payloadToken ? payloadToken.slice(0, 8) + "..." : null,
+        event,
+        bodyKeys: Object.keys(body),
+      });
       return NextResponse.json({ success: false, error: "tenant_not_found" }, { status: 404 });
     }
 

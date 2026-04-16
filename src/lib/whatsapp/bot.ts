@@ -184,7 +184,10 @@ export async function processMessage(
     const isAllowed = settingsData.test_numbers.some(
       (n: string) => n.replace(/\D/g, "").slice(-11) === normalizedContact
     );
-    if (!isAllowed) return;
+    if (!isAllowed) {
+      console.log(`WhatsApp bot: test mode active — blocked number ${contactPhone}`);
+      return;
+    }
   }
 
   // Get or create conversation state

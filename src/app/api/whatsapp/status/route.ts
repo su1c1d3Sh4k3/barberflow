@@ -43,17 +43,26 @@ export async function GET(request: NextRequest) {
 
     // If just became connected, auto-configure webhook
     if (liveStatus === "connected" && session.status !== "connected") {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-      try {
-        await uazapi.setWebhook(session.instance_token, {
-          url: `${appUrl}/api/webhooks/whatsapp`,
-          events: ["messages", "messages_update", "connection"],
-          enabled: true,
-          addUrlEvents: true,
-          addUrlTypesMessages: true,
-          excludeMessages: ["fromMe"],
-        });
-      } catch { /* ignore */ }
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+      if (!appUrl) {
+        console.error("WhatsApp webhook config FAILED: NEXT_PUBLIC_APP_URL is not set. Messages will NOT be received.");
+      } else {
+        const webhookUrl = `${appUrl}/api/webhooks/whatsapp`;
+        console.log(`WhatsApp: configuring webhook to ${webhookUrl}`);
+        try {
+          await uazapi.setWebhook(session.instance_token, {
+            url: webhookUrl,
+            events: ["messages", "messages_update", "connection"],
+            enabled: true,
+            addUrlEvents: false,
+            addUrlTypesMessages: false,
+            excludeMessages: ["fromMe"],
+          });
+          console.log("WhatsApp: webhook configured successfully");
+        } catch (err) {
+          console.error("WhatsApp: failed to configure webhook", err);
+        }
+      }
 
       await supabase
         .from("whatsapp_sessions")
