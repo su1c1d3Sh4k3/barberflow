@@ -55,13 +55,13 @@ export async function POST(request: NextRequest) {
         .single();
       if (!session?.instance_token) continue;
 
-      const profName  = (apt.professionals as unknown as { name: string } | null)?.name ?? "Profissional";
-      const svcName   = (apt.appointment_services?.[0] as unknown as { services: { name: string } } | undefined)?.services?.name ?? "Serviço";
-      const firstName = contact.name?.split(" ")[0] ?? "";
+      const profFirstName = ((apt.professionals as unknown as { name: string } | null)?.name ?? "").split(" ")[0] || "Profissional";
+      const svcName       = (apt.appointment_services?.[0] as unknown as { services: { name: string } } | undefined)?.services?.name ?? "Serviço";
+      const clientFirst   = contact.name?.split(" ")[0] ?? "";
 
       const text =
-        `⭐ *Como foi sua experiência?*\n\n` +
-        `${firstName}, esperamos que tenha gostado do ${svcName} com ${profName}!\n\n` +
+        `⭐ *${clientFirst}, como foi sua experiência?*\n\n` +
+        `Esperamos que tenha gostado do *${svcName}* com o ${profFirstName}!\n\n` +
         `Avalie de *1 a 5*:\n\n` +
         `1 ⭐ — Muito ruim\n` +
         `2 ⭐⭐ — Ruim\n` +

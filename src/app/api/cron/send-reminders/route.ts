@@ -73,15 +73,15 @@ export async function POST(request: NextRequest) {
         .single();
       if (!session?.instance_token) continue;
 
-      const profName = (apt.professionals as unknown as { name: string } | null)?.name ?? "Profissional";
-      const svcName  = (apt.appointment_services?.[0] as unknown as { services: { name: string } } | undefined)?.services?.name ?? "Serviço";
-      const firstName = contact.name?.split(" ")[0] ?? "";
-      const dateStr   = ptBrDate(apt.start_at);
+      const profFirstName = ((apt.professionals as unknown as { name: string } | null)?.name ?? "").split(" ")[0] || "Profissional";
+      const svcName       = (apt.appointment_services?.[0] as unknown as { services: { name: string } } | undefined)?.services?.name ?? "Serviço";
+      const clientFirst   = contact.name?.split(" ")[0] ?? "";
+      const dateStr       = ptBrDate(apt.start_at);
 
       const text =
         `📅 *Lembrete de agendamento!*\n\n` +
-        `Olá, ${firstName}! Seu agendamento é amanhã:\n\n` +
-        `*${svcName}* com ${profName}\n` +
+        `Olá, ${clientFirst}! Seu agendamento é amanhã:\n\n` +
+        `✂️ *${svcName}* com ${profFirstName}\n` +
         `🕐 ${dateStr}\n\n` +
         `O que deseja fazer?`;
 
@@ -161,15 +161,15 @@ export async function POST(request: NextRequest) {
         .single();
       if (!session?.instance_token) continue;
 
-      const profName  = (apt.professionals as unknown as { name: string } | null)?.name ?? "Profissional";
-      const svcName   = (apt.appointment_services?.[0] as unknown as { services: { name: string } } | undefined)?.services?.name ?? "Serviço";
-      const firstName = contact.name?.split(" ")[0] ?? "";
-      const timeStr   = ptBrTime(apt.start_at);
+      const profFirstName1h = ((apt.professionals as unknown as { name: string } | null)?.name ?? "").split(" ")[0] || "Profissional";
+      const svcName1h       = (apt.appointment_services?.[0] as unknown as { services: { name: string } } | undefined)?.services?.name ?? "Serviço";
+      const clientFirst1h   = contact.name?.split(" ")[0] ?? "";
+      const timeStr         = ptBrTime(apt.start_at);
 
       const text =
         `⏰ *Seu agendamento é em 1 hora!*\n\n` +
-        `${firstName}, não se esqueça:\n\n` +
-        `*${svcName}* com ${profName}\n` +
+        `${clientFirst1h}, não se esqueça:\n\n` +
+        `✂️ *${svcName1h}* com ${profFirstName1h}\n` +
         `🕐 ${timeStr}\n\n` +
         `Te esperamos! 💈`;
 
