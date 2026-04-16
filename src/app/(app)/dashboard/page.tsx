@@ -193,7 +193,7 @@ export default function DashboardPage() {
       const commPct = prof?.commission_pct || 0;
       if (!profMap[profName]) profMap[profName] = { previsao: 0, faturamento: 0, commission_pct: commPct };
       const price = Number(a.total_price || 0);
-      const isFuture = new Date((a as any).start_at) > now;
+      const isFuture = new Date((a as { start_at: string }).start_at) > now;
       if (a.status === "concluido") {
         profMap[profName].faturamento += price;
       } else if (isFuture) {
