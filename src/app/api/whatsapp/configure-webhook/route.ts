@@ -1,18 +1,28 @@
 import { NextRequest } from "next/server";
-import { validateAuth, isAuthError, ok, apiError, db } from "@/app/api/_helpers";
+import { ok, apiError } from "@/app/api/_helpers";
+import { createServiceRoleClient } from "@/lib/supabase/server";
+import { getTenantFromSession } from "@/lib/supabase/api-auth";
 import { uazapi } from "@/lib/uazapi/client";
 
 /**
  * POST /api/whatsapp/configure-webhook
  * Configures the uazapi webhook for a connected WhatsApp instance.
- * Called automatically when a session transitions to 'connected'.
  */
 export async function POST(request: NextRequest) {
-  const auth = validateAuth(request);
-  if (isAuthError(auth)) return auth;
+  // Accept service-role internal calls OR browser session auth
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  const authHeader = request.headers.get("authorization") || "";
+  let tenantId: string | null = null;
 
-  const { tenantId } = auth;
-  const supabase = db();
+  if (serviceKey && authHeader.includes(serviceKey)) {
+    tenantId = request.headers.get("x-tenant-id");
+  } else {
+    tenantId = await getTenantFromSession(request);
+  }
+
+  if (!tenantId) return apiError("Não autenticado", 401);
+
+  const supabase = createServiceRoleClient();
 
   let body: { instance_id?: string };
   try {
