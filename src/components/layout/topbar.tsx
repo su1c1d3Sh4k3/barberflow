@@ -361,26 +361,24 @@ export function Topbar() {
       .gte("start_at", monthStart);
     const revenue = revenueData?.reduce((sum, a) => sum + (Number(a.total_price) || 0), 0) || 0;
 
-    // Completed today
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString();
-    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
-    const { data: completedAppts } = await supabase
-      .from("appointments")
-      .select("status")
-      .eq("tenant_id", tenantId)
-      .gte("start_at", todayStart)
-      .lte("start_at", todayEnd)
-      .eq("status", "concluido");
-    const completedToday = completedAppts?.length || 0;
+    // Month range: 1st of current month → now
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-    // Pending/confirmed: all future appointments (upcoming, regardless of date)
     const { count: pendingCount } = await supabase
       .from("appointments")
       .select("id", { count: "exact", head: true })
       .eq("tenant_id", tenantId)
       .in("status", ["pendente", "confirmado"])
-      .gt("start_at", now.toISOString());
+      .gte("start_at", monthStart);
     const pendingToday = pendingCount || 0;
+
+    const { count: completedCount } = await supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", tenantId)
+      .eq("status", "concluido")
+      .gte("start_at", monthStart);
+    const completedToday = completedCount || 0;
 
     setData({ planName, daysUntilRenewal, tokensUsed, hasIa, revenue, pendingToday, completedToday, serviceActive, hasConnectedSession });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -501,7 +499,7 @@ export function Topbar() {
         <div className="flex items-center gap-1.5 shrink-0">
           <Calendar className="h-3.5 w-3.5 text-blue-500" strokeWidth={1.5} />
           <span className="text-xs text-muted-foreground">
-            {data.pendingToday} pendente{data.pendingToday !== 1 ? "s" : ""} · {data.completedToday} concluído{data.completedToday !== 1 ? "s" : ""} hoje
+            {data.pendingToday} pendente{data.pendingToday !== 1 ? "s" : ""} · {data.completedToday} concluído{data.completedToday !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
