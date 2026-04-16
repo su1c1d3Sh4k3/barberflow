@@ -13,6 +13,7 @@ import {
   MessageCircle,
   CheckCircle2,
   Webhook,
+  Bug,
 } from "lucide-react";
 import { useTenantStore } from "@/stores/tenant-store";
 import { maskPhone } from "@/lib/masks";
@@ -44,6 +45,8 @@ export default function WhatsAppPage() {
   const [phone, setPhone] = useState("");
   const [webhookStatus, setWebhookStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [webhookMsg, setWebhookMsg] = useState<string | null>(null);
+  const [diagData, setDiagData] = useState<Record<string, unknown> | null>(null);
+  const [diagLoading, setDiagLoading] = useState(false);
 
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tenantId = tenant?.id;
@@ -159,6 +162,21 @@ export default function WhatsAppPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao conectar");
       setConnecting(false);
+    }
+  }
+
+  // Diagnostics: fetch webhook debug info
+  async function handleDiagnostics() {
+    setDiagLoading(true);
+    setDiagData(null);
+    try {
+      const res = await fetch("/api/webhooks/whatsapp");
+      const json = await res.json();
+      setDiagData(json);
+    } catch {
+      setDiagData({ error: "Falha ao buscar diagnóstico" });
+    } finally {
+      setDiagLoading(false);
     }
   }
 
@@ -344,18 +362,23 @@ export default function WhatsAppPage() {
                   <p className="text-sm text-muted-foreground">WhatsApp Business ativo</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={handleDiagnostics}
+                  disabled={diagLoading}
+                  title="Ver diagnóstico do webhook"
+                  className="flex items-center gap-2 rounded-lg border-2 border-blue-200 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 transition disabled:opacity-50"
+                >
+                  {diagLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bug className="h-4 w-4" />}
+                  Diagnóstico
+                </button>
                 <button
                   onClick={handleReconfigureWebhook}
                   disabled={webhookStatus === "loading"}
                   title="Reconfigurar webhook do bot"
                   className="flex items-center gap-2 rounded-lg border-2 border-amber-200 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50 transition disabled:opacity-50"
                 >
-                  {webhookStatus === "loading" ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Webhook className="h-4 w-4" />
-                  )}
+                  {webhookStatus === "loading" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Webhook className="h-4 w-4" />}
                   Reconfigurar Webhook
                 </button>
                 <button
@@ -370,6 +393,12 @@ export default function WhatsAppPage() {
             {webhookMsg && (
               <div className={`mt-3 rounded-lg px-4 py-2 text-sm ${webhookStatus === "ok" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
                 {webhookMsg}
+              </div>
+            )}
+            {diagData && (
+              <div className="mt-3 rounded-lg bg-slate-50 border border-slate-200 p-4 text-xs font-mono overflow-auto max-h-64">
+                <p className="font-semibold text-slate-700 mb-2 font-sans">Diagnóstico do Webhook:</p>
+                <pre className="text-slate-600 whitespace-pre-wrap break-all">{JSON.stringify(diagData, null, 2)}</pre>
               </div>
             )}
           </div>
