@@ -26,6 +26,7 @@ def whatsapp_setup(supabase_headers, supabase_url, test_tenant):
             "instance_token": instance_token,
             "status": "connected",
             "phone_number": "5511999990001",
+            "service_active": True,
         },
     )
     assert resp.status_code in (200, 201), f"Session creation failed: {resp.text}"
