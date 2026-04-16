@@ -1154,7 +1154,7 @@ export default function AgendaPage() {
               {filterProfId ? (professionals.find((p) => p.id === filterProfId)?.name?.split(" ")[0] ?? "Profissional") : "Profissional"}
             </button>
             {filterProfOpen && (
-              <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-white shadow-lg py-1">
+              <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-surface-container-lowest shadow-lg py-1">
                 <button
                   onClick={() => { setFilterProfId(null); setFilterProfOpen(false); }}
                   className={cn("w-full px-3 py-2 text-left text-xs hover:bg-surface-container", !filterProfId && "font-bold text-primary")}
@@ -1189,7 +1189,7 @@ export default function AgendaPage() {
               {filterSvcId ? (services.find((s) => s.id === filterSvcId)?.name ?? "Serviço") : "Serviço"}
             </button>
             {filterSvcOpen && (
-              <div className="absolute right-0 top-full z-50 mt-1 w-52 rounded-xl border border-border bg-white shadow-lg py-1">
+              <div className="absolute right-0 top-full z-50 mt-1 w-52 rounded-xl border border-border bg-surface-container-lowest shadow-lg py-1">
                 <button
                   onClick={() => { setFilterSvcId(null); setFilterSvcOpen(false); }}
                   className={cn("w-full px-3 py-2 text-left text-xs hover:bg-surface-container", !filterSvcId && "font-bold text-primary")}

@@ -637,7 +637,7 @@ export default function ContatosPage() {
                     onClick={() => setSelectedContact(contact)}
                     className={cn(
                       "cursor-pointer transition-colors hover:bg-surface-container-low/40",
-                      selectedRows.has(contact.id) && "border-l-4 border-amber-500 bg-amber-50"
+                      selectedRows.has(contact.id) && "border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-900/20"
                     )}
                   >
                     <td className="px-4 py-3">
@@ -723,7 +723,7 @@ export default function ContatosPage() {
 
       {/* ─── Bulk Action Bar ─── */}
       {selectedRows.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-2xl bg-foreground px-6 py-3 shadow-xl">
+        <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-2xl bg-zinc-900 dark:bg-zinc-800 px-6 py-3 shadow-xl">
           <div className="flex items-center gap-2 text-sm font-medium text-white">
             <CheckSquare className="h-4 w-4" />
             {selectedRows.size} selecionado{selectedRows.size > 1 ? "s" : ""}
@@ -838,15 +838,15 @@ export default function ContatosPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground">Nome</label>
-                    <input type="text" value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} className="mt-1 w-full rounded-xl border border-border px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+                    <input type="text" value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} className="mt-1 w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground">Telefone</label>
-                    <input type="text" value={editForm.phone} onChange={(e) => setEditForm((f) => ({ ...f, phone: maskPhone(e.target.value) }))} placeholder="+55 (11) 99999-0000" className="mt-1 w-full rounded-xl border border-border px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+                    <input type="text" value={editForm.phone} onChange={(e) => setEditForm((f) => ({ ...f, phone: maskPhone(e.target.value) }))} placeholder="+55 (11) 99999-0000" className="mt-1 w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground">Notas</label>
-                    <textarea rows={3} value={editForm.notes} onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))} className="mt-1 w-full resize-none rounded-xl border border-border px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+                    <textarea rows={3} value={editForm.notes} onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))} className="mt-1 w-full resize-none rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
                   </div>
                   <div className="flex justify-end gap-3 pt-2">
                     <button onClick={() => setEditing(false)} className="rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-surface-container">Cancelar</button>
@@ -1012,11 +1012,11 @@ export default function ContatosPage() {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground">Nome</label>
-                <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nome do contato" className="mt-1 w-full rounded-xl border border-border px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+                <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nome do contato" className="mt-1 w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground">Telefone</label>
-                <input type="text" value={newPhone} onChange={(e) => setNewPhone(maskPhone(e.target.value))} placeholder="+55 (11) 99999-0000" className="mt-1 w-full rounded-xl border border-border px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+                <input type="text" value={newPhone} onChange={(e) => setNewPhone(maskPhone(e.target.value))} placeholder="+55 (11) 99999-0000" className="mt-1 w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
               </div>
             </div>
             <div className="mt-6 flex justify-end gap-3">
