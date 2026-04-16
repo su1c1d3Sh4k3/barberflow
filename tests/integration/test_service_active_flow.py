@@ -40,6 +40,12 @@ def integration_setup(supabase_headers, supabase_url, test_tenant):
     company_id = test_tenant["company_id"]
     instance_id = f"int-{uuid.uuid4().hex[:8]}"
 
+    # Delete any existing session for this tenant (UNIQUE tenant_id constraint)
+    requests.delete(
+        f"{supabase_url}/rest/v1/whatsapp_sessions?tenant_id=eq.{tenant_id}",
+        headers={**supabase_headers, "Prefer": ""},
+    )
+
     # Create connected session (service_active=false initially)
     resp = requests.post(
         f"{supabase_url}/rest/v1/whatsapp_sessions",

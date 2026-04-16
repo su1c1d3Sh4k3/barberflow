@@ -48,6 +48,11 @@ class TestWhatsAppCreateInstance:
     def test_create_instance_success(self, app_url, api_headers, test_tenant, supabase_url, supabase_headers):
         """Should create instance and return pairing code."""
         tenant_id = test_tenant["tenant_id"]
+        # Clean up any leftover session from previous tests
+        requests.delete(
+            f"{supabase_url}/rest/v1/whatsapp_sessions?tenant_id=eq.{tenant_id}",
+            headers={**supabase_headers, "Prefer": ""},
+        )
         headers = {**api_headers, "x-tenant-id": tenant_id}
         resp = requests.post(
             f"{app_url}/api/whatsapp/create-instance",

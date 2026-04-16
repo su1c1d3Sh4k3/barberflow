@@ -16,6 +16,11 @@ def whatsapp_setup(supabase_headers, supabase_url, test_tenant):
     instance_token = "test-token-12345"
     contact_phone = f"5511{uuid.uuid4().hex[:9]}"
 
+    # Delete any existing session (UNIQUE tenant_id constraint)
+    requests.delete(
+        f"{supabase_url}/rest/v1/whatsapp_sessions?tenant_id=eq.{tenant_id}",
+        headers={**supabase_headers, "Prefer": ""},
+    )
     # Create whatsapp_session
     resp = requests.post(
         f"{supabase_url}/rest/v1/whatsapp_sessions",

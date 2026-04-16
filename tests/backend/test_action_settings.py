@@ -246,6 +246,11 @@ def test_get_whatsapp_session(supabase_url, supabase_headers, test_tenant):
     """Create and get WhatsApp session (mirrors getWhatsAppSession action)."""
     tid = test_tenant["tenant_id"]
 
+    # Delete any existing session (UNIQUE tenant_id constraint)
+    requests.delete(
+        f"{supabase_url}/rest/v1/whatsapp_sessions?tenant_id=eq.{tid}",
+        headers={**supabase_headers, "Prefer": ""},
+    )
     # Insert session
     resp = requests.post(
         f"{supabase_url}/rest/v1/whatsapp_sessions",

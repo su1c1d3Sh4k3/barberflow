@@ -114,6 +114,11 @@ def test_whatsapp_session(supabase_url, supabase_headers, test_tenant):
     """Create a WhatsApp session record."""
     tenant_id = test_tenant["tenant_id"]
 
+    # Delete any existing session (UNIQUE tenant_id constraint)
+    requests.delete(
+        f"{supabase_url}/rest/v1/whatsapp_sessions?tenant_id=eq.{tenant_id}",
+        headers={**supabase_headers, "Prefer": ""},
+    )
     resp = requests.post(
         f"{supabase_url}/rest/v1/whatsapp_sessions",
         headers=supabase_headers,

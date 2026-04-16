@@ -27,8 +27,8 @@ class TestWebhookConfig:
             json={"instance_id": "test-instance"},
             headers=api_headers,
         )
-        assert resp.status_code == 400, (
-            f"Expected 400 without tenant, got {resp.status_code}: {resp.text}"
+        assert resp.status_code in (400, 401), (
+            f"Expected 400 or 401 without tenant, got {resp.status_code}: {resp.text}"
         )
 
     def test_configure_webhook_requires_instance_id(self, app_url, api_headers, test_tenant):

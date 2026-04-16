@@ -16,6 +16,12 @@ def bot_env(supabase_headers, supabase_url, test_tenant):
     instance_id = f"bot-sm-{uuid.uuid4().hex[:8]}"
     phone = f"5511{uuid.uuid4().hex[:9]}"
 
+    # Delete any existing session (UNIQUE tenant_id constraint)
+    requests.delete(
+        f"{supabase_url}/rest/v1/whatsapp_sessions?tenant_id=eq.{tenant_id}",
+        headers={**supabase_headers, "Prefer": ""},
+    )
+
     # WhatsApp session
     requests.post(
         f"{supabase_url}/rest/v1/whatsapp_sessions",
@@ -26,6 +32,7 @@ def bot_env(supabase_headers, supabase_url, test_tenant):
             "instance_token": "bot-test-token",
             "status": "connected",
             "phone_number": "5511999990002",
+            "service_active": True,
         },
     )
 

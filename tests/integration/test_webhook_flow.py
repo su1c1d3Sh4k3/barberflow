@@ -19,11 +19,31 @@ class TestWhatsAppWebhookFlow:
         """POST to WhatsApp webhook with a new number should create a contact in DB."""
         tenant_id = test_tenant["tenant_id"]
         test_phone = f"5511{uuid.uuid4().hex[:8]}"
+        instance_id = f"wf-{uuid.uuid4().hex[:8]}"
 
-        # Simulate incoming WhatsApp message
+        # Ensure a connected session exists for this tenant
+        requests.delete(
+            f"{supabase_url}/rest/v1/whatsapp_sessions?tenant_id=eq.{tenant_id}",
+            headers={**supabase_headers, "Prefer": ""},
+        )
+        sess_resp = requests.post(
+            f"{supabase_url}/rest/v1/whatsapp_sessions",
+            headers=supabase_headers,
+            json={
+                "tenant_id": tenant_id,
+                "instance_id": instance_id,
+                "instance_token": "wf-test-token",
+                "status": "connected",
+                "phone_number": "5511444440001",
+                "service_active": True,
+            },
+        )
+        assert sess_resp.status_code in (200, 201), f"Session setup failed: {sess_resp.text}"
+
+        # Simulate incoming WhatsApp message using the correct instance_id
         payload = {
-            "event": "message",
-            "instance": tenant_id,
+            "event": "messages",
+            "instance": {"id": instance_id},
             "data": {
                 "key": {
                     "remoteJid": f"{test_phone}@s.whatsapp.net",
@@ -57,11 +77,15 @@ class TestWhatsAppWebhookFlow:
         )
 
         contacts = contact_resp.json()
-        # Contact may or may not be created depending on webhook implementation
-        # If created, verify basic fields
-        if len(contacts) > 0:
-            assert contacts[0]["phone"] == test_phone, "Contact phone mismatch"
-            assert contacts[0]["tenant_id"] == tenant_id, "Contact tenant_id mismatch"
+        assert len(contacts) >= 1, "Contact should have been created"
+        assert contacts[0]["phone"] == test_phone, "Contact phone mismatch"
+        assert contacts[0]["tenant_id"] == tenant_id, "Contact tenant_id mismatch"
+
+        # Cleanup session
+        requests.delete(
+            f"{supabase_url}/rest/v1/whatsapp_sessions?instance_id=eq.{instance_id}",
+            headers={**supabase_headers, "Prefer": ""},
+        )
 
 
 @pytest.mark.integration

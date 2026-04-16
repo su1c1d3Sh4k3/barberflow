@@ -13,6 +13,11 @@ def session_setup(supabase_headers, supabase_url, test_tenant):
     tenant_id = test_tenant["tenant_id"]
     instance_id = f"sa-test-{uuid.uuid4().hex[:8]}"
 
+    # Delete any existing session (UNIQUE tenant_id constraint)
+    requests.delete(
+        f"{supabase_url}/rest/v1/whatsapp_sessions?tenant_id=eq.{tenant_id}",
+        headers={**supabase_headers, "Prefer": ""},
+    )
     resp = requests.post(
         f"{supabase_url}/rest/v1/whatsapp_sessions",
         headers=supabase_headers,
