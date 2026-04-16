@@ -286,6 +286,22 @@ export function BookingWizard({ slug, tenant, company }: BookingWizardProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
+  // Existing appointments management
+  interface ExistingAppointment {
+    id: string;
+    start_at: string;
+    end_at: string;
+    status: string;
+    appointment_services: { services: { name: string } }[];
+    professionals: { name: string } | null;
+  }
+  const [existingAppointments, setExistingAppointments] = useState<ExistingAppointment[]>([]);
+  const [showExistingApts, setShowExistingApts] = useState(false);
+  const [aptAction, setAptAction] = useState<{ id: string; type: "cancel" | "reschedule" } | null>(null);
+  const [aptReason, setAptReason] = useState("");
+  const [aptActionLoading, setAptActionLoading] = useState(false);
+  const [aptActionError, setAptActionError] = useState("");
+
   // Persist state
   useEffect(() => {
     saveState(slug, state);
@@ -499,13 +515,134 @@ export function BookingWizard({ slug, tenant, company }: BookingWizardProps) {
       <button
         disabled={
           state.customerName.trim().length < 2 ||
-          unformatPhone(state.customerPhone).length < 10
+          unformatPhone(state.customerPhone).length < 10 ||
+          loading
         }
-        onClick={() => setStep(1)}
+        onClick={async () => {
+          setLoading(true);
+          try {
+            const phone = unformatPhone(state.customerPhone);
+            const res = await fetch(`${apiUrl}?step=check_phone&phone=${encodeURIComponent(phone)}`);
+            const data = await res.json();
+            if (data.appointments && data.appointments.length > 0) {
+              setExistingAppointments(data.appointments);
+              setShowExistingApts(true);
+            } else {
+              setStep(1);
+            }
+          } catch {
+            setStep(1);
+          } finally {
+            setLoading(false);
+          }
+        }}
         className="h-14 w-full rounded-[16px] bg-amber-500 text-base font-semibold text-white shadow-lg shadow-amber-500/25 transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Continuar
+        {loading ? "Verificando..." : "Continuar"}
       </button>
+
+      {/* Existing appointments panel */}
+      {showExistingApts && (
+        <div className="rounded-[24px] bg-white p-6 shadow-sm space-y-4">
+          <h3 className="text-base font-bold text-gray-900">Você já tem agendamentos</h3>
+          <p className="text-sm text-gray-500">O que deseja fazer com eles?</p>
+
+          {existingAppointments.map((apt) => {
+            const BRT = "America/Sao_Paulo";
+            const dateStr = new Date(apt.start_at).toLocaleDateString("pt-BR", { timeZone: BRT, weekday: "short", day: "2-digit", month: "2-digit" });
+            const timeStr = new Date(apt.start_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: BRT });
+            const svcName = (apt.appointment_services?.[0] as { services: { name: string } })?.services?.name || "Serviço";
+            const proName = (apt.professionals as { name: string } | null)?.name || "";
+
+            return (
+              <div key={apt.id} className="rounded-[16px] border border-gray-100 p-4 space-y-3">
+                <div>
+                  <p className="font-semibold text-gray-900">{svcName}</p>
+                  {proName && <p className="text-xs text-gray-500">com {proName}</p>}
+                  <p className="text-sm text-amber-600 font-medium">{dateStr} às {timeStr}</p>
+                </div>
+
+                {aptAction?.id === apt.id ? (
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-gray-700">
+                      {aptAction.type === "cancel" ? "Motivo do cancelamento:" : "Motivo do reagendamento:"}
+                    </p>
+                    <textarea
+                      value={aptReason}
+                      onChange={(e) => setAptReason(e.target.value)}
+                      placeholder="Descreva o motivo..."
+                      rows={2}
+                      className="w-full rounded-[12px] border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 resize-none"
+                    />
+                    {aptActionError && <p className="text-xs text-red-500">{aptActionError}</p>}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { setAptAction(null); setAptReason(""); setAptActionError(""); }}
+                        className="flex-1 rounded-[12px] border border-gray-200 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                      >
+                        Voltar
+                      </button>
+                      <button
+                        disabled={aptReason.trim().length < 3 || aptActionLoading}
+                        onClick={async () => {
+                          setAptActionLoading(true);
+                          setAptActionError("");
+                          try {
+                            const res = await fetch(`${apiUrl}?step=${aptAction.type}`, {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ appointment_id: apt.id, reason: aptReason.trim() }),
+                            });
+                            const data = await res.json();
+                            if (!res.ok) { setAptActionError(data.error || "Erro. Tente novamente."); return; }
+                            setExistingAppointments((prev) => prev.filter((a) => a.id !== apt.id));
+                            setAptAction(null);
+                            setAptReason("");
+                            if (aptAction.type === "reschedule") setStep(1);
+                          } catch {
+                            setAptActionError("Erro de conexão.");
+                          } finally {
+                            setAptActionLoading(false);
+                          }
+                        }}
+                        className="flex-1 rounded-[12px] bg-amber-500 py-2 text-sm font-semibold text-white hover:bg-amber-600 disabled:opacity-50"
+                      >
+                        {aptActionLoading ? "..." : "Confirmar"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setAptAction({ id: apt.id, type: "cancel" }); setAptReason(""); setAptActionError(""); }}
+                      className="flex-1 rounded-[12px] border border-red-200 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={() => { setAptAction({ id: apt.id, type: "reschedule" }); setAptReason(""); setAptActionError(""); }}
+                      className="flex-1 rounded-[12px] bg-amber-500 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+                    >
+                      Reagendar
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {existingAppointments.length === 0 && (
+            <p className="text-sm text-gray-500 text-center">Todos resolvidos!</p>
+          )}
+
+          <button
+            onClick={() => { setShowExistingApts(false); setStep(1); }}
+            className="w-full rounded-[14px] border border-amber-500 py-3 text-sm font-semibold text-amber-600 hover:bg-amber-50"
+          >
+            Fazer novo agendamento →
+          </button>
+        </div>
+      )}
     </div>
   );
 

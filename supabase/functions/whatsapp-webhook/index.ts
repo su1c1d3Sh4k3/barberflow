@@ -379,14 +379,32 @@ async function handleMainMenuResponse(ctx: BotContext, state: ConversationState,
       const { data: apt } = await supabase.from("appointments").select("*, appointment_services(service_id, services(id, name, category_id, duration_min, price))").eq("id", aptId).single();
       if (apt && apt.appointment_services?.[0]) {
         const svc = apt.appointment_services[0].services;
-        await supabase.from("appointments").update({ status: "reagendado" }).eq("id", aptId);
-        await sendText(ctx.contactPhone, "Vamos reagendar! Qual data voce prefere?\n\n* *Hoje*\n* *Amanha*\n* Um dia (ex: 15)\n* Uma data (ex: 20/04)", ctx.instanceToken);
-        await updateState(supabase, state.id, "AWAITING_DATE", { ...state.context, serviceId: svc.id, serviceName: svc.name, serviceDuration: svc.duration_min, servicePrice: svc.price, reschedulingFrom: aptId });
+        await sendText(ctx.contactPhone, "Para reagendar, preciso saber o motivo. Por que deseja reagendar este agendamento?", ctx.instanceToken);
+        await updateState(supabase, state.id, "AWAITING_RESCHEDULE_REASON", { ...state.context, serviceId: svc.id, serviceName: svc.name, serviceDuration: svc.duration_min, servicePrice: svc.price, reschedulingFrom: aptId });
         return;
       }
     }
   }
   await handleMainMenu(ctx, state, supabase);
+}
+
+async function handleAwaitingRescheduleReason(ctx: BotContext, state: ConversationState, message: string) {
+  const supabase = getSupabase();
+  const aptId = state.context.reschedulingFrom as string;
+  const reason = message.trim();
+
+  if (reason.length < 3) {
+    await sendText(ctx.contactPhone, "Por favor, descreva o motivo do reagendamento (minimo 3 caracteres).", ctx.instanceToken);
+    return;
+  }
+
+  if (aptId) {
+    await supabase.from("appointments").update({ status: "reagendado", cancel_reason: reason, cancelled_at: new Date().toISOString() }).eq("id", aptId);
+    await supabase.from("appointment_history").insert({ appointment_id: aptId, action: "rescheduled", reason, performed_by: "whatsapp_bot" });
+  }
+
+  await sendText(ctx.contactPhone, `Motivo registrado. Vamos reagendar!\n\nQual data voce prefere?\n\n* *Hoje*\n* *Amanha*\n* Um dia (ex: 15)\n* Uma data (ex: 20/04)`, ctx.instanceToken);
+  await updateState(supabase, state.id, "AWAITING_DATE", { ...state.context, rescheduleReason: reason });
 }
 
 async function handleSelectingCategory(ctx: BotContext, state: ConversationState, message: string) {
@@ -620,6 +638,7 @@ async function processMessage(ctx: BotContext, message: string) {
     AWAITING_NAME: handleAwaitingName,
     SELECTING_UNIT: handleSelectingUnit,
     MAIN_MENU: handleMainMenuResponse,
+    AWAITING_RESCHEDULE_REASON: handleAwaitingRescheduleReason,
     SELECTING_CATEGORY: handleSelectingCategory,
     SELECTING_SERVICE: handleSelectingService,
     AWAITING_DATE: handleAwaitingDate,

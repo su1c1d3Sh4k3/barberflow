@@ -57,6 +57,7 @@ interface AppointmentRow {
   end_at: string;
   status: AppointmentStatus;
   notes?: string;
+  cancel_reason?: string | null;
   contacts: {
     id: string;
     name: string;
@@ -371,7 +372,7 @@ export default function AgendaPage() {
       .eq("tenant_id", tenantId)
       .gte("start_at", dateRange.start)
       .lte("start_at", dateRange.end)
-      .in("status", ["pendente", "confirmado", "concluido"]);
+      .in("status", ["pendente", "confirmado", "concluido", "cancelado"]);
     setAppointments((data as AppointmentRow[]) || []);
     setLoading(false);
   }, [tenantId, dateRange, supabase]);
@@ -1265,6 +1266,14 @@ export default function AgendaPage() {
                     </span>
                   </div>
                 </div>
+
+                {/* Cancel reason */}
+                {apt.status === "cancelado" && apt.cancel_reason && (
+                  <div className="mt-4 rounded-xl bg-red-50 p-3">
+                    <p className="mb-1 text-[10px] font-semibold uppercase text-red-400">Motivo do cancelamento</p>
+                    <p className="text-sm text-red-700">{apt.cancel_reason}</p>
+                  </div>
+                )}
               </div>
 
               {/* Actions */}

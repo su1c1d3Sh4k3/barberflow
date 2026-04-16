@@ -144,6 +144,35 @@ export async function GET(
     return json({ slots: slots || [] });
   }
 
+  // ============ CHECK PHONE ============
+  if (step === "check_phone") {
+    const phone = searchParams.get("phone");
+    if (!phone) return json({ error: "phone obrigatório" }, 400);
+
+    const phoneDigits = phone.replace(/\D/g, "");
+
+    const { data: contact } = await supabase
+      .from("contacts")
+      .select("id, name")
+      .eq("tenant_id", tenant_id)
+      .eq("phone", phoneDigits)
+      .single();
+
+    if (!contact) return json({ appointments: [] });
+
+    const { data: appointments } = await supabase
+      .from("appointments")
+      .select("id, start_at, end_at, status, appointment_services(services(name)), professionals(name)")
+      .eq("tenant_id", tenant_id)
+      .eq("contact_id", contact.id)
+      .in("status", ["pendente", "confirmado"])
+      .gte("start_at", new Date().toISOString())
+      .order("start_at", { ascending: true })
+      .limit(5);
+
+    return json({ contact: { id: contact.id, name: contact.name }, appointments: appointments || [] });
+  }
+
   return json({ error: "step inválido" }, 400);
 }
 
@@ -156,7 +185,7 @@ export async function POST(
   const step = searchParams.get("step");
   const { slug } = await params;
 
-  if (step !== "book") {
+  if (step !== "book" && step !== "cancel" && step !== "reschedule") {
     return json({ error: "step inválido" }, 400);
   }
 
@@ -166,6 +195,57 @@ export async function POST(
   }
 
   const body = await request.json();
+
+  // ============ CANCEL APPOINTMENT ============
+  if (step === "cancel") {
+    const { appointment_id, reason } = body;
+    if (!appointment_id || !reason?.trim()) {
+      return json({ error: "appointment_id e reason obrigatórios" }, 400);
+    }
+
+    const { error: updateError } = await supabase
+      .from("appointments")
+      .update({ status: "cancelado", cancel_reason: reason.trim(), cancelled_at: new Date().toISOString() })
+      .eq("id", appointment_id)
+      .eq("tenant_id", resolved.tenant_id);
+
+    if (updateError) return json({ error: "Erro ao cancelar agendamento" }, 500);
+
+    await supabase.from("appointment_history").insert({
+      appointment_id,
+      action: "canceled",
+      reason: reason.trim(),
+      performed_by: "cliente_booking_page",
+    });
+
+    return json({ success: true });
+  }
+
+  // ============ RESCHEDULE (mark old, redirect to new booking) ============
+  if (step === "reschedule") {
+    const { appointment_id, reason } = body;
+    if (!appointment_id || !reason?.trim()) {
+      return json({ error: "appointment_id e reason obrigatórios" }, 400);
+    }
+
+    const { error: updateError } = await supabase
+      .from("appointments")
+      .update({ status: "reagendado", cancel_reason: reason.trim(), cancelled_at: new Date().toISOString() })
+      .eq("id", appointment_id)
+      .eq("tenant_id", resolved.tenant_id);
+
+    if (updateError) return json({ error: "Erro ao reagendar agendamento" }, 500);
+
+    await supabase.from("appointment_history").insert({
+      appointment_id,
+      action: "rescheduled",
+      reason: reason.trim(),
+      performed_by: "cliente_booking_page",
+    });
+
+    return json({ success: true });
+  }
+
   const {
     tenant_id,
     company_id,
