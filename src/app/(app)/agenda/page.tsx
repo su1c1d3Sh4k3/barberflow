@@ -37,7 +37,7 @@ import {
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 
 // ===== TYPES =====
-type AppointmentStatus = "pendente" | "confirmado" | "concluido" | "cancelado";
+type AppointmentStatus = "pendente" | "confirmado" | "concluido" | "cancelado" | "reagendado";
 type ViewMode = "day" | "week" | "month" | "list";
 
 interface Professional {
@@ -204,6 +204,7 @@ const statusConfig: Record<AppointmentStatus, { bg: string; border: string; labe
   confirmado: { bg: "bg-amber-50 dark:bg-amber-900/30", border: "border-amber-500", label: "Confirmado", dot: "bg-amber-500" },
   concluido: { bg: "bg-emerald-50 dark:bg-emerald-900/30", border: "border-emerald-500", label: "Concluído", dot: "bg-emerald-500" },
   cancelado: { bg: "bg-surface-container-low", border: "border-muted-foreground", label: "Cancelado", dot: "bg-muted-foreground" },
+  reagendado: { bg: "bg-purple-50 dark:bg-purple-900/30", border: "border-purple-400", label: "Reagendado", dot: "bg-purple-400" },
 };
 
 // ===== DRAGGABLE APPOINTMENT CARD (Day View) =====
@@ -355,9 +356,10 @@ export default function AgendaPage() {
       const last = monthDays[monthDays.length - 1];
       return { start: `${toDateStr(first)}T00:00:00`, end: `${toDateStr(last)}T23:59:59` };
     }
-    // list: same as day
-    const dateStr = toDateStr(selectedDate);
-    return { start: `${dateStr}T00:00:00`, end: `${dateStr}T23:59:59` };
+    // list: 30 days from selectedDate
+    const listEnd = new Date(selectedDate);
+    listEnd.setDate(listEnd.getDate() + 29);
+    return { start: `${toDateStr(selectedDate)}T00:00:00`, end: `${toDateStr(listEnd)}T23:59:59` };
   }, [viewMode, selectedDate]);
 
   // Fetch appointments for date range
@@ -372,7 +374,7 @@ export default function AgendaPage() {
       .eq("tenant_id", tenantId)
       .gte("start_at", dateRange.start)
       .lte("start_at", dateRange.end)
-      .in("status", ["pendente", "confirmado", "concluido", "cancelado"]);
+      .in("status", ["pendente", "confirmado", "concluido", "cancelado", "reagendado"]);
     setAppointments((data as AppointmentRow[]) || []);
     setLoading(false);
   }, [tenantId, dateRange, supabase]);
@@ -477,7 +479,8 @@ export default function AgendaPage() {
   function goToPrevious() {
     setSelectedDate((prev) => {
       const d = new Date(prev);
-      if (viewMode === "day" || viewMode === "list") d.setDate(d.getDate() - 1);
+      if (viewMode === "day") d.setDate(d.getDate() - 1);
+      else if (viewMode === "list") d.setDate(d.getDate() - 7);
       else if (viewMode === "week") d.setDate(d.getDate() - 7);
       else if (viewMode === "month") d.setMonth(d.getMonth() - 1);
       return d;
@@ -487,7 +490,8 @@ export default function AgendaPage() {
   function goToNext() {
     setSelectedDate((prev) => {
       const d = new Date(prev);
-      if (viewMode === "day" || viewMode === "list") d.setDate(d.getDate() + 1);
+      if (viewMode === "day") d.setDate(d.getDate() + 1);
+      else if (viewMode === "list") d.setDate(d.getDate() + 7);
       else if (viewMode === "week") d.setDate(d.getDate() + 7);
       else if (viewMode === "month") d.setMonth(d.getMonth() + 1);
       return d;
@@ -591,7 +595,14 @@ export default function AgendaPage() {
 
   // Header text based on view
   function getHeaderText(): string {
-    if (viewMode === "day" || viewMode === "list") return formatDateHeader(selectedDate);
+    if (viewMode === "day") return formatDateHeader(selectedDate);
+    if (viewMode === "list") {
+      const listEnd = new Date(selectedDate);
+      listEnd.setDate(listEnd.getDate() + 29);
+      const startStr = `${selectedDate.getDate()}/${(selectedDate.getMonth() + 1).toString().padStart(2, "0")}`;
+      const endStr = `${listEnd.getDate()}/${(listEnd.getMonth() + 1).toString().padStart(2, "0")}`;
+      return `${startStr} — ${endStr}`;
+    }
     if (viewMode === "week") return formatWeekHeader(selectedDate);
     return formatMonthHeader(selectedDate);
   }
@@ -803,10 +814,27 @@ export default function AgendaPage() {
       (a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime()
     );
 
+    // Group by date
+    const groups: { dateKey: string; label: string; items: AppointmentRow[] }[] = [];
+    for (const apt of sortedAppointments) {
+      const d = new Date(apt.start_at);
+      const dateKey = toDateStr(d);
+      const isToday = isSameDay(d, new Date());
+      const label = isToday
+        ? `Hoje — ${formatDateHeader(d)}`
+        : formatDateHeader(d);
+      const existing = groups.find((g) => g.dateKey === dateKey);
+      if (existing) {
+        existing.items.push(apt);
+      } else {
+        groups.push({ dateKey, label, items: [apt] });
+      }
+    }
+
     return (
       <div data-testid="list-view" className="flex flex-1 flex-col overflow-auto rounded-2xl border border-border bg-surface-container-lowest shadow-sm">
         {/* Table Header */}
-        <div className="sticky top-0 z-10 grid grid-cols-[100px_1fr_1fr_1fr_120px] gap-2 border-b border-border bg-surface-container-lowest/95 backdrop-blur-sm px-4 py-3">
+        <div className="sticky top-0 z-10 grid grid-cols-[90px_1fr_1fr_1fr_120px] gap-2 border-b border-border bg-surface-container-lowest/95 backdrop-blur-sm px-4 py-3">
           <span className="text-[11px] font-bold text-muted-foreground uppercase">Horário</span>
           <span className="text-[11px] font-bold text-muted-foreground uppercase">Cliente</span>
           <span className="text-[11px] font-bold text-muted-foreground uppercase">Serviço</span>
@@ -815,40 +843,50 @@ export default function AgendaPage() {
         </div>
 
         {/* Rows */}
-        {sortedAppointments.length === 0 ? (
+        {groups.length === 0 ? (
           <div className="flex flex-1 items-center justify-center py-12">
-            <p className="text-sm text-muted-foreground">Nenhum agendamento para esta data</p>
+            <p className="text-sm text-muted-foreground">Nenhum agendamento nos próximos 30 dias</p>
           </div>
         ) : (
-          <div className="divide-y divide-border/30">
-            {sortedAppointments.map((apt) => {
-              const startTime = extractTime(apt.start_at);
-              const endTime = extractTime(apt.end_at);
-              const config = statusConfig[apt.status];
-              const clientName = apt.contacts?.name || "Cliente";
-              const profName = apt.professionals?.name || "\u2014";
-              const serviceName = getServiceNames(apt);
+          <div>
+            {groups.map((group) => (
+              <div key={group.dateKey}>
+                {/* Date separator */}
+                <div className="sticky top-[45px] z-[5] border-b border-border/50 bg-surface-container-low/80 px-4 py-2 backdrop-blur-sm">
+                  <span className="text-xs font-bold text-foreground/60">{group.label}</span>
+                </div>
+                <div className="divide-y divide-border/20">
+                  {group.items.map((apt) => {
+                    const startTime = extractTime(apt.start_at);
+                    const endTime = extractTime(apt.end_at);
+                    const config = statusConfig[apt.status] ?? { dot: "bg-gray-400", label: apt.status };
+                    const clientName = apt.contacts?.name || "Cliente";
+                    const profName = apt.professionals?.name || "—";
+                    const serviceName = getServiceNames(apt);
 
-              return (
-                <button
-                  key={apt.id}
-                  data-testid="list-row"
-                  onClick={() => handleAppointmentClick(apt)}
-                  className="grid w-full grid-cols-[100px_1fr_1fr_1fr_120px] gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-container-low"
-                >
-                  <span className="text-sm font-bold text-foreground">
-                    {startTime} - {endTime}
-                  </span>
-                  <span className="text-sm text-foreground truncate">{clientName}</span>
-                  <span className="text-sm text-foreground/70 truncate">{serviceName}</span>
-                  <span className="text-sm text-foreground/70 truncate">{profName}</span>
-                  <div className="flex items-center gap-1.5">
-                    <div className={cn("h-2 w-2 rounded-full", config.dot)} />
-                    <span className="text-xs font-semibold text-foreground/70">{config.label}</span>
-                  </div>
-                </button>
-              );
-            })}
+                    return (
+                      <button
+                        key={apt.id}
+                        data-testid="list-row"
+                        onClick={() => handleAppointmentClick(apt)}
+                        className="grid w-full grid-cols-[90px_1fr_1fr_1fr_120px] gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-container-low"
+                      >
+                        <span className="text-sm font-bold text-foreground">
+                          {startTime}<span className="font-normal text-muted-foreground text-xs"> - {endTime}</span>
+                        </span>
+                        <span className="text-sm text-foreground truncate">{clientName}</span>
+                        <span className="text-sm text-foreground/70 truncate">{serviceName}</span>
+                        <span className="text-sm text-foreground/70 truncate">{profName}</span>
+                        <div className="flex items-center gap-1.5">
+                          <div className={cn("h-2 w-2 rounded-full shrink-0", config.dot)} />
+                          <span className="text-xs font-semibold text-foreground/70">{config.label}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
