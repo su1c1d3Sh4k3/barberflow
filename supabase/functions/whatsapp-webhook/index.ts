@@ -22,18 +22,15 @@ function getSupabase() {
 // ─── uazapi helpers ──────────────────────────────────────────────────────────
 
 async function uazapiFetch(path: string, token: string, body?: Record<string, unknown>, method = "POST") {
-  try {
-    const resp = await fetch(`${UAZAPI_SERVER_URL}${path}`, {
-      method,
-      headers: { "Content-Type": "application/json", token },
-      body: body ? JSON.stringify(body) : undefined,
-    });
-    if (!resp.ok) {
-      const t = await resp.text().catch(() => "");
-      console.error(`uazapi ${path} error: ${resp.status} ${t}`);
-    }
-  } catch (err) {
-    console.error(`uazapi ${path} fetch error:`, err);
+  const resp = await fetch(`${UAZAPI_SERVER_URL}${path}`, {
+    method,
+    headers: { "Content-Type": "application/json", token },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!resp.ok) {
+    const t = await resp.text().catch(() => "");
+    console.error(`uazapi ${path} error: ${resp.status} ${t}`);
+    throw new Error(`uazapi ${path} failed: ${resp.status} ${t}`);
   }
 }
 
@@ -632,11 +629,32 @@ Deno.serve(async (req: Request) => {
     // ── Parse uazapi payload ──
     const eventType: string = body?.EventType || body?.event || "";
 
-    // Store debug info (best-effort)
-    const debugSummary = JSON.stringify({ at: new Date().toISOString(), eventType, bodyKeys: Object.keys(body), hasToken: !!body?.token, hasInstance: !!body?.instance, hasData: !!body?.data, dataKeys: body?.data ? Object.keys(body.data) : [] });
     const payloadToken: string | null = body?.token || null;
     const instance = body?.instance;
     const instanceId: string = typeof instance === "string" ? instance : (instance?.id || instance?.instanceId || body?.instanceId || "");
+
+    // Support both real uazapi format (body.chat + body.message) and test/Baileys format (body.data.*)
+    const data = body?.data || {};
+    const msgRaw = body?.message;
+    const msg = (typeof msgRaw === "object" && msgRaw !== null) ? msgRaw : {};
+
+    const rawJid: string = body?.chat || data?.sender || data?.chatid || data?.from || data?.key?.remoteJid || "";
+    const phone = rawJid.replace(/@s\.whatsapp\.net$/, "").replace(/@.*$/, "");
+    // body.message may be a plain string OR an object with text/conversation fields
+    const message: string = (typeof msgRaw === "string" ? msgRaw : "") || msg?.text || msg?.conversation || msg?.extendedTextMessage?.text || data?.text || data?.buttonOrListid || data?.message?.conversation || data?.message?.extendedTextMessage?.text || data?.message?.buttonsResponseMessage?.selectedButtonId || data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
+    // fromMe: check msg object, body-level, data, or compare chat vs owner JID
+    const isFromMe: boolean = msg?.fromMe ?? body?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? (!!body?.owner && body?.chat === body?.owner) ?? false;
+    const senderName: string = msg?.senderName || msg?.pushName || body?.pushName || data?.senderName || data?.pushName || "";
+
+    // Store full debug info (best-effort) — includes extracted values for diagnosis
+    const debugSummary = JSON.stringify({
+      at: new Date().toISOString(), eventType,
+      bodyKeys: Object.keys(body),
+      chat: body?.chat, owner: body?.owner,
+      messageType: typeof msgRaw, messageVal: typeof msgRaw === "string" ? msgRaw : (msgRaw ? JSON.stringify(msgRaw).slice(0, 300) : null),
+      extracted: { phone, message: message.slice(0, 100), isFromMe, senderName },
+      hasData: !!body?.data,
+    });
     try {
       if (payloadToken) await supabase.from("whatsapp_sessions").update({ webhook_status: debugSummary }).eq("instance_token", payloadToken);
       else if (instanceId) await supabase.from("whatsapp_sessions").update({ webhook_status: debugSummary }).eq("instance_id", instanceId);
@@ -645,16 +663,6 @@ Deno.serve(async (req: Request) => {
     if (eventType !== "messages" && eventType !== "message") {
       return new Response(JSON.stringify({ success: true, skipped: true, eventType }), { headers: { "Content-Type": "application/json" } });
     }
-
-    // Support both real uazapi format (body.chat + body.message) and test/Baileys format (body.data.*)
-    const data = body?.data || {};
-    const msg = body?.message || {};  // real uazapi format puts message object here
-
-    const rawJid: string = body?.chat || data?.sender || data?.chatid || data?.from || data?.key?.remoteJid || "";
-    const phone = rawJid.replace(/@s\.whatsapp\.net$/, "").replace(/@.*$/, "");
-    const message: string = msg?.text || msg?.conversation || data?.text || data?.buttonOrListid || data?.message?.conversation || data?.message?.extendedTextMessage?.text || data?.message?.buttonsResponseMessage?.selectedButtonId || data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
-    const isFromMe: boolean = msg?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? false;
-    const senderName: string = msg?.senderName || msg?.pushName || data?.senderName || data?.pushName || "";
 
     if (!phone || !message || isFromMe) {
       return new Response(JSON.stringify({ success: true, skipped: true, debug: { phone: !!phone, message: !!message, isFromMe } }), { headers: { "Content-Type": "application/json" } });
