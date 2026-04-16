@@ -633,25 +633,25 @@ Deno.serve(async (req: Request) => {
     const instance = body?.instance;
     const instanceId: string = typeof instance === "string" ? instance : (instance?.id || instance?.instanceId || body?.instanceId || "");
 
-    // Support both real uazapi format (body.chat + body.message) and test/Baileys format (body.data.*)
+    // Real uazapi format: body.chat = object with chat metadata, body.message = object with message data
+    // body.chat.wa_chatid = sender JID, body.message.content = message text, body.message.fromMe = bool
+    const chatObj = (typeof body?.chat === "object" && body?.chat !== null) ? body.chat : {};
+    const msgObj = (typeof body?.message === "object" && body?.message !== null) ? body.message : {};
+    // Also support legacy/test format where body.data.* is used
     const data = body?.data || {};
-    const msgRaw = body?.message;
-    const msg = (typeof msgRaw === "object" && msgRaw !== null) ? msgRaw : {};
 
-    const rawJid: string = body?.chat || data?.sender || data?.chatid || data?.from || data?.key?.remoteJid || "";
+    const rawJid: string = chatObj?.wa_chatid || msgObj?.sender || msgObj?.chatid || data?.sender || data?.chatid || data?.from || data?.key?.remoteJid || "";
     const phone = rawJid.replace(/@s\.whatsapp\.net$/, "").replace(/@.*$/, "");
-    // body.message may be a plain string OR an object with text/conversation fields
-    const message: string = (typeof msgRaw === "string" ? msgRaw : "") || msg?.text || msg?.conversation || msg?.extendedTextMessage?.text || data?.text || data?.buttonOrListid || data?.message?.conversation || data?.message?.extendedTextMessage?.text || data?.message?.buttonsResponseMessage?.selectedButtonId || data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
-    // fromMe: check msg object, body-level, data, or compare chat vs owner JID
-    const isFromMe: boolean = msg?.fromMe ?? body?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? (!!body?.owner && body?.chat === body?.owner) ?? false;
-    const senderName: string = msg?.senderName || msg?.pushName || body?.pushName || data?.senderName || data?.pushName || "";
+    const message: string = msgObj?.content || msgObj?.text || msgObj?.conversation || msgObj?.extendedTextMessage?.text || msgObj?.buttonOrListid || data?.text || data?.buttonOrListid || data?.message?.conversation || data?.message?.extendedTextMessage?.text || data?.message?.buttonsResponseMessage?.selectedButtonId || data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
+    const isFromMe: boolean = msgObj?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? false;
+    const senderName: string = chatObj?.name || chatObj?.wa_name || chatObj?.wa_contactName || msgObj?.senderName || msgObj?.pushName || data?.senderName || data?.pushName || "";
 
     // Store full debug info (best-effort) — includes extracted values for diagnosis
     const debugSummary = JSON.stringify({
       at: new Date().toISOString(), eventType,
       bodyKeys: Object.keys(body),
       chat: body?.chat, owner: body?.owner,
-      messageType: typeof msgRaw, messageVal: typeof msgRaw === "string" ? msgRaw : (msgRaw ? JSON.stringify(msgRaw).slice(0, 300) : null),
+      messageVal: JSON.stringify(body?.message).slice(0, 300),
       extracted: { phone, message: message.slice(0, 100), isFromMe, senderName },
       hasData: !!body?.data,
     });
