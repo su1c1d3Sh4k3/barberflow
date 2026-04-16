@@ -244,11 +244,11 @@ export default function DashboardPage() {
       .select("id, start_at, status, contacts(name), professionals(name), appointment_services(services(name))")
       .eq("tenant_id", tenant.id)
       .order("created_at", { ascending: false })
-      .limit(6);
+      .limit(5);
 
     setLastAppointments((lastData as unknown as AppointmentItem[]) || []);
 
-    // Próximos agendamentos — future only, not canceled/rescheduled, soonest first, limit 3
+    // Próximos agendamentos — future only, not canceled/rescheduled, soonest first, limit 5
     const { data: upcomingData } = await supabase
       .from("appointments")
       .select("id, start_at, status, contacts(name), professionals(name), appointment_services(services(name))")
@@ -256,7 +256,7 @@ export default function DashboardPage() {
       .not("status", "in", "(cancelado,reagendado)")
       .gt("start_at", now.toISOString())
       .order("start_at", { ascending: true })
-      .limit(3);
+      .limit(5);
 
     setUpcomingAppointments((upcomingData as unknown as AppointmentItem[]) || []);
   }, [tenant?.id, period, supabase]);
