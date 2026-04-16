@@ -51,10 +51,9 @@ export async function POST(request: NextRequest) {
       return apiError("Instance token not available", 400);
     }
 
-    // Derive the base URL: prefer explicit env var, fall back to request host
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ||
-      `${request.headers.get("x-forwarded-proto") || "https"}://${request.headers.get("host")}`;
-    const webhookUrl = `${appUrl}/api/webhooks/whatsapp`;
+    // Use Supabase Edge Function as the webhook receiver (uazapi → Edge Function → bot)
+    const supabaseProjectRef = process.env.SUPABASE_PROJECT_REF || "vpvsrqkptvphkivwqxoy";
+    const webhookUrl = `https://${supabaseProjectRef}.supabase.co/functions/v1/whatsapp-webhook`;
 
     // Call uazapi to configure the webhook
     await uazapi.setWebhook(session.instance_token, {

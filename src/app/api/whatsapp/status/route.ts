@@ -43,12 +43,9 @@ export async function GET(request: NextRequest) {
 
     // If just became connected, auto-configure webhook
     if (liveStatus === "connected" && session.status !== "connected") {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ||
-        `${request.headers.get("x-forwarded-proto") || "https"}://${request.headers.get("host")}`;
-      if (appUrl.includes("localhost")) {
-        console.warn("WhatsApp webhook: URL is localhost — uazapi cannot reach it. Set NEXT_PUBLIC_APP_URL to the VPS public URL.");
-      }
-      const webhookUrl = `${appUrl}/api/webhooks/whatsapp`;
+      // Use Supabase Edge Function as the webhook receiver (uazapi → Edge Function → bot)
+      const supabaseProjectRef = process.env.SUPABASE_PROJECT_REF || "vpvsrqkptvphkivwqxoy";
+      const webhookUrl = `https://${supabaseProjectRef}.supabase.co/functions/v1/whatsapp-webhook`;
       console.log(`WhatsApp: configuring webhook to ${webhookUrl}`);
       try {
         await uazapi.setWebhook(session.instance_token, {
