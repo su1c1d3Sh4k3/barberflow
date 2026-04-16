@@ -38,21 +38,32 @@ async function uazapiFetch(path: string, token: string, body?: Record<string, un
 }
 
 async function sendText(phone: string, message: string, token: string) {
-  await uazapiFetch("/send/text", token, { phone, message });
+  // uazapi /send/text expects: { number, text }
+  await uazapiFetch("/send/text", token, { number: phone, text: message });
 }
 
 async function safeSendButtons(phone: string, text: string, buttons: Array<{ id: string; text: string }>, token: string) {
   try {
-    await uazapiFetch("/send/buttons", token, { phone, title: text, buttons });
+    // uazapi /send/menu with type:"button" expects: { number, type, text, choices: ["label|id"] }
+    const choices = buttons.map((b) => `${b.text}|${b.id}`);
+    await uazapiFetch("/send/menu", token, { number: phone, type: "button", text, choices });
   } catch {
     const fallback = text + "\n\n" + buttons.map((b, i) => `${i + 1}. ${b.text}`).join("\n");
     await sendText(phone, fallback, token);
   }
 }
 
-async function safeSendList(phone: string, text: string, title: string, buttonText: string, sections: Array<{ title: string; rows: Array<{ id: string; title: string; description?: string }> }>, token: string) {
+async function safeSendList(phone: string, text: string, _title: string, buttonText: string, sections: Array<{ title: string; rows: Array<{ id: string; title: string; description?: string }> }>, token: string) {
   try {
-    await uazapiFetch("/send/menu", token, { phone, title: text, description: title, buttonText, sections });
+    // uazapi /send/menu with type:"list" expects: { number, type, text, choices: ["[Section]", "label|id|desc"], listButton }
+    const choices: string[] = [];
+    for (const section of sections) {
+      choices.push(`[${section.title}]`);
+      for (const row of section.rows) {
+        choices.push(`${row.title}|${row.id}${row.description ? `|${row.description}` : ""}`);
+      }
+    }
+    await uazapiFetch("/send/menu", token, { number: phone, type: "list", text, choices, listButton: buttonText });
   } catch {
     const rows = sections.flatMap((s) => s.rows);
     const fallback = text + "\n\n" + rows.map((r, i) => `${i + 1}. ${r.title}${r.description ? ` (${r.description})` : ""}`).join("\n");
