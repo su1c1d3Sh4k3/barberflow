@@ -118,6 +118,7 @@ export default function DefinicoesPage() {
   // Pagamento state
   const [pixKey, setPixKey] = useState("");
   const [paymentLink, setPaymentLink] = useState("");
+  const [bookingLink, setBookingLink] = useState("");
 
   // Cupons state
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -167,6 +168,7 @@ export default function DefinicoesPage() {
         setBoasVindasMessage(s.welcome_message ?? "");
         setPixKey(s.pix_key ?? "");
         setPaymentLink(s.payment_link ?? "");
+        setBookingLink(s.booking_link ?? "");
       }
 
       // Coupons
@@ -651,8 +653,20 @@ export default function DefinicoesPage() {
                 />
               </div>
 
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Link de agendamento online</label>
+                <p className="text-xs text-muted-foreground">Enviado automaticamente na primeira mensagem do cliente via WhatsApp.</p>
+                <input
+                  type="text"
+                  placeholder="https://seusite.com/b/sua-barbearia"
+                  value={bookingLink}
+                  onChange={(e) => setBookingLink(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-surface-container-lowest px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                />
+              </div>
+
               <button
-                onClick={() => saveSettings({ pix_key: pixKey, payment_link: paymentLink })}
+                onClick={() => saveSettings({ pix_key: pixKey, payment_link: paymentLink, booking_link: bookingLink })}
                 disabled={saving}
                 className="flex items-center gap-2 rounded-lg bg-amber-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-amber-600 transition disabled:opacity-50"
               >

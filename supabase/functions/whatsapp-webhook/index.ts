@@ -221,6 +221,7 @@ interface BotContext {
   contactName: string;
   contactPhone: string;
   instanceToken: string;
+  bookingLink?: string | null;
 }
 
 interface ConversationState {
@@ -314,7 +315,8 @@ async function handleMainMenu(ctx: BotContext, state: ConversationState, supabas
   const { tenantId, contactPhone, contactName, instanceToken } = ctx;
   const { data: categories } = await supabase.from("service_categories").select("id, name").eq("tenant_id", tenantId);
   if (!categories || categories.length === 0) { await sendText(contactPhone, "Desculpe, nao ha servicos disponiveis no momento.", instanceToken); return; }
-  const msg = `👋 Ola, ${contactName}! Bem-vindo(a)!\n\nEscolha uma categoria de servico:`;
+  const bookingLinkSuffix = ctx.bookingLink ? `\n\nCaso prefira, pode realizar o agendamento pelo nosso link:\n${ctx.bookingLink}` : "";
+  const msg = `👋 Ola, ${contactName}! Bem-vindo(a)!\n\nEscolha uma categoria de servico:${bookingLinkSuffix}`;
   if (categories.length <= 3) {
     await safeSendButtons(contactPhone, msg, categories.map((c) => ({ id: `cat_${c.id}`, text: c.name })), instanceToken);
   } else {
@@ -593,11 +595,17 @@ async function processMessage(ctx: BotContext, message: string) {
     }
 
     const isGenericName = ctx.contactName.startsWith("Cliente ") || ctx.contactName.length < 2;
-    if (isGenericName) { await sendText(contactPhone, "👋 Ola! Antes de comecar, qual e o seu nome?", instanceToken); await updateState(supabase, state.id, "AWAITING_NAME", {}); return; }
+    if (isGenericName) {
+      let msg = "👋 Ola! Antes de comecar, qual e o seu nome?";
+      if (ctx.bookingLink) msg += `\n\nCaso prefira, pode realizar o agendamento pelo nosso link:\n${ctx.bookingLink}`;
+      await sendText(contactPhone, msg, instanceToken);
+      await updateState(supabase, state.id, "AWAITING_NAME", {}); return;
+    }
 
     const { data: companies } = await supabase.from("companies").select("id, name").eq("tenant_id", tenantId);
+    const bookingLinkSuffix = ctx.bookingLink ? `\n\nCaso prefira, pode realizar o agendamento pelo nosso link:\n${ctx.bookingLink}` : "";
     if (companies && companies.length > 1) {
-      const msg = `👋 Ola, ${ctx.contactName}! Bem-vindo(a)!\n\nEm qual unidade voce deseja agendar?`;
+      const msg = `👋 Ola, ${ctx.contactName}! Bem-vindo(a)!\n\nEm qual unidade voce deseja agendar?${bookingLinkSuffix}`;
       if (companies.length <= 3) { await safeSendButtons(contactPhone, msg, companies.map((c) => ({ id: `unit_${c.id}`, text: c.name })), instanceToken); }
       else { await safeSendList(contactPhone, msg, "Selecione a unidade", "Ver unidades", [{ title: "Unidades", rows: companies.map((c) => ({ id: `unit_${c.id}`, title: c.name })) }], instanceToken); }
       await updateState(supabase, state.id, "SELECTING_UNIT", {}); return;
@@ -727,7 +735,7 @@ Deno.serve(async (req: Request) => {
 
     // ── STEP 1: Test mode check — FIRST, before anything else ──
     // Blocks ALL non-whitelisted numbers when test_mode=true, regardless of AI/bot mode.
-    const { data: settingsData } = await supabase.from("settings").select("test_mode, test_numbers").eq("tenant_id", tenantId).single();
+    const { data: settingsData } = await supabase.from("settings").select("test_mode, test_numbers, booking_link").eq("tenant_id", tenantId).single();
     if (settingsData?.test_mode) {
       // test_mode=true → ONLY whitelisted numbers pass; empty list = nobody passes
       // Use last 8 digits for comparison to handle BR 8-digit vs 9-digit number formats
@@ -799,7 +807,7 @@ Deno.serve(async (req: Request) => {
 
     // ── STEP 6: AI is OFF — run built-in bot ──
     await processMessage(
-      { tenantId, contactId: contact.id, contactName: contact.name, contactPhone: phone, instanceToken },
+      { tenantId, contactId: contact.id, contactName: contact.name, contactPhone: phone, instanceToken, bookingLink: settingsData?.booking_link ?? null },
       message
     );
 
