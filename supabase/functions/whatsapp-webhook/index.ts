@@ -11,6 +11,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const UAZAPI_SERVER_URL = Deno.env.get("UAZAPI_SERVER_URL") ?? "";
 const WEBHOOK_TOKEN = Deno.env.get("WHATSAPP_WEBHOOK_TOKEN") ?? "";
+const APP_URL = (Deno.env.get("APP_URL") ?? "").replace(/\/$/, "");
 const N8N_BASE_URL = "https://webhooks.clinvia.com.br/webhook";
 
 function getSupabase() {
@@ -735,7 +736,11 @@ Deno.serve(async (req: Request) => {
 
     // ── STEP 1: Test mode check — FIRST, before anything else ──
     // Blocks ALL non-whitelisted numbers when test_mode=true, regardless of AI/bot mode.
-    const { data: settingsData } = await supabase.from("settings").select("test_mode, test_numbers, booking_link").eq("tenant_id", tenantId).single();
+    const { data: settingsData } = await supabase.from("settings").select("test_mode, test_numbers").eq("tenant_id", tenantId).single();
+
+    // Build booking link from company public_slug + APP_URL (auto-generated)
+    const { data: defaultCompany } = await supabase.from("companies").select("public_slug").eq("tenant_id", tenantId).order("is_default", { ascending: false }).limit(1).single();
+    const bookingLink = APP_URL && defaultCompany?.public_slug ? `${APP_URL}/b/${defaultCompany.public_slug}` : null;
     if (settingsData?.test_mode) {
       // test_mode=true → ONLY whitelisted numbers pass; empty list = nobody passes
       // Use last 8 digits for comparison to handle BR 8-digit vs 9-digit number formats
@@ -807,7 +812,7 @@ Deno.serve(async (req: Request) => {
 
     // ── STEP 6: AI is OFF — run built-in bot ──
     await processMessage(
-      { tenantId, contactId: contact.id, contactName: contact.name, contactPhone: phone, instanceToken, bookingLink: settingsData?.booking_link ?? null },
+      { tenantId, contactId: contact.id, contactName: contact.name, contactPhone: phone, instanceToken, bookingLink },
       message
     );
 
