@@ -361,9 +361,6 @@ export function Topbar() {
       .gte("start_at", monthStart);
     const revenue = revenueData?.reduce((sum, a) => sum + (Number(a.total_price) || 0), 0) || 0;
 
-    // Month range: 1st of current month → now
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-
     const { count: pendingCount } = await supabase
       .from("appointments")
       .select("id", { count: "exact", head: true })
