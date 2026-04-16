@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   // Try today first, then each day up to a week out
   let firstSlot = null;
   for (let i = 0; i < 7 && !firstSlot; i++) {
-    const d = new Date(Date.now() + i * 86400000).toISOString().split("T")[0];
+    const d = new Date(Date.now() + i * 86400000).toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
     const { data, error: slotErr } = await db().rpc("get_available_slots", {
       p_tenant_id: auth.tenantId,
       p_professional_id: professionalId,

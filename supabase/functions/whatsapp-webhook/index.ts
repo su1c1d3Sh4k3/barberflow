@@ -32,6 +32,24 @@ async function uazapiFetch(path: string, token: string, body?: Record<string, un
     console.error(`uazapi ${path} error: ${resp.status} ${t}`);
     throw new Error(`uazapi ${path} failed: ${resp.status} ${t}`);
   }
+  return resp;
+}
+
+// Fetch contact profile picture from uazapi /chat/find
+async function fetchContactAvatar(jid: string, token: string): Promise<string | null> {
+  try {
+    const resp = await fetch(`${UAZAPI_SERVER_URL}/chat/find`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", token },
+      body: JSON.stringify({ wa_chatid: jid, limit: 1 }),
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const chat = data?.chats?.[0] ?? data?.[0] ?? null;
+    return chat?.image || chat?.imagePreview || null;
+  } catch {
+    return null;
+  }
 }
 
 async function sendText(phone: string, message: string, token: string) {
@@ -220,13 +238,15 @@ function extractId(message: string, prefix: string): string | null {
   return msg.startsWith(prefix) ? msg.replace(prefix, "") : null;
 }
 
+const TZ = "America/Sao_Paulo";
+
 function formatDate(date: Date): string {
-  return date.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
+  return date.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit", timeZone: TZ });
 }
 
 function formatTime(dateStr: string): string {
   const d = new Date(dateStr);
-  return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: TZ });
 }
 
 function parseDate(input: string): Date | null {
@@ -657,7 +677,9 @@ Deno.serve(async (req: Request) => {
     const debugSummary = JSON.stringify({
       at: new Date().toISOString(), eventType,
       bodyKeys: Object.keys(body),
-      chat: body?.chat, owner: body?.owner,
+      chatKeys: Object.keys(chatObj),
+      chatImageWebhook: chatObj?.image || chatObj?.imagePreview || null,
+      owner: body?.owner,
       messageVal: JSON.stringify(body?.message ?? null).slice(0, 300),
       extracted: { phone, message: message.slice(0, 100), isFromMe, senderName },
       hasData: !!body?.data,
@@ -719,10 +741,30 @@ Deno.serve(async (req: Request) => {
     }
 
     // ── STEP 2: Find or create contact ──
-    let { data: contact } = await supabase.from("contacts").select("id, name, phone, status, tags, notes").eq("tenant_id", tenantId).like("phone", `%${phone.slice(-8)}`).single();
+    // Try avatar from webhook payload first; if missing, fetch via /chat/find
+    let avatarUrl: string | null = chatObj?.image || chatObj?.imagePreview || null;
+    console.log(`Avatar from webhook: ${avatarUrl}, rawJid: ${rawJid}`);
+    if (!avatarUrl && rawJid && instanceToken) {
+      avatarUrl = await fetchContactAvatar(rawJid, instanceToken);
+      console.log(`Avatar from /chat/find: ${avatarUrl}`);
+    }
+
+    let { data: contact } = await supabase.from("contacts").select("id, name, phone, status, tags, notes, avatar_url").eq("tenant_id", tenantId).like("phone", `%${phone.slice(-8)}`).single();
     if (!contact) {
-      const { data: newContact } = await supabase.from("contacts").insert({ tenant_id: tenantId, name: senderName || `Cliente ${phone.slice(-4)}`, phone, source: "whatsapp", status: "pendente" }).select("id, name, phone, status, tags, notes").single();
+      const { data: newContact } = await supabase.from("contacts").insert({ tenant_id: tenantId, name: senderName || `Cliente ${phone.slice(-4)}`, phone, source: "whatsapp", status: "pendente", avatar_url: avatarUrl }).select("id, name, phone, status, tags, notes, avatar_url").single();
       contact = newContact;
+    } else {
+      // Update name if generic/empty; always refresh avatar_url (URLs can expire)
+      const needsNameUpdate = senderName && (!contact.name || contact.name.startsWith("Cliente ") || contact.name === "Teste");
+      const needsAvatarUpdate = !!avatarUrl && contact.avatar_url !== avatarUrl;
+      if (needsNameUpdate || needsAvatarUpdate) {
+        const updateData: Record<string, string> = {};
+        if (needsNameUpdate) updateData.name = senderName;
+        if (needsAvatarUpdate) updateData.avatar_url = avatarUrl;
+        await supabase.from("contacts").update(updateData).eq("id", contact.id);
+        if (needsNameUpdate) contact.name = senderName;
+        if (needsAvatarUpdate) contact.avatar_url = avatarUrl;
+      }
     }
     if (!contact) {
       return new Response(JSON.stringify({ success: false, error: "contact_creation_failed" }), { status: 500, headers: { "Content-Type": "application/json" } });

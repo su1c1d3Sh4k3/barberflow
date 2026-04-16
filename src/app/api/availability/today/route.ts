@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     return apiError("service_id is required");
   }
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" }); // YYYY-MM-DD em BRT
 
   if (professionalId) {
     // Return slots for a specific professional

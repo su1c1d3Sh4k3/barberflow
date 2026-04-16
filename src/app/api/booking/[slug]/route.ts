@@ -323,8 +323,9 @@ export async function POST(
   // 6. Log booking confirmation message
   const serviceNames = services.map((s: { id: string; name?: string }) => s.name || "Serviço").join(", ");
   const dateObj = new Date(slot_start);
-  const dateStr = dateObj.toLocaleDateString("pt-BR");
-  const timeStr = dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const BRT = "America/Sao_Paulo";
+  const dateStr = dateObj.toLocaleDateString("pt-BR", { timeZone: BRT });
+  const timeStr = dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: BRT });
   const confirmationMsg = `Agendamento confirmado: ${serviceNames} em ${dateStr} às ${timeStr}`;
 
   await supabase.from("messages").insert({

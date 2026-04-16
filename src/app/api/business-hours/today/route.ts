@@ -5,7 +5,9 @@ export async function GET(req: NextRequest) {
   const auth = validateAuth(req);
   if (isAuthError(auth)) return auth;
 
-  const dayOfWeek = new Date().getDay(); // 0=Sun, 6=Sat
+  // Use BRT date to avoid wrong weekday near midnight UTC (BRT = UTC-3)
+  const todayBRT = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
+  const dayOfWeek = new Date(todayBRT + "T12:00:00").getDay(); // 0=Sun, 6=Sat
 
   const { data, error } = await db()
     .from("business_hours")
