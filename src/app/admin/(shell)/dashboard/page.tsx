@@ -321,15 +321,18 @@ export default function AdminDashboardPage() {
   const handleDeleteTenant = async () => {
     if (!deletingTenant) return;
     setDeleting(true);
+    const deletedId = deletingTenant.id;
     try {
-      const res = await fetch(`/api/admin/tenants/${deletingTenant.id}`, {
+      const res = await fetch(`/api/admin/tenants/${deletedId}`, {
         method: "DELETE",
         credentials: "include",
       });
       if (res.ok) {
+        // Remove immediately from local state (optimistic)
+        setTenants((prev) => prev.filter((t) => t.id !== deletedId));
+        setFiltered((prev) => prev.filter((t) => t.id !== deletedId));
         setDeletingTenant(null);
         setDeleteConfirmName("");
-        await fetchTenants();
       } else {
         let msg = `Erro ${res.status}`;
         try {
