@@ -331,9 +331,15 @@ export default function AdminDashboardPage() {
         setDeleteConfirmName("");
         await fetchTenants();
       } else {
-        const err = await res.json();
-        alert(err.error || "Erro ao excluir conta");
+        let msg = `Erro ${res.status}`;
+        try {
+          const err = await res.json();
+          msg = err.error || msg;
+        } catch { /* body não é JSON */ }
+        alert(msg);
       }
+    } catch (err) {
+      alert("Erro de conexão: " + String(err));
     } finally {
       setDeleting(false);
     }
