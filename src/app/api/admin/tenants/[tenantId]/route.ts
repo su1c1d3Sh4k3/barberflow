@@ -97,3 +97,40 @@ export async function PATCH(
 
   return NextResponse.json({ success: true });
 }
+
+// DELETE /api/admin/tenants/[tenantId] — permanently delete tenant and all data
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { tenantId: string } }
+) {
+  const { valid } = validateAdminRequest(request);
+  if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const db = createServiceRoleClient();
+  const tenantId = params.tenantId;
+
+  // Fetch all auth user IDs for this tenant before deleting
+  const { data: tenantUsers } = await db
+    .from("users")
+    .select("id")
+    .eq("tenant_id", tenantId);
+
+  // Delete tenant — cascades all related data via FK ON DELETE CASCADE
+  const { error: deleteError } = await db
+    .from("tenants")
+    .delete()
+    .eq("id", tenantId);
+
+  if (deleteError) {
+    return NextResponse.json({ error: deleteError.message }, { status: 500 });
+  }
+
+  // Delete Supabase Auth users
+  if (tenantUsers && tenantUsers.length > 0) {
+    await Promise.all(
+      tenantUsers.map((u) => db.auth.admin.deleteUser(u.id))
+    );
+  }
+
+  return NextResponse.json({ success: true });
+}

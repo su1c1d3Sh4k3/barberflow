@@ -175,6 +175,74 @@ class TestAdminTenants:
         assert resp.json().get("success") is True
 
 
+# ─── Delete tenant tests ──────────────────────────────────────────────────────
+
+class TestAdminDeleteTenant:
+    def test_delete_requires_auth(self):
+        """DELETE tenant requires admin auth."""
+        resp = requests.delete(
+            f"{APP_URL}/api/admin/tenants/00000000-0000-0000-0000-000000000000"
+        )
+        assert resp.status_code == 401
+
+    def test_delete_nonexistent_tenant(self):
+        """Deleting a non-existent tenant returns 200 (no-op in Supabase)."""
+        session = admin_login()
+        resp = session.delete(
+            f"{APP_URL}/api/admin/tenants/00000000-0000-0000-0000-000000000000"
+        )
+        assert resp.status_code == 200
+
+    def test_delete_tenant_full_cycle(self):
+        """Create a tenant via Supabase service role, then delete it via admin API."""
+        import uuid
+        import time
+
+        session = admin_login()
+
+        # Create a temporary tenant directly via Supabase REST
+        tenant_id = str(uuid.uuid4())
+        headers = {
+            "apikey": SUPABASE_SERVICE_KEY,
+            "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
+            "Content-Type": "application/json",
+            "Prefer": "return=representation",
+        }
+
+        insert_resp = requests.post(
+            f"{SUPABASE_URL}/rest/v1/tenants",
+            json={
+                "id": tenant_id,
+                "name": f"Tenant Teste Deletar {int(time.time())}",
+                "plan": "trial",
+                "public_slug": f"test-delete-{int(time.time())}",
+            },
+            headers=headers,
+        )
+        assert insert_resp.status_code in (200, 201), f"Failed to create tenant: {insert_resp.text}"
+
+        # Verify it exists via Supabase REST directly
+        check_resp = requests.get(
+            f"{SUPABASE_URL}/rest/v1/tenants?id=eq.{tenant_id}&select=id",
+            headers=headers,
+        )
+        assert check_resp.status_code == 200
+        assert len(check_resp.json()) == 1
+
+        # Delete via admin API
+        del_resp = session.delete(f"{APP_URL}/api/admin/tenants/{tenant_id}")
+        assert del_resp.status_code == 200
+        assert del_resp.json().get("success") is True
+
+        # Verify it no longer exists via Supabase REST
+        check_resp2 = requests.get(
+            f"{SUPABASE_URL}/rest/v1/tenants?id=eq.{tenant_id}&select=id",
+            headers=headers,
+        )
+        assert check_resp2.status_code == 200
+        assert len(check_resp2.json()) == 0
+
+
 # ─── Impersonation tests ──────────────────────────────────────────────────────
 
 class TestAdminImpersonate:

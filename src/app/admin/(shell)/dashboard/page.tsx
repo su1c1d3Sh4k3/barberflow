@@ -17,6 +17,7 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
 import {
   BarChart,
@@ -139,7 +140,11 @@ export default function AdminDashboardPage() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [impersonating, setImpersonating] = useState<string | null>(null);
+  const [deletingTenant, setDeletingTenant] = useState<TenantRow | null>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const editModalRef = useRef<HTMLDivElement>(null);
+  const deleteModalRef = useRef<HTMLDivElement>(null);
 
   const fetchTenants = useCallback(async () => {
     setLoading(true);
@@ -195,6 +200,18 @@ export default function AdminDashboardPage() {
     if (editingTenant) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [editingTenant]);
+
+  // Close delete modal on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (deleteModalRef.current && !deleteModalRef.current.contains(e.target as Node)) {
+        setDeletingTenant(null);
+        setDeleteConfirmName("");
+      }
+    }
+    if (deletingTenant) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [deletingTenant]);
 
   const handleExpandRow = async (tenantId: string) => {
     if (expandedRow === tenantId) {
@@ -298,6 +315,27 @@ export default function AdminDashboardPage() {
       alert("Erro inesperado ao acessar o sistema do cliente.");
     } finally {
       setImpersonating(null);
+    }
+  };
+
+  const handleDeleteTenant = async () => {
+    if (!deletingTenant) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/tenants/${deletingTenant.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setDeletingTenant(null);
+        setDeleteConfirmName("");
+        await fetchTenants();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Erro ao excluir conta");
+      }
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -481,6 +519,15 @@ export default function AdminDashboardPage() {
                           )}
                           Acessar
                         </button>
+
+                        {/* Delete */}
+                        <button
+                          onClick={() => { setDeletingTenant(tenant); setDeleteConfirmName(""); }}
+                          title="Excluir conta"
+                          className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface-container text-muted-foreground hover:border-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </div>
                     </div>
 
@@ -535,6 +582,68 @@ export default function AdminDashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deletingTenant && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div ref={deleteModalRef} className="w-full max-w-md rounded-card bg-surface-container-lowest shadow-float">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30">
+                  <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+                </div>
+                <div>
+                  <h3 className="text-title text-foreground">Excluir conta</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">Esta ação é irreversível</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setDeletingTenant(null); setDeleteConfirmName(""); }}
+                className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-surface-container text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="px-6 py-5 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Todos os dados de{" "}
+                <span className="font-semibold text-foreground">{deletingTenant.name}</span>{" "}
+                serão excluídos permanentemente: agendamentos, clientes, profissionais, serviços, histórico de mensagens e usuários.
+              </p>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  Digite <span className="text-red-600 font-semibold">{deletingTenant.name}</span> para confirmar
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmName}
+                  onChange={(e) => setDeleteConfirmName(e.target.value)}
+                  placeholder={deletingTenant.name}
+                  className="h-11 w-full rounded-input bg-surface-container px-4 text-sm text-foreground border border-border focus:outline-none focus:ring-2 focus:ring-red-500/40"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
+              <button
+                onClick={() => { setDeletingTenant(null); setDeleteConfirmName(""); }}
+                className="rounded-btn border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-surface-container transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteTenant}
+                disabled={deleteConfirmName !== deletingTenant.name || deleting}
+                className="flex items-center gap-2 rounded-btn bg-red-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-float disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0"
+              >
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                {deleting ? "Excluindo..." : "Excluir permanentemente"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Plan Modal */}
       {editingTenant && (
