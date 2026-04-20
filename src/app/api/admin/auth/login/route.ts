@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { signAdminToken } from "@/lib/admin/auth";
+import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
@@ -8,17 +9,22 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password } = body;
 
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    // Authenticate via Supabase
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
-    if (!adminEmail || !adminPassword) {
-      return NextResponse.json({ error: "Admin não configurado" }, { status: 500 });
-    }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (email !== adminEmail || password !== adminPassword) {
-      // Small delay to prevent timing attacks
+    if (error || !data.user) {
       await new Promise((r) => setTimeout(r, 300));
       return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 });
+    }
+
+    // Check super admin flag in app_metadata
+    if (!data.user.app_metadata?.is_super_admin) {
+      return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
 
     const token = signAdminToken(email);
