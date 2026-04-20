@@ -619,13 +619,13 @@ export default function AdminDashboardPage() {
               </p>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
-                  Digite <span className="text-red-600 font-semibold">{deletingTenant.name}</span> para confirmar
+                  Digite <span className="text-red-600 font-semibold">EXCLUIR</span> para confirmar
                 </label>
                 <input
                   type="text"
                   value={deleteConfirmName}
                   onChange={(e) => setDeleteConfirmName(e.target.value)}
-                  placeholder={deletingTenant.name}
+                  placeholder="EXCLUIR"
                   className="h-11 w-full rounded-input bg-surface-container px-4 text-sm text-foreground border border-border focus:outline-none focus:ring-2 focus:ring-red-500/40"
                 />
               </div>
@@ -640,7 +640,7 @@ export default function AdminDashboardPage() {
               </button>
               <button
                 onClick={handleDeleteTenant}
-                disabled={deleteConfirmName !== deletingTenant.name || deleting}
+                disabled={deleteConfirmName.trim() !== "EXCLUIR" || deleting}
                 className="flex items-center gap-2 rounded-btn bg-red-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-float disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0"
               >
                 {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}

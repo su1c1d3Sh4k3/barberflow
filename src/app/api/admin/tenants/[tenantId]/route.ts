@@ -125,11 +125,15 @@ export async function DELETE(
     return NextResponse.json({ error: deleteError.message }, { status: 500 });
   }
 
-  // Delete Supabase Auth users
+  // Delete Supabase Auth users (best-effort — tenant data already gone)
   if (tenantUsers && tenantUsers.length > 0) {
-    await Promise.all(
-      tenantUsers.map((u) => db.auth.admin.deleteUser(u.id))
-    );
+    try {
+      await Promise.all(
+        tenantUsers.map((u) => db.auth.admin.deleteUser(u.id))
+      );
+    } catch {
+      // Non-fatal: tenant data is deleted, auth cleanup can be retried manually
+    }
   }
 
   return NextResponse.json({ success: true });
