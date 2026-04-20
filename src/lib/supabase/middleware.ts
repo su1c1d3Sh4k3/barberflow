@@ -13,7 +13,71 @@ const GATE_WHITELIST = [
 ];
 const ONBOARDING_WHITELIST = ["/onboarding", "/conta", "/logout", "/api/"];
 
+// ─── Edge-compatible admin token validation (Web Crypto API) ─────────────────
+async function validateAdminTokenEdge(token: string): Promise<boolean> {
+  try {
+    const secret = process.env.ADMIN_JWT_SECRET;
+    if (!secret) return false;
+
+    const parts = token.split(".");
+    if (parts.length !== 2) return false;
+    const [b64, sig] = parts;
+
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"]
+    );
+
+    // Decode base64url sig
+    const padded = sig.replace(/-/g, "+").replace(/_/g, "/");
+    const binStr = atob(padded + "=".repeat((4 - (padded.length % 4)) % 4));
+    const sigBytes = new Uint8Array(binStr.length);
+    for (let i = 0; i < binStr.length; i++) sigBytes[i] = binStr.charCodeAt(i);
+
+    const valid = await crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(b64));
+    if (!valid) return false;
+
+    const payloadPadded = b64.replace(/-/g, "+").replace(/_/g, "/");
+    const payloadJson = atob(payloadPadded + "=".repeat((4 - (payloadPadded.length % 4)) % 4));
+    const payload = JSON.parse(payloadJson);
+    return payload.exp > Math.floor(Date.now() / 1000);
+  } catch {
+    return false;
+  }
+}
+
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // ─── Admin routes — handled separately from Supabase auth ──────────────────
+  if (pathname.startsWith("/admin")) {
+    // API routes inside /admin are handled by their own route handlers
+    if (pathname.startsWith("/admin/api")) {
+      return NextResponse.next({ request });
+    }
+
+    const adminToken = request.cookies.get("barberflow_admin_token")?.value || "";
+    const isAdminAuthenticated = adminToken ? await validateAdminTokenEdge(adminToken) : false;
+
+    // /admin (login page) — redirect to dashboard if already authenticated
+    if (pathname === "/admin") {
+      if (isAdminAuthenticated) {
+        return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      }
+      return NextResponse.next({ request });
+    }
+
+    // All other /admin/* routes — require admin auth
+    if (!isAdminAuthenticated) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -41,8 +105,6 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
-
   // Public routes (booking page, webhooks, etc.)
   if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
     if (user && AUTH_ROUTES.some((route) => pathname.startsWith(route))) {
@@ -59,6 +121,16 @@ export async function updateSession(request: NextRequest) {
     url.pathname = "/login";
     url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
+  }
+
+  // ─── Check for admin impersonation — bypass subscription + onboarding gates ─
+  const impersonateToken = request.cookies.get("barberflow_impersonate")?.value || "";
+  if (impersonateToken) {
+    const impersonateValid = await validateAdminTokenEdge(impersonateToken);
+    if (impersonateValid) {
+      // Admin is impersonating — allow access to all app routes, skip gates
+      return supabaseResponse;
+    }
   }
 
   // ─── Fetch user profile with tenant_id in a single query ───
