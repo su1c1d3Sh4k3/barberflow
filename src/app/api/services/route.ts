@@ -6,23 +6,40 @@ export async function GET(req: NextRequest) {
   const auth = validateAuth(req);
   if (isAuthError(auth)) return auth;
   const url = req.nextUrl.searchParams;
+  const supabase = db();
 
-  let query = db()
+  const professionalId = url.get("professional_id");
+
+  if (professionalId) {
+    const { data: ps, error: psErr } = await supabase
+      .from("professional_services")
+      .select("service_id")
+      .eq("professional_id", professionalId);
+
+    if (psErr) return apiError(psErr.message, 500);
+
+    const serviceIds = (ps || []).map((r: { service_id: string }) => r.service_id);
+    if (serviceIds.length === 0) return ok([]);
+
+    const { data, error } = await supabase
+      .from("services")
+      .select("*, service_categories(name)")
+      .eq("tenant_id", auth.tenantId)
+      .eq("active", true)
+      .in("id", serviceIds)
+      .order("name");
+
+    if (error) return apiError(error.message, 500);
+    return ok(data);
+  }
+
+  let query = supabase
     .from("services")
     .select("*, service_categories(name)")
     .eq("tenant_id", auth.tenantId)
     .eq("active", true);
 
   if (url.get("category_id")) query = query.eq("category_id", url.get("category_id")!);
-  if (url.get("professional_id")) {
-    query = query.in(
-      "id",
-      db()
-        .from("professional_services")
-        .select("service_id")
-        .eq("professional_id", url.get("professional_id")!) as unknown as string[]
-    );
-  }
 
   const { data, error } = await query.order("name");
   if (error) return apiError(error.message, 500);
