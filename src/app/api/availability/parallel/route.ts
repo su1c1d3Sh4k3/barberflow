@@ -5,8 +5,7 @@ import { validateAuth, isAuthError, ok, apiError, db } from "../../_helpers";
  * GET /api/availability/parallel
  *
  * Busca horários onde 2 ou mais serviços podem ser realizados SIMULTANEAMENTE
- * por profissionais diferentes. Útil para grupos (ex: cabelo + barba + manicure)
- * onde cada profissional faz um serviço ao mesmo tempo.
+ * por profissionais diferentes.
  *
  * Query params:
  *   service_ids  UUIDs separados por vírgula (mínimo 2)
@@ -14,36 +13,51 @@ import { validateAuth, isAuthError, ok, apiError, db } from "../../_helpers";
  *   period       "manha" | "tarde" (opcional)
  */
 
+// serviceSlots[serviceId][professionalId] = { [slotMs]: true }
+type ServiceSlotsMap = Record<string, Record<string, Record<string, boolean>>>;
+
 // Backtracking: tenta atribuir um profissional único por serviço para um dado slot.
-// Retorna o mapa serviceId→professionalId ou null se impossível.
 function tryAssign(
   serviceIds: string[],
-  serviceSlots: Record<string, Record<string, Set<number>>>,
-  slotMs: number,
-  usedProfs: Set<string>,
-  index = 0,
-  current: Record<string, string> = {}
+  serviceSlots: ServiceSlotsMap,
+  slotKey: string,
+  usedProfs: Record<string, boolean>,
+  index: number,
+  current: Record<string, string>
 ): Record<string, string> | null {
-  if (index === serviceIds.length) return { ...current };
+  if (index === serviceIds.length) {
+    const copy: Record<string, string> = {};
+    for (const k of Object.keys(current)) copy[k] = current[k];
+    return copy;
+  }
 
   const serviceId = serviceIds[index];
   const profSlots = serviceSlots[serviceId] ?? {};
 
-  for (const [profId, slots] of Object.entries(profSlots)) {
-    if (usedProfs.has(profId)) continue;
-    if (!slots.has(slotMs)) continue;
+  for (const profId of Object.keys(profSlots)) {
+    if (usedProfs[profId]) continue;
+    if (!profSlots[profId][slotKey]) continue;
 
-    usedProfs.add(profId);
+    usedProfs[profId] = true;
     current[serviceId] = profId;
 
-    const result = tryAssign(serviceIds, serviceSlots, slotMs, usedProfs, index + 1, current);
+    const result = tryAssign(serviceIds, serviceSlots, slotKey, usedProfs, index + 1, current);
     if (result) return result;
 
-    usedProfs.delete(profId);
+    delete usedProfs[profId];
     delete current[serviceId];
   }
 
   return null;
+}
+
+function dedupe(arr: string[]): string[] {
+  const seen: Record<string, boolean> = {};
+  return arr.filter((s) => {
+    if (!s || seen[s]) return false;
+    seen[s] = true;
+    return true;
+  });
 }
 
 export async function GET(req: NextRequest) {
@@ -69,7 +83,7 @@ export async function GET(req: NextRequest) {
     return apiError(`Valor de period inválido: "${period}". Use "manha" (antes das 12h) ou "tarde" (a partir das 12h)`, 400);
   }
 
-  const serviceIds = [...new Set(serviceIdsRaw.split(",").map((s) => s.trim()).filter(Boolean))];
+  const serviceIds = dedupe(serviceIdsRaw.split(",").map((s) => s.trim()));
   if (serviceIds.length < 2) {
     return apiError("É necessário informar pelo menos 2 service_ids diferentes para agendamento simultâneo", 400);
   }
@@ -86,7 +100,7 @@ export async function GET(req: NextRequest) {
   if (svcErr) return apiError(`Erro ao buscar serviços: ${svcErr.message}`, 500);
 
   for (const id of serviceIds) {
-    const svc = (services ?? []).find((s) => s.id === id);
+    const svc = (services ?? []).find((s: { id: string }) => s.id === id);
     if (!svc) {
       return apiError(`Serviço não encontrado: ${id}. Use GET /api/services para listar os disponíveis.`, 404);
     }
@@ -104,22 +118,22 @@ export async function GET(req: NextRequest) {
       .select("professional_id")
       .eq("service_id", serviceId);
 
-    if (psErr) return apiError(`Erro ao buscar profissionais para serviço ${serviceId}: ${psErr.message}`, 500);
+    if (psErr) return apiError(`Erro ao buscar profissionais para o serviço ${serviceId}: ${psErr.message}`, 500);
 
     const profIds = (ps ?? []).map((r: { professional_id: string }) => r.professional_id);
     if (profIds.length === 0) {
-      const svc = (services ?? []).find((s) => s.id === serviceId)!;
+      const svc = (services ?? []).find((s: { id: string }) => s.id === serviceId);
       return apiError(
-        `Nenhum profissional cadastrado para o serviço "${svc.name}". Vincule pelo menos um profissional a este serviço.`,
+        `Nenhum profissional cadastrado para o serviço "${svc?.name ?? serviceId}". Vincule pelo menos um profissional.`,
         400
       );
     }
     serviceProfMap[serviceId] = profIds;
   }
 
-  // ── Buscar slots disponíveis para cada (profissional × serviço) ──────────
-  // serviceSlots[serviceId][professionalId] = Set<timestamp_ms>
-  const serviceSlots: Record<string, Record<string, Set<number>>> = {};
+  // ── Buscar slots para cada (serviço × profissional) ───────────────────────
+  // serviceSlots[serviceId][professionalId][slotMsKey] = true
+  const serviceSlots: ServiceSlotsMap = {};
 
   for (const serviceId of serviceIds) {
     serviceSlots[serviceId] = {};
@@ -132,31 +146,38 @@ export async function GET(req: NextRequest) {
       });
 
       if (slots && slots.length > 0) {
-        serviceSlots[serviceId][profId] = new Set(
-          slots.map((s: { slot_start: string }) => new Date(s.slot_start).getTime())
-        );
+        serviceSlots[serviceId][profId] = {};
+        for (const s of slots as Array<{ slot_start: string }>) {
+          const key = String(new Date(s.slot_start).getTime());
+          serviceSlots[serviceId][profId][key] = true;
+        }
       }
     }
   }
 
-  // ── Coletar todos os horários candidatos (união de todos os serviços) ─────
-  const allSlotMs = new Set<number>();
+  // ── Coletar todos os horários candidatos (união) ──────────────────────────
+  const allSlotKeys: Record<string, boolean> = {};
   for (const serviceId of serviceIds) {
-    for (const slots of Object.values(serviceSlots[serviceId])) {
-      for (const ms of slots) allSlotMs.add(ms);
+    for (const profId of Object.keys(serviceSlots[serviceId])) {
+      for (const key of Object.keys(serviceSlots[serviceId][profId])) {
+        allSlotKeys[key] = true;
+      }
     }
   }
 
   // ── Buscar nomes dos profissionais ────────────────────────────────────────
-  const allProfIds = new Set<string>();
-  for (const ids of Object.values(serviceProfMap)) {
-    for (const id of ids) allProfIds.add(id);
+  const allProfIdsMap: Record<string, boolean> = {};
+  for (const serviceId of serviceIds) {
+    for (const id of serviceProfMap[serviceId]) {
+      allProfIdsMap[id] = true;
+    }
   }
+  const allProfIds = Object.keys(allProfIdsMap);
 
   const { data: professionals } = await supabase
     .from("professionals")
     .select("id, name")
-    .in("id", Array.from(allProfIds));
+    .in("id", allProfIds);
 
   const profNameMap: Record<string, string> = {};
   for (const prof of professionals ?? []) {
@@ -174,28 +195,29 @@ export async function GET(req: NextRequest) {
     atribuicoes: Array<{ servico: string; servico_id: string; profissional: string; profissional_id: string }>;
   }> = [];
 
-  for (const slotMs of Array.from(allSlotMs).sort()) {
-    const assignment = tryAssign(serviceIds, serviceSlots, slotMs, new Set<string>());
+  const sortedSlotKeys = Object.keys(allSlotKeys).sort((a, b) => Number(a) - Number(b));
+
+  for (const slotKey of sortedSlotKeys) {
+    const assignment = tryAssign(serviceIds, serviceSlots, slotKey, {}, 0, {});
     if (!assignment) continue;
 
-    // Aplicar filtro de período
-    const horaBRT = new Date(slotMs).toLocaleTimeString("pt-BR", {
+    const horaBRT = new Date(Number(slotKey)).toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
       timeZone: "America/Sao_Paulo",
     });
-    const hora = parseInt(horaBRT.split(":")[0]);
+    const hora = parseInt(horaBRT.split(":")[0], 10);
 
     if (period === "manha" && hora >= 12) continue;
     if (period === "tarde" && hora < 12) continue;
 
     resultado.push({
       horario: horaBRT,
-      atribuicoes: Object.entries(assignment).map(([serviceId, profId]) => ({
+      atribuicoes: Object.keys(assignment).map((serviceId) => ({
         servico: svcNameMap[serviceId] ?? serviceId,
         servico_id: serviceId,
-        profissional: profNameMap[profId] ?? profId,
-        profissional_id: profId,
+        profissional: profNameMap[assignment[serviceId]] ?? assignment[serviceId],
+        profissional_id: assignment[serviceId],
       })),
     });
   }
@@ -207,7 +229,7 @@ export async function GET(req: NextRequest) {
       total: 0,
       data: date,
       periodo: period ?? "todos",
-      servicos: (services ?? []).map((s) => ({ id: s.id, nome: s.name, duracao_min: s.duration_min })),
+      servicos: (services ?? []).map((s: { id: string; name: string; duration_min: number }) => ({ id: s.id, nome: s.name, duracao_min: s.duration_min })),
       aviso: `Nenhum horário simultâneo disponível${periodLabel} em ${date}. Tente outro dia ou período.`,
     });
   }
@@ -217,6 +239,6 @@ export async function GET(req: NextRequest) {
     total: resultado.length,
     data: date,
     periodo: period ?? "todos",
-    servicos: (services ?? []).map((s) => ({ id: s.id, nome: s.name, duracao_min: s.duration_min })),
+    servicos: (services ?? []).map((s: { id: string; name: string; duration_min: number }) => ({ id: s.id, nome: s.name, duracao_min: s.duration_min })),
   });
 }
