@@ -100,14 +100,60 @@ export async function GET(
 
   const { tenant_id } = resolved;
 
+  const { company_id } = resolved;
+
   // ============ CATEGORIES ============
   if (step === "categories") {
-    const { data: categories, error } = await supabase
+    // If company resolved, filter to categories with services available at that company
+    let categoryIds: string[] | null = null;
+    if (company_id) {
+      const { data: profs } = await supabase
+        .from("professionals")
+        .select("id")
+        .eq("tenant_id", tenant_id)
+        .eq("company_id", company_id)
+        .eq("active", true);
+
+      const profIds = (profs || []).map((p: { id: string }) => p.id);
+      if (profIds.length > 0) {
+        const { data: ps } = await supabase
+          .from("professional_services")
+          .select("service_id")
+          .in("professional_id", profIds);
+
+        if (ps && ps.length > 0) {
+          const svcIds = ps.map((r: { service_id: string }) => r.service_id);
+          const { data: svcs } = await supabase
+            .from("services")
+            .select("category_id")
+            .in("id", svcIds)
+            .eq("active", true);
+
+          const seen: Record<string, boolean> = {};
+          categoryIds = (svcs || [])
+            .map((s: { category_id: string }) => s.category_id)
+            .filter((id: string) => { if (!id || seen[id]) return false; seen[id] = true; return true; });
+        } else {
+          categoryIds = [];
+        }
+      } else {
+        categoryIds = [];
+      }
+    }
+
+    let catQuery = supabase
       .from("service_categories")
       .select("id, name, description, color")
       .eq("tenant_id", tenant_id)
       .order("name");
 
+    if (categoryIds !== null && categoryIds.length > 0) {
+      catQuery = catQuery.in("id", categoryIds);
+    } else if (categoryIds !== null && categoryIds.length === 0) {
+      return json({ categories: [] });
+    }
+
+    const { data: categories, error } = await catQuery;
     if (error) return json({ error: error.message }, 500);
     return json({ categories });
   }
@@ -117,7 +163,33 @@ export async function GET(
     const categoryId = searchParams.get("category_id");
     if (!categoryId) return json({ error: "category_id obrigatório" }, 400);
 
-    const { data: services, error } = await supabase
+    // If company resolved, filter to services linked to professionals at that company
+    let allowedSvcIds: string[] | null = null;
+    if (company_id) {
+      const { data: profs } = await supabase
+        .from("professionals")
+        .select("id")
+        .eq("tenant_id", tenant_id)
+        .eq("company_id", company_id)
+        .eq("active", true);
+
+      const profIds = (profs || []).map((p: { id: string }) => p.id);
+      if (profIds.length > 0) {
+        const { data: ps } = await supabase
+          .from("professional_services")
+          .select("service_id")
+          .in("professional_id", profIds);
+
+        const seen: Record<string, boolean> = {};
+        allowedSvcIds = (ps || [])
+          .map((r: { service_id: string }) => r.service_id)
+          .filter((id: string) => { if (seen[id]) return false; seen[id] = true; return true; });
+      } else {
+        allowedSvcIds = [];
+      }
+    }
+
+    let svcQuery = supabase
       .from("services")
       .select("id, name, description, duration_min, price, promo_active, promo_discount_pct")
       .eq("tenant_id", tenant_id)
@@ -125,6 +197,12 @@ export async function GET(
       .eq("active", true)
       .order("name");
 
+    if (allowedSvcIds !== null) {
+      if (allowedSvcIds.length === 0) return json({ services: [] });
+      svcQuery = svcQuery.in("id", allowedSvcIds);
+    }
+
+    const { data: services, error } = await svcQuery;
     if (error) return json({ error: error.message }, 500);
     return json({ services });
   }
@@ -140,28 +218,25 @@ export async function GET(
       .select("professional_id")
       .eq("service_id", serviceId);
 
-    const proIds = links?.map((l) => l.professional_id) || [];
+    const proIds = links?.map((l: { professional_id: string }) => l.professional_id) || [];
 
-    if (proIds.length === 0) {
-      // If no links, return all active professionals for the company
-      const { data: professionals, error } = await supabase
-        .from("professionals")
-        .select("id, name, avatar_url, bio")
-        .eq("tenant_id", tenant_id)
-        .eq("active", true)
-        .order("name");
-
-      if (error) return json({ error: error.message }, 500);
-      return json({ professionals });
-    }
-
-    const { data: professionals, error } = await supabase
+    let profQuery = supabase
       .from("professionals")
       .select("id, name, avatar_url, bio")
-      .in("id", proIds)
       .eq("active", true)
       .order("name");
 
+    // Filter by company if resolved
+    if (company_id) profQuery = profQuery.eq("company_id", company_id);
+
+    if (proIds.length > 0) {
+      profQuery = profQuery.in("id", proIds);
+    } else {
+      // No service links — filter by company only (fallback)
+      profQuery = profQuery.eq("tenant_id", tenant_id);
+    }
+
+    const { data: professionals, error } = await profQuery;
     if (error) return json({ error: error.message }, 500);
     return json({ professionals });
   }

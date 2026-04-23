@@ -447,11 +447,57 @@ async function handleMainMenu(
   supabase: ReturnType<typeof createServiceRoleClient>
 ): Promise<void> {
   const { tenantId, contactPhone, contactName, instanceToken } = ctx;
+  const unitId = state.context.unit_id as string | undefined;
 
-  const { data: categories } = await supabase
+  let { data: categories } = await supabase
     .from("service_categories")
     .select("id, name")
     .eq("tenant_id", tenantId);
+
+  // Filter categories to only those with services available at the selected unit
+  if (unitId && categories && categories.length > 0) {
+    const { data: profs } = await supabase
+      .from("professionals")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .eq("company_id", unitId)
+      .eq("active", true);
+
+    const profIds = (profs || []).map((p: { id: string }) => p.id);
+    if (profIds.length > 0) {
+      const { data: ps } = await supabase
+        .from("professional_services")
+        .select("service_id")
+        .in("professional_id", profIds);
+
+      if (ps && ps.length > 0) {
+        const svcSeen: Record<string, boolean> = {};
+        const svcIds = ps
+          .map((r: { service_id: string }) => r.service_id)
+          .filter((id: string) => { if (svcSeen[id]) return false; svcSeen[id] = true; return true; });
+
+        const { data: svcs } = await supabase
+          .from("services")
+          .select("category_id")
+          .in("id", svcIds)
+          .eq("active", true);
+
+        if (svcs && svcs.length > 0) {
+          const catSeen: Record<string, boolean> = {};
+          const validCatIds = svcs
+            .map((s: { category_id: string }) => s.category_id)
+            .filter((id: string) => { if (!id || catSeen[id]) return false; catSeen[id] = true; return true; });
+          categories = (categories || []).filter((c: { id: string }) => validCatIds.includes(c.id));
+        } else {
+          categories = [];
+        }
+      } else {
+        categories = [];
+      }
+    } else {
+      categories = [];
+    }
+  }
 
   if (!categories || categories.length === 0) {
     await sendText(contactPhone, "Desculpe, nao ha servicos disponiveis no momento. Tente novamente mais tarde.", instanceToken);
@@ -586,13 +632,51 @@ async function handleSelectingCategory(
     return;
   }
 
-  // Fetch services in this category
-  const { data: services } = await supabase
+  // Fetch services in this category (filtered by unit if selected)
+  const unitIdForSvc = state.context.unit_id as string | undefined;
+  let allowedSvcIds: string[] | null = null;
+
+  if (unitIdForSvc) {
+    const { data: profs } = await supabase
+      .from("professionals")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .eq("company_id", unitIdForSvc)
+      .eq("active", true);
+
+    const profIds = (profs || []).map((p: { id: string }) => p.id);
+    if (profIds.length > 0) {
+      const { data: ps } = await supabase
+        .from("professional_services")
+        .select("service_id")
+        .in("professional_id", profIds);
+
+      const seen: Record<string, boolean> = {};
+      allowedSvcIds = (ps || [])
+        .map((r: { service_id: string }) => r.service_id)
+        .filter((id: string) => { if (seen[id]) return false; seen[id] = true; return true; });
+    } else {
+      allowedSvcIds = [];
+    }
+  }
+
+  let svcQuery = supabase
     .from("services")
     .select("id, name, duration_min, price")
     .eq("tenant_id", tenantId)
     .eq("category_id", categoryId)
     .eq("active", true);
+
+  if (allowedSvcIds !== null) {
+    if (allowedSvcIds.length === 0) {
+      await sendText(contactPhone, "Nenhum servico disponivel nesta categoria para a unidade selecionada. Tente outra.", instanceToken);
+      await handleMainMenu(ctx, state, supabase);
+      return;
+    }
+    svcQuery = svcQuery.in("id", allowedSvcIds);
+  }
+
+  const { data: services } = await svcQuery;
 
   if (!services || services.length === 0) {
     await sendText(contactPhone, "Nenhum servico disponivel nesta categoria. Tente outra.", instanceToken);
@@ -638,13 +722,37 @@ async function handleSelectingService(
 
   if (!serviceId) {
     const categoryId = state.context.categoryId as string;
-    const { data: services } = await supabase
+    const unitIdForMatch = state.context.unit_id as string | undefined;
+
+    let nameQuery = supabase
       .from("services")
       .select("id, name")
       .eq("tenant_id", tenantId)
       .eq("category_id", categoryId)
       .eq("active", true);
 
+    if (unitIdForMatch) {
+      const { data: profs } = await supabase
+        .from("professionals")
+        .select("id")
+        .eq("tenant_id", tenantId)
+        .eq("company_id", unitIdForMatch)
+        .eq("active", true);
+      const profIds = (profs || []).map((p: { id: string }) => p.id);
+      if (profIds.length > 0) {
+        const { data: ps } = await supabase
+          .from("professional_services")
+          .select("service_id")
+          .in("professional_id", profIds);
+        const seen: Record<string, boolean> = {};
+        const svcIds = (ps || [])
+          .map((r: { service_id: string }) => r.service_id)
+          .filter((id: string) => { if (seen[id]) return false; seen[id] = true; return true; });
+        if (svcIds.length > 0) nameQuery = nameQuery.in("id", svcIds);
+      }
+    }
+
+    const { data: services } = await nameQuery;
     const match = services?.find(
       (s) => s.name.toLowerCase() === message.toLowerCase().trim()
     );
@@ -731,16 +839,20 @@ async function handleAwaitingDate(
   }
 
   const serviceId = state.context.serviceId as string;
+  const unitIdForPro = state.context.unit_id as string | undefined;
 
-  // Find professionals that offer this service
+  // Find professionals that offer this service (filtered by unit if selected)
   const { data: professionals } = await supabase
     .from("professional_services")
-    .select("professional_id, professionals(id, name, active)")
+    .select("professional_id, professionals(id, name, active, company_id)")
     .eq("service_id", serviceId);
 
-  const activePros = professionals?.filter(
-    (p) => (p.professionals as unknown as { active: boolean })?.active
-  ) || [];
+  const activePros = (professionals || []).filter((p) => {
+    const prof = p.professionals as unknown as { active: boolean; company_id?: string } | null;
+    if (!prof?.active) return false;
+    if (unitIdForPro && prof.company_id && prof.company_id !== unitIdForPro) return false;
+    return true;
+  });
 
   if (activePros.length === 0) {
     await sendText(contactPhone, "Desculpe, nenhum profissional disponivel para este servico. Tente outro servico.", instanceToken);
