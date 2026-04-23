@@ -43,9 +43,15 @@ export async function GET(request: NextRequest) {
 
     // If just became connected, auto-configure webhook
     if (liveStatus === "connected" && session.status !== "connected") {
-      // Use Supabase Edge Function as the webhook receiver (uazapi → Edge Function → bot)
-      const supabaseProjectRef = process.env.SUPABASE_PROJECT_REF || "vpvsrqkptvphkivwqxoy";
-      const webhookUrl = `https://${supabaseProjectRef}.supabase.co/functions/v1/whatsapp-webhook`;
+      const appUrl =
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.APP_URL ||
+        "https://clinvia-barber.d69qzb.easypanel.host";
+      const webhookToken = process.env.WHATSAPP_WEBHOOK_TOKEN;
+      const webhookUrl = webhookToken
+        ? `${appUrl}/api/webhooks/whatsapp?token=${webhookToken}`
+        : `${appUrl}/api/webhooks/whatsapp`;
+
       console.log(`WhatsApp: configuring webhook to ${webhookUrl}`);
       try {
         await uazapi.setWebhook(session.instance_token, {
