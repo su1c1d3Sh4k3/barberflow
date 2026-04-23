@@ -20,31 +20,39 @@ export async function POST(request: NextRequest) {
     let instanceToken: string;
     let instanceId: string;
 
-    if (existing && existing.instance_token) {
-      // Reuse existing instance
-      instanceToken = existing.instance_token;
-      instanceId = existing.instance_id;
-    } else {
-      // Create new instance
-      const instanceResult = await uazapi.createInstance(`tenant_${tenantId}`) as {
+    const createFreshInstance = async () => {
+      const instanceResult = await uazapi.createInstance(`tenant_${tenantId.replace(/-/g, "").slice(0, 16)}`) as {
         token: string;
         id: string;
       };
       instanceToken = instanceResult.token;
       instanceId = instanceResult.id;
-
-      // Save to whatsapp_sessions
       await supabase.from("whatsapp_sessions").upsert({
         tenant_id: tenantId,
         instance_id: instanceId,
         instance_token: instanceToken,
         status: "qr_pending",
-        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }, { onConflict: "tenant_id" });
+    };
+
+    if (existing && existing.instance_token) {
+      // Try to reuse existing instance — if uazapi rejects it, create a fresh one
+      instanceToken = existing.instance_token;
+      instanceId = existing.instance_id;
+      try {
+        await uazapi.getInstanceStatus(instanceToken);
+      } catch {
+        // Token is invalid (instance was deleted or expired) — create a new one
+        console.log("WhatsApp connect: existing instance invalid, creating fresh instance");
+        await createFreshInstance();
+      }
+    } else {
+      await createFreshInstance();
     }
 
     // Connect instance to get QR code
-    const connectResult = await uazapi.connectInstance(instanceToken) as {
+    const connectResult = await uazapi.connectInstance(instanceToken!) as {
       qrcode?: string;
       pairingCode?: string;
     };
