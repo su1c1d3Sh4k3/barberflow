@@ -5,7 +5,6 @@ import { getTenantFromSession } from "@/lib/supabase/api-auth";
 import { uazapi } from "@/lib/uazapi/client";
 
 export async function POST(request: NextRequest) {
-  // Service-role (tests) or user session (browser)
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
   const authHeader = request.headers.get("authorization") || "";
   const isServiceRole = authHeader.includes(serviceKey);
@@ -23,62 +22,59 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const instanceName = body.instance_name?.trim();
-    if (!instanceName) return apiError("Nome da instância obrigatório", 422);
-
+    const instanceName = body.instance_name?.trim() || `bf_${Date.now()}`;
     const phone = body.phone?.trim();
     if (!phone) return apiError("Número de telefone obrigatório", 422);
 
-    // Check if session already exists
+    // === STEP 1: Destroy any existing instance ===
     const { data: existing } = await supabase
       .from("whatsapp_sessions")
-      .select("instance_token, instance_id, status")
+      .select("instance_token")
       .eq("tenant_id", tenantId)
       .single();
 
-    let instanceToken: string;
-    let instanceId: string;
-
     if (existing?.instance_token) {
-      instanceToken = existing.instance_token;
-      instanceId = existing.instance_id;
-    } else {
-      // Create new instance in uazapi
-      const result = await uazapi.createInstance(instanceName) as {
-        token: string;
-        instance?: { id: string };
-        name?: string;
-      };
-      instanceToken = result.token;
-      instanceId = result.instance?.id || result.name || instanceName;
-
-      const { error: upsertError } = await supabase.from("whatsapp_sessions").upsert({
-        tenant_id: tenantId,
-        instance_id: instanceId,
-        instance_token: instanceToken,
-        status: "connecting",
-        phone_number: phone,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "tenant_id" });
-      if (upsertError) {
-        console.error("Failed to save whatsapp session:", upsertError);
-        return apiError(`Erro ao salvar sessão: ${upsertError.message}`, 500);
-      }
+      try { await uazapi.disconnectInstance(existing.instance_token); } catch { /* ok */ }
+      try { await uazapi.deleteInstance(existing.instance_token); } catch { /* ok */ }
     }
 
-    // Connect with phone to get pairing code (NOT QR)
+    // === STEP 2: Clear DB ===
+    await supabase
+      .from("whatsapp_sessions")
+      .update({
+        instance_token: null,
+        instance_id: null,
+        phone_number: null,
+        status: "disconnected",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("tenant_id", tenantId);
+
+    // === STEP 3: Create fresh instance ===
+    const result = await uazapi.createInstance(instanceName) as {
+      token: string;
+      instance?: { id: string };
+      name?: string;
+    };
+    const instanceToken = result.token;
+    const instanceId = result.instance?.id || result.name || instanceName;
+
+    // === STEP 4: Save to DB ===
+    await supabase.from("whatsapp_sessions").upsert({
+      tenant_id: tenantId,
+      instance_id: instanceId,
+      instance_token: instanceToken,
+      status: "connecting",
+      phone_number: phone,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "tenant_id" });
+
+    // === STEP 5: Connect to get pairing code ===
     const connectResult = await uazapi.connectInstance(instanceToken, phone) as {
       instance?: { paircode?: string };
       paircode?: string;
     };
-
     const pairCode = connectResult.instance?.paircode || connectResult.paircode || null;
-
-    await supabase
-      .from("whatsapp_sessions")
-      .update({ status: "connecting", phone_number: phone, updated_at: new Date().toISOString() })
-      .eq("tenant_id", tenantId);
 
     return ok({ instance_id: instanceId, pair_code: pairCode, status: "connecting" });
   } catch (error: unknown) {

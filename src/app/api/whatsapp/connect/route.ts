@@ -10,56 +10,54 @@ export async function POST(request: NextRequest) {
   const supabase = db();
 
   try {
-    // Check if session already exists
+    // === STEP 1: Destroy any existing instance ===
     const { data: existing } = await supabase
       .from("whatsapp_sessions")
-      .select("*")
+      .select("instance_token")
       .eq("tenant_id", tenantId)
       .single();
 
-    let instanceToken = "";
-    let instanceId = "";
-
-    const createFreshInstance = async () => {
-      const instanceResult = await uazapi.createInstance(`tenant_${tenantId.replace(/-/g, "").slice(0, 16)}`) as {
-        token: string;
-        id: string;
-      };
-      instanceToken = instanceResult.token;
-      instanceId = instanceResult.id;
-      await supabase.from("whatsapp_sessions").upsert({
-        tenant_id: tenantId,
-        instance_id: instanceId,
-        instance_token: instanceToken,
-        status: "qr_pending",
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "tenant_id" });
-    };
-
-    if (existing && existing.instance_token) {
-      instanceToken = existing.instance_token;
-      instanceId = existing.instance_id;
-      try {
-        await uazapi.getInstanceStatus(instanceToken);
-      } catch {
-        console.log("WhatsApp connect: existing instance invalid, creating fresh instance");
-        await createFreshInstance();
-      }
-    } else {
-      await createFreshInstance();
+    if (existing?.instance_token) {
+      try { await uazapi.disconnectInstance(existing.instance_token); } catch { /* ok */ }
+      try { await uazapi.deleteInstance(existing.instance_token); } catch { /* ok */ }
     }
 
-    // Connect instance to get QR code
+    // === STEP 2: Clear DB ===
+    await supabase
+      .from("whatsapp_sessions")
+      .update({
+        instance_token: null,
+        instance_id: null,
+        phone_number: null,
+        status: "disconnected",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("tenant_id", tenantId);
+
+    // === STEP 3: Create fresh instance ===
+    const instanceName = `bf_${tenantId.replace(/-/g, "").slice(0, 8)}_${Date.now()}`;
+    const instanceResult = await uazapi.createInstance(instanceName) as {
+      token: string;
+      instance?: { id: string };
+      name?: string;
+    };
+    const instanceToken = instanceResult.token;
+    const instanceId = instanceResult.instance?.id || instanceResult.name || instanceName;
+
+    // === STEP 4: Save to DB ===
+    await supabase.from("whatsapp_sessions").upsert({
+      tenant_id: tenantId,
+      instance_id: instanceId,
+      instance_token: instanceToken,
+      status: "qr_pending",
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "tenant_id" });
+
+    // === STEP 5: Connect to get QR code ===
     const connectResult = await uazapi.connectInstance(instanceToken) as {
       qrcode?: string;
       pairingCode?: string;
     };
-
-    // Update status to qr_pending
-    await supabase
-      .from("whatsapp_sessions")
-      .update({ status: "qr_pending", updated_at: new Date().toISOString() })
-      .eq("tenant_id", tenantId);
 
     return ok({
       instance_id: instanceId,
