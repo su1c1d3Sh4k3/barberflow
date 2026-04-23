@@ -186,12 +186,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "tenant_not_found", debug: { instanceId, hasToken: !!payloadToken } }, { status: 404 });
     }
 
-    // Find or create contact
+    // Find or create contact (use last 11 digits for more precise matching)
     let { data: contact } = await supabase
       .from("contacts")
       .select("id, name, phone")
       .eq("tenant_id", tenantId)
-      .like("phone", `%${phone.slice(-8)}`)
+      .like("phone", `%${phone.slice(-11)}`)
       .single();
 
     if (!contact) {
