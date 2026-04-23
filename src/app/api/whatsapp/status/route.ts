@@ -51,9 +51,11 @@ export async function GET(request: NextRequest) {
     const rawJid = statusResult.status?.jid || "";
     const phone = rawJid.replace(/:.*$/, "").replace(/@.*$/, "") || session.phone_number || null;
 
-    // Auto-configure webhook ONLY when transitioning from qr_pending → connected.
-    // Never auto-connect from "disconnected" — that would undo an explicit disconnect.
-    if (liveStatus === "connected" && session.status === "qr_pending") {
+    // Auto-configure webhook when transitioning to connected.
+    // Allowed from: qr_pending (QR flow), connecting (pairing code flow).
+    // Never from "disconnected" — that would undo an explicit disconnect.
+    const pendingStates = ["qr_pending", "connecting"];
+    if (liveStatus === "connected" && pendingStates.includes(session.status)) {
       const appUrl =
         process.env.NEXT_PUBLIC_APP_URL ||
         process.env.APP_URL ||
