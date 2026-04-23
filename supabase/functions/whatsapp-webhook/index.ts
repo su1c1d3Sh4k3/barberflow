@@ -103,6 +103,7 @@ function normalizePhoneEdge(raw: string): string {
 interface ForwardOptions {
   ia_response: boolean;
   direction: "in" | "out";
+  message_id?: string;
   media?: {
     type: string;
     url?: string;
@@ -173,6 +174,7 @@ async function forwardToN8n(
 
     // ── Message ──
     message: {
+      id: options.message_id || null,
       content: message,
       direction: options.direction,
       timestamp: new Date().toISOString(),
@@ -772,6 +774,10 @@ Deno.serve(async (req: Request) => {
       data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
     const isFromMe: boolean = msgObj?.fromMe ?? body?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? false;
 
+    // ── Message ID from uazapi ──
+    const messageId: string =
+      msgObj?.id || body?.id || data?.id || data?.key?.id || "";
+
     // ── Media extraction from uazapi payload ──
     const mediaType: string =
       msgObj?.mediaType || msgObj?.messageType || data?.mediaType || data?.messageType || "";
@@ -928,7 +934,7 @@ Deno.serve(async (req: Request) => {
           supabase, tenantId, contact, message || mediaCaption || "[mídia]",
           sessionInstanceId, instanceToken, sessionPhone,
           iaSettings as Record<string, unknown>,
-          { ia_response: isApiSent, direction: "out", media: mediaData }
+          { ia_response: isApiSent, direction: "out", message_id: messageId, media: mediaData }
         );
         return new Response(JSON.stringify({ success: true, routed: "n8n", direction: "out", ia_response: isApiSent }), { headers: { "Content-Type": "application/json" } });
       }
@@ -952,7 +958,7 @@ Deno.serve(async (req: Request) => {
         supabase, tenantId, contact, messageContent,
         sessionInstanceId, instanceToken, sessionPhone,
         iaSettings as Record<string, unknown>,
-        { ia_response: false, direction: "in", media: mediaData }
+        { ia_response: false, direction: "in", message_id: messageId, media: mediaData }
       );
       return new Response(JSON.stringify({ success: true, routed: "n8n", instance: sessionInstanceId }), { headers: { "Content-Type": "application/json" } });
     }
