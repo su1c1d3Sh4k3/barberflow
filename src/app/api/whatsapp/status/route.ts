@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { ok, apiError } from "@/app/api/_helpers";
+import { ok, apiError, getWebhookUrl } from "@/app/api/_helpers";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { getTenantFromSession } from "@/lib/supabase/api-auth";
 import { uazapi } from "@/lib/uazapi/client";
@@ -56,16 +56,8 @@ export async function GET(request: NextRequest) {
     // Never from "disconnected" — that would undo an explicit disconnect.
     const pendingStates = ["qr_pending", "connecting"];
     if (liveStatus === "connected" && pendingStates.includes(session.status)) {
-      const appUrl =
-        process.env.NEXT_PUBLIC_APP_URL ||
-        process.env.APP_URL ||
-        "https://clinvia-barber.d69qzb.easypanel.host";
-      const webhookToken = process.env.WHATSAPP_WEBHOOK_TOKEN;
-      const webhookUrl = webhookToken
-        ? `${appUrl}/api/webhooks/whatsapp?token=${webhookToken}`
-        : `${appUrl}/api/webhooks/whatsapp`;
-
-      console.log(`WhatsApp: QR scanned — configuring webhook to ${webhookUrl}`);
+      const webhookUrl = getWebhookUrl();
+      console.log(`WhatsApp: connected — configuring webhook to ${webhookUrl}`);
       try {
         await uazapi.setWebhook(session.instance_token, {
           url: webhookUrl,

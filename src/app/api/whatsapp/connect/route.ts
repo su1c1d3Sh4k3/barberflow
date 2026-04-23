@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { validateAuth, isAuthError, ok, apiError, db } from "@/app/api/_helpers";
+import { validateAuth, isAuthError, ok, apiError, db, getWebhookUrl } from "@/app/api/_helpers";
 import { uazapi } from "@/lib/uazapi/client";
 
 export async function POST(request: NextRequest) {
@@ -54,15 +54,7 @@ export async function POST(request: NextRequest) {
     }, { onConflict: "tenant_id" });
 
     // === STEP 5: Configure webhook IMMEDIATELY ===
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.APP_URL ||
-      "https://clinvia-barber.d69qzb.easypanel.host";
-    const webhookToken = process.env.WHATSAPP_WEBHOOK_TOKEN;
-    const webhookUrl = webhookToken
-      ? `${appUrl}/api/webhooks/whatsapp?token=${webhookToken}`
-      : `${appUrl}/api/webhooks/whatsapp`;
-
+    const webhookUrl = getWebhookUrl();
     try {
       await uazapi.setWebhook(instanceToken, {
         url: webhookUrl,

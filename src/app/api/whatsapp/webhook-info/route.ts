@@ -33,10 +33,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 });
   }
 
-  // Derive the expected webhook URL (same logic as configure-webhook)
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ||
-    `${request.headers.get("x-forwarded-proto") || "https"}://${request.headers.get("host")}`;
-  const expectedWebhookUrl = `${appUrl}/api/webhooks/whatsapp`;
+  const { getWebhookUrl } = await import("@/app/api/_helpers");
+  const expectedWebhookUrl = getWebhookUrl();
 
   // Fetch actual webhook config from uazapi
   let uazapiWebhook: unknown = null;

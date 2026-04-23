@@ -54,6 +54,15 @@ export function isValidationError<T>(v: { data: T } | NextResponse): v is NextRe
   return v instanceof NextResponse;
 }
 
+/** Build the webhook URL for uazapi. Always uses the public production URL. */
+export function getWebhookUrl(): string {
+  const base = "https://clinvia-barber.d69qzb.easypanel.host";
+  const token = process.env.WHATSAPP_WEBHOOK_TOKEN;
+  return token
+    ? `${base}/api/webhooks/whatsapp?token=${token}`
+    : `${base}/api/webhooks/whatsapp`;
+}
+
 export function applyRateLimit(request: NextRequest, tenantId: string): NextResponse | null {
   const result = checkRateLimit(`tenant:${tenantId}`, 300, 60_000);
   if (!result.allowed) {
