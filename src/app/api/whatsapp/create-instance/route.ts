@@ -69,7 +69,30 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     }, { onConflict: "tenant_id" });
 
-    // === STEP 5: Connect to get pairing code ===
+    // === STEP 5: Configure webhook IMMEDIATELY (don't wait for status polling) ===
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.APP_URL ||
+      "https://clinvia-barber.d69qzb.easypanel.host";
+    const webhookToken = process.env.WHATSAPP_WEBHOOK_TOKEN;
+    const webhookUrl = webhookToken
+      ? `${appUrl}/api/webhooks/whatsapp?token=${webhookToken}`
+      : `${appUrl}/api/webhooks/whatsapp`;
+
+    try {
+      await uazapi.setWebhook(instanceToken, {
+        url: webhookUrl,
+        events: ["messages", "messages_update", "connection"],
+        enabled: true,
+        addUrlEvents: false,
+        addUrlTypesMessages: false,
+        excludeMessages: ["fromMe"],
+      });
+    } catch (err) {
+      console.error("WhatsApp: failed to configure webhook on create", err);
+    }
+
+    // === STEP 6: Connect to get pairing code ===
     const connectResult = await uazapi.connectInstance(instanceToken, phone) as {
       instance?: { paircode?: string };
       paircode?: string;
