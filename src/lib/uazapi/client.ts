@@ -82,9 +82,9 @@ export const uazapi = {
   getInstanceStatus: (token: string) =>
     uazapiFetch({ path: "/instance/status", token }),
 
-  /** Delete an instance permanently (admin). */
+  /** Delete an instance permanently (admin token required). */
   deleteInstance: (token: string) =>
-    uazapiFetch({ method: "DELETE", path: "/instance/delete", token }),
+    uazapiFetch({ method: "DELETE", path: "/instance/delete", body: { token } }),
 
   /** List every instance on the server (admin). */
   getAllInstances: () => uazapiFetch({ path: "/instance/list" }),
