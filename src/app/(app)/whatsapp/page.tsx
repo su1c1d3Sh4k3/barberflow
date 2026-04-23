@@ -94,9 +94,36 @@ export default function WhatsAppPage() {
   useEffect(() => { fetchSession(); }, [fetchSession]);
   useEffect(() => { if (status === "connected") fetchLogs(); }, [status, fetchLogs]);
 
+  // Continuous status polling every 15s (only when connected — detects disconnections)
+  const statusPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(() => {
+    // Only poll when connected (to detect drops) and not in pairing flow
+    if (status !== "connected" || connecting) {
+      if (statusPollRef.current) { clearInterval(statusPollRef.current); statusPollRef.current = null; }
+      return;
+    }
+    statusPollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch("/api/whatsapp/status");
+        const json = await res.json();
+        if (json.data) {
+          const liveStatus = json.data.status as SessionStatus;
+          if (liveStatus !== "connected") {
+            setStatus(liveStatus || "disconnected");
+            setPhoneNumber(json.data.phone_number || null);
+          }
+        }
+      } catch { /* ignore */ }
+    }, 15000);
+    return () => { if (statusPollRef.current) { clearInterval(statusPollRef.current); statusPollRef.current = null; } };
+  }, [status, connecting]);
+
   // Cleanup polling
   useEffect(() => {
-    return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+      if (statusPollRef.current) clearInterval(statusPollRef.current);
+    };
   }, []);
 
   // Poll uazapi status via our API
@@ -458,7 +485,13 @@ export default function WhatsAppPage() {
                 <Clock className="h-4 w-4" />
                 Status
               </div>
-              <p className="font-semibold text-green-600">Online</p>
+              <p className="font-semibold text-green-600 flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                </span>
+                Online
+              </p>
             </div>
           </div>
 

@@ -325,15 +325,22 @@ export function Topbar() {
       }
     }
 
-    // WhatsApp session
-    const { data: session } = await supabase
-      .from("whatsapp_sessions")
-      .select("status, service_active")
-      .eq("tenant_id", tenantId)
-      .single();
-
-    const hasConnectedSession = session?.status === "connected";
-    const serviceActive = hasConnectedSession ? (session?.service_active ?? false) : false;
+    // WhatsApp session — check live status from uazapi API
+    let hasConnectedSession = false;
+    let serviceActive = false;
+    try {
+      const statusRes = await fetch("/api/whatsapp/status");
+      const statusJson = await statusRes.json();
+      hasConnectedSession = statusJson.data?.status === "connected";
+    } catch { /* fallback to disconnected */ }
+    if (hasConnectedSession) {
+      const { data: session } = await supabase
+        .from("whatsapp_sessions")
+        .select("service_active")
+        .eq("tenant_id", tenantId)
+        .single();
+      serviceActive = session?.service_active ?? false;
+    }
 
     // Tokens
     let tokensUsed = 0;
@@ -382,6 +389,29 @@ export function Topbar() {
   }, [tenantId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Poll WhatsApp status every 15s to detect connection drops in real-time
+  useEffect(() => {
+    if (!tenantId) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/whatsapp/status");
+        const json = await res.json();
+        const connected = json.data?.status === "connected";
+        setData(prev => {
+          if (prev.hasConnectedSession !== connected) {
+            return {
+              ...prev,
+              hasConnectedSession: connected,
+              serviceActive: connected ? prev.serviceActive : false,
+            };
+          }
+          return prev;
+        });
+      } catch { /* ignore */ }
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [tenantId]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

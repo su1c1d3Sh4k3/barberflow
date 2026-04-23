@@ -196,7 +196,7 @@ async function forwardToN8n(
     },
   };
 
-  const webhookUrl = `${N8N_BASE_URL}/${instanceId}`;
+  const webhookUrl = `${N8N_BASE_URL}/api-${instanceId}`;
   console.log(`Forwarding to n8n: ${webhookUrl} for tenant ${tenantId}`);
 
   try {
