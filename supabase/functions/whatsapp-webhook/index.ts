@@ -100,6 +100,19 @@ function normalizePhoneEdge(raw: string): string {
 
 // ─── n8n forwarding ──────────────────────────────────────────────────────────
 
+interface ForwardOptions {
+  ia_response: boolean;
+  direction: "in" | "out";
+  media?: {
+    type: string;
+    url?: string;
+    mimetype?: string;
+    filename?: string;
+    caption?: string;
+    base64?: string;
+  } | null;
+}
+
 async function forwardToN8n(
   supabase: ReturnType<typeof getSupabase>,
   tenantId: string,
@@ -108,7 +121,8 @@ async function forwardToN8n(
   instanceId: string,
   instanceToken: string,
   instancePhone: string,
-  iaSettings: Record<string, unknown>
+  iaSettings: Record<string, unknown>,
+  options: ForwardOptions = { ia_response: false, direction: "in", media: null }
 ) {
   // Fetch all tenant data needed for the AI
   const [
@@ -154,14 +168,20 @@ async function forwardToN8n(
     // ── Identifiers (ISOLATION: all API calls MUST use this tenant_id) ──
     tenant_id: tenantId,
 
-    // ── Incoming message ──
+    // ── Whether this message was sent by the AI (true) or a human (false) ──
+    ia_response: options.ia_response,
+
+    // ── Message ──
     message: {
       content: message,
-      direction: "in",
+      direction: options.direction,
       timestamp: new Date().toISOString(),
     },
 
-    // ── Contact who sent the message ──
+    // ── Media (if present) ──
+    media: options.media ?? null,
+
+    // ── Contact ──
     contact: {
       id: contact.id,
       name: contact.name,
@@ -197,13 +217,9 @@ async function forwardToN8n(
     conversation_state: conversationState ?? null,
 
     // ── API access (for AI to call BarberFlow endpoints) ──
-    // IMPORTANT: tenant_id MUST be sent on every call to prevent data cross-contamination
     api: {
       supabase_url: SUPABASE_URL,
-      // service_role_key is intentionally omitted — use the API routes below
       rest_api_base: `${SUPABASE_URL}/rest/v1`,
-      // All queries MUST include: ?tenant_id=eq.{tenant_id}
-      // Auth header: Authorization: Bearer <service_role_key> + apikey header
     },
   };
 
@@ -755,6 +771,29 @@ Deno.serve(async (req: Request) => {
       data?.message?.buttonsResponseMessage?.selectedButtonId ||
       data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
     const isFromMe: boolean = msgObj?.fromMe ?? body?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? false;
+
+    // ── Media extraction from uazapi payload ──
+    const mediaType: string =
+      msgObj?.mediaType || msgObj?.messageType || data?.mediaType || data?.messageType || "";
+    const mediaUrl: string =
+      msgObj?.mediaUrl || msgObj?.url || data?.mediaUrl || data?.url || "";
+    const mediaMimetype: string =
+      msgObj?.mimetype || data?.mimetype || "";
+    const mediaFilename: string =
+      msgObj?.fileName || msgObj?.filename || data?.fileName || data?.filename || "";
+    const mediaCaption: string =
+      msgObj?.caption || contentRaw?.caption || data?.caption || "";
+    const mediaBase64: string =
+      msgObj?.base64 || data?.base64 || "";
+    const hasMedia = !!(mediaType || mediaUrl || mediaBase64);
+    const mediaData = hasMedia ? {
+      type: mediaType,
+      url: mediaUrl || undefined,
+      mimetype: mediaMimetype || undefined,
+      filename: mediaFilename || undefined,
+      caption: mediaCaption || undefined,
+      base64: mediaBase64 ? mediaBase64.slice(0, 100) + "..." : undefined, // truncate for n8n, too large
+    } : null;
     const senderName: string =
       (chatIsString ? "" : (chatObj?.name || chatObj?.wa_name || chatObj?.wa_contactName || "")) ||
       msgObj?.senderName || msgObj?.pushName || body?.senderName || body?.pushName ||
@@ -780,8 +819,9 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ success: true, skipped: true, eventType }), { headers: { "Content-Type": "application/json" } });
     }
 
-    if (!phone || !message || isFromMe) {
-      return new Response(JSON.stringify({ success: true, skipped: true, debug: { phone: !!phone, message: !!message, isFromMe } }), { headers: { "Content-Type": "application/json" } });
+    // Skip if no phone or no content at all (no text AND no media)
+    if (!phone || (!message && !hasMedia)) {
+      return new Response(JSON.stringify({ success: true, skipped: true, debug: { phone: !!phone, message: !!message, hasMedia } }), { headers: { "Content-Type": "application/json" } });
     }
 
     // ── Find tenant ──
@@ -870,38 +910,60 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ success: false, error: "contact_creation_failed" }), { status: 500, headers: { "Content-Type": "application/json" } });
     }
 
-    // ── STEP 3: Log inbound message ──
-    await supabase.from("messages").insert({ tenant_id: tenantId, contact_id: contact.id, direction: "in", content: message });
+    // ── STEP 3: Check IA mode early (needed for fromMe routing) ──
+    const { data: iaSettings } = await supabase.from("ia_settings").select("enabled, tone, instructions, knowledge_base_url, handoff_keywords").eq("tenant_id", tenantId).single();
+    const iaEnabled = iaSettings?.enabled ?? false;
+
+    // ── STEP 4: Handle fromMe messages ──
+    // When IA is enabled, outbound messages must be forwarded to n8n so it knows the conversation state
+    if (isFromMe) {
+      if (iaEnabled) {
+        // Determine if this is an AI-generated response (sent via uazapi API) or human typing in WhatsApp
+        // AI responses come through the API with specific markers; human messages come from the WhatsApp app
+        // uazapi marks API-sent messages: body.source === "api" or msgObj.source === "api"
+        const source: string = body?.source || msgObj?.source || data?.source || "";
+        const isApiSent = source === "api" || source === "bot";
+
+        await forwardToN8n(
+          supabase, tenantId, contact, message || mediaCaption || "[mídia]",
+          sessionInstanceId, instanceToken, sessionPhone,
+          iaSettings as Record<string, unknown>,
+          { ia_response: isApiSent, direction: "out", media: mediaData }
+        );
+        return new Response(JSON.stringify({ success: true, routed: "n8n", direction: "out", ia_response: isApiSent }), { headers: { "Content-Type": "application/json" } });
+      }
+      // IA off + fromMe → skip (bot doesn't need to know about outbound messages)
+      return new Response(JSON.stringify({ success: true, skipped: true, reason: "fromMe_no_ia" }), { headers: { "Content-Type": "application/json" } });
+    }
+
+    // ── STEP 5: Log inbound message ──
+    const messageContent = message || mediaCaption || (hasMedia ? `[${mediaType || "mídia"}]` : "");
+    await supabase.from("messages").insert({ tenant_id: tenantId, contact_id: contact.id, direction: "in", content: messageContent });
     await supabase.from("contacts").update({ last_message_at: new Date().toISOString() }).eq("id", contact.id);
 
-    // ── STEP 4: Check serviceActive ──
+    // ── STEP 6: Check serviceActive ──
     if (!serviceActive) {
       return new Response(JSON.stringify({ success: true, skipped: true, reason: "service_inactive" }), { headers: { "Content-Type": "application/json" } });
     }
 
-    // ── STEP 5: Check IA mode — if enabled, forward to n8n instead of bot ──
-    const { data: iaSettings } = await supabase.from("ia_settings").select("enabled, tone, instructions, knowledge_base_url, handoff_keywords").eq("tenant_id", tenantId).single();
-
-    if (iaSettings?.enabled) {
-      // AI is ON: do NOT run the bot — forward everything to n8n
+    // ── STEP 7: Route to n8n (IA) or built-in bot ──
+    if (iaEnabled) {
       await forwardToN8n(
-        supabase,
-        tenantId,
-        contact,
-        message,
-        sessionInstanceId,
-        instanceToken,
-        sessionPhone,
-        iaSettings as Record<string, unknown>
+        supabase, tenantId, contact, messageContent,
+        sessionInstanceId, instanceToken, sessionPhone,
+        iaSettings as Record<string, unknown>,
+        { ia_response: false, direction: "in", media: mediaData }
       );
       return new Response(JSON.stringify({ success: true, routed: "n8n", instance: sessionInstanceId }), { headers: { "Content-Type": "application/json" } });
     }
 
-    // ── STEP 6: AI is OFF — run built-in bot ──
-    await processMessage(
-      { tenantId, contactId: contact.id, contactName: contact.name, contactPhone: phone, instanceToken, bookingLink },
-      message
-    );
+    // ── STEP 8: AI is OFF — run built-in bot (text only) ──
+    if (message) {
+      await processMessage(
+        { tenantId, contactId: contact.id, contactName: contact.name, contactPhone: phone, instanceToken, bookingLink },
+        message
+      );
+    }
 
     return new Response(JSON.stringify({ success: true, routed: "bot" }), { headers: { "Content-Type": "application/json" } });
 
