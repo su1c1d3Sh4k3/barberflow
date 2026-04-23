@@ -6,16 +6,23 @@ import { logAudit } from "@/lib/audit";
 export async function GET(req: NextRequest) {
   const auth = validateAuth(req);
   if (isAuthError(auth)) return auth;
-  const serviceId = req.nextUrl.searchParams.get("service_id");
+  const p = req.nextUrl.searchParams;
+  const serviceId = p.get("service_id");
+  const companyId = p.get("company_id");
+  const supabase = db();
 
-  let query = db()
+  let query = supabase
     .from("professionals")
     .select("*")
     .eq("tenant_id", auth.tenantId)
     .eq("active", true);
 
+  // Filtrar por filial
+  if (companyId) query = query.eq("company_id", companyId);
+
+  // Filtrar por serviço (profissionais vinculados ao serviço)
   if (serviceId) {
-    const { data: ps } = await db()
+    const { data: ps } = await supabase
       .from("professional_services")
       .select("professional_id")
       .eq("service_id", serviceId);

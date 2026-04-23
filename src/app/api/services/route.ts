@@ -9,28 +9,52 @@ export async function GET(req: NextRequest) {
   const supabase = db();
 
   const professionalId = url.get("professional_id");
+  const categoryId = url.get("category_id");
+  const companyId = url.get("company_id");
+
+  // Resolre service IDs permitidos pelo filtro de professional_id ou company_id
+  let allowedServiceIds: string[] | null = null;
 
   if (professionalId) {
+    // Serviços vinculados a um profissional específico
     const { data: ps, error: psErr } = await supabase
       .from("professional_services")
       .select("service_id")
       .eq("professional_id", professionalId);
 
     if (psErr) return apiError(psErr.message, 500);
+    allowedServiceIds = (ps || []).map((r: { service_id: string }) => r.service_id);
+    if (allowedServiceIds.length === 0) return ok([]);
 
-    const serviceIds = (ps || []).map((r: { service_id: string }) => r.service_id);
-    if (serviceIds.length === 0) return ok([]);
-
-    const { data, error } = await supabase
-      .from("services")
-      .select("*, service_categories(name)")
+  } else if (companyId) {
+    // Serviços disponíveis na filial: union de serviços vinculados a qualquer
+    // profissional ativo daquela filial
+    const { data: profs, error: profErr } = await supabase
+      .from("professionals")
+      .select("id")
       .eq("tenant_id", auth.tenantId)
-      .eq("active", true)
-      .in("id", serviceIds)
-      .order("name");
+      .eq("company_id", companyId)
+      .eq("active", true);
 
-    if (error) return apiError(error.message, 500);
-    return ok(data);
+    if (profErr) return apiError(profErr.message, 500);
+
+    const profIds = (profs || []).map((p: { id: string }) => p.id);
+    if (profIds.length === 0) return ok([]);
+
+    const { data: ps, error: psErr } = await supabase
+      .from("professional_services")
+      .select("service_id")
+      .in("professional_id", profIds);
+
+    if (psErr) return apiError(psErr.message, 500);
+
+    // Deduplica
+    const seen: Record<string, boolean> = {};
+    allowedServiceIds = (ps || [])
+      .map((r: { service_id: string }) => r.service_id)
+      .filter((id: string) => { if (seen[id]) return false; seen[id] = true; return true; });
+
+    if (allowedServiceIds.length === 0) return ok([]);
   }
 
   let query = supabase
@@ -39,7 +63,8 @@ export async function GET(req: NextRequest) {
     .eq("tenant_id", auth.tenantId)
     .eq("active", true);
 
-  if (url.get("category_id")) query = query.eq("category_id", url.get("category_id")!);
+  if (allowedServiceIds !== null) query = query.in("id", allowedServiceIds);
+  if (categoryId) query = query.eq("category_id", categoryId);
 
   const { data, error } = await query.order("name");
   if (error) return apiError(error.message, 500);
