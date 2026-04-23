@@ -123,19 +123,12 @@ def _cleanup_tenant(supabase_url, supabase_headers, tenant_id):
     requests.delete(f"{supabase_url}/rest/v1/tenants?id=eq.{tenant_id}", headers=h)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def test_tenant(supabase_headers, supabase_url):
-    """Create a test tenant and return its id. Cleanup after session."""
-    slug = "test-barberflow-e2e"
-
-    # Check if leftover test tenant exists (from a previous crashed run)
-    existing = requests.get(
-        f"{supabase_url}/rest/v1/tenants?public_slug=eq.{slug}&select=id",
-        headers=supabase_headers,
-    )
-    if existing.status_code == 200 and existing.json():
-        old_id = existing.json()[0]["id"]
-        _cleanup_tenant(supabase_url, supabase_headers, old_id)
+    """Create a test tenant per module and clean up after. Module scope prevents
+    cross-module data interference when the full suite runs together."""
+    import uuid as _uuid
+    slug = f"test-barberflow-{_uuid.uuid4().hex[:8]}"
 
     # Create tenant
     resp = requests.post(
