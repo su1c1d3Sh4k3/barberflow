@@ -32,17 +32,28 @@ export async function GET(request: NextRequest) {
     }
 
     // Get live status from uazapi
+    // Real uazapi response: { instance: { status: "connected"|"disconnected", owner, ... },
+    //                         status: { connected: bool, loggedIn: bool, jid: "phone@s.whatsapp.net" } }
     const statusResult = await uazapi.getInstanceStatus(session.instance_token) as {
-      instance?: { status?: string };
-      status?: { connected?: boolean; loggedIn?: boolean; jid?: { user?: string } };
+      instance?: { status?: string; owner?: string };
+      status?: { connected?: boolean; loggedIn?: boolean; jid?: string };
     };
 
-    const isConnected = statusResult.status?.connected && statusResult.status?.loggedIn;
-    const liveStatus = isConnected ? "connected" : (statusResult.instance?.status?.toLowerCase() || "disconnected");
-    const phone = statusResult.status?.jid?.user || session.phone_number || null;
+    // Primary check: status.connected + status.loggedIn (most reliable)
+    // Fallback: instance.status string
+    const isConnected = !!(statusResult.status?.connected && statusResult.status?.loggedIn);
+    const instanceStatus = statusResult.instance?.status?.toLowerCase() || "";
+    const liveStatus = isConnected
+      ? "connected"
+      : (instanceStatus === "connecting" ? "qr_pending" : "disconnected");
 
-    // If just became connected, auto-configure webhook
-    if (liveStatus === "connected" && session.status !== "connected") {
+    // Phone: jid is "5511999990000:xx@s.whatsapp.net" or "5511999990000@s.whatsapp.net"
+    const rawJid = statusResult.status?.jid || "";
+    const phone = rawJid.replace(/:.*$/, "").replace(/@.*$/, "") || session.phone_number || null;
+
+    // Auto-configure webhook ONLY when transitioning from qr_pending → connected.
+    // Never auto-connect from "disconnected" — that would undo an explicit disconnect.
+    if (liveStatus === "connected" && session.status === "qr_pending") {
       const appUrl =
         process.env.NEXT_PUBLIC_APP_URL ||
         process.env.APP_URL ||
@@ -52,7 +63,7 @@ export async function GET(request: NextRequest) {
         ? `${appUrl}/api/webhooks/whatsapp?token=${webhookToken}`
         : `${appUrl}/api/webhooks/whatsapp`;
 
-      console.log(`WhatsApp: configuring webhook to ${webhookUrl}`);
+      console.log(`WhatsApp: QR scanned — configuring webhook to ${webhookUrl}`);
       try {
         await uazapi.setWebhook(session.instance_token, {
           url: webhookUrl,
@@ -62,7 +73,6 @@ export async function GET(request: NextRequest) {
           addUrlTypesMessages: false,
           excludeMessages: ["fromMe"],
         });
-        console.log("WhatsApp: webhook configured successfully");
       } catch (err) {
         console.error("WhatsApp: failed to configure webhook", err);
       }
@@ -73,6 +83,7 @@ export async function GET(request: NextRequest) {
         .eq("tenant_id", tenantId);
     }
 
+    // Update DB when connection drops (uazapi says disconnected but DB still says connected)
     if (liveStatus === "disconnected" && session.status === "connected") {
       await supabase
         .from("whatsapp_sessions")
