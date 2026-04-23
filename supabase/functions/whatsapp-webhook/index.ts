@@ -708,27 +708,46 @@ Deno.serve(async (req: Request) => {
 
     const payloadToken: string | null = body?.token || null;
     const instance = body?.instance;
-    const instanceId: string = typeof instance === "string" ? instance : (instance?.id || instance?.instanceId || body?.instanceId || "");
+    const instanceId: string = body?.instanceName ||
+      (typeof instance === "string" ? instance : (instance?.id || instance?.instanceId || body?.instanceId || ""));
 
-    // Real uazapi format: body.chat = object with chat metadata, body.message = object with message data
-    // body.chat.wa_chatid = sender JID, body.message.content = message text, body.message.fromMe = bool
-    const chatObj = (typeof body?.chat === "object" && body?.chat !== null) ? body.chat : {};
+    // ── Parse uazapi payload ──
+    // Format B (current uazapi): body.chat = STRING (JID), body.message = object
+    // Format A (legacy/tests): body.data.sender, body.data.text, etc.
+    const chatField = body?.chat;
+    const chatIsString = typeof chatField === "string";
+    const chatObj = (!chatIsString && typeof chatField === "object" && chatField !== null) ? chatField : {};
     const msgObj = (typeof body?.message === "object" && body?.message !== null) ? body.message : {};
-    // Also support legacy/test format where body.data.* is used
     const data = body?.data || {};
 
-    const rawJid: string = chatObj?.wa_chatid || msgObj?.sender || msgObj?.chatid || data?.sender || data?.chatid || data?.from || data?.key?.remoteJid || "";
-    // Skip group messages (@g.us JIDs)
+    // Phone/JID: Format B has chat as string JID, Format A has data.sender
+    const rawJid: string =
+      (chatIsString ? chatField : "") ||
+      chatObj?.wa_chatid ||
+      msgObj?.sender || msgObj?.chatid ||
+      data?.sender || data?.chatid || data?.from || data?.key?.remoteJid || "";
+    // Skip group messages
     if (rawJid.endsWith("@g.us")) {
       return new Response(JSON.stringify({ success: true, skipped: true, reason: "group_message" }), { headers: { "Content-Type": "application/json" } });
     }
-    const phone = rawJid.replace(/@s\.whatsapp\.net$/, "").replace(/@.*$/, "");
-    // content may be a string or an object (with .text for extended messages)
+    const phone = rawJid.replace(/:.*$/, "").replace(/@.*$/, "");
+
+    // Message text: Format B has body.message as object with various shapes
     const contentRaw = msgObj?.content;
     const contentStr = typeof contentRaw === "string" ? contentRaw : (contentRaw?.text || contentRaw?.caption || "");
-    const message: string = contentStr || msgObj?.text || msgObj?.conversation || msgObj?.extendedTextMessage?.text || msgObj?.buttonOrListid || data?.text || data?.buttonOrListid || data?.message?.conversation || data?.message?.extendedTextMessage?.text || data?.message?.buttonsResponseMessage?.selectedButtonId || data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
-    const isFromMe: boolean = msgObj?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? false;
-    const senderName: string = chatObj?.name || chatObj?.wa_name || chatObj?.wa_contactName || msgObj?.senderName || msgObj?.pushName || data?.senderName || data?.pushName || "";
+    const msgStr = typeof body?.message === "string" ? body.message : "";
+    const message: string =
+      msgStr || contentStr ||
+      msgObj?.text || msgObj?.conversation || msgObj?.extendedTextMessage?.text || msgObj?.buttonOrListid ||
+      data?.text || data?.buttonOrListid ||
+      data?.message?.conversation || data?.message?.extendedTextMessage?.text ||
+      data?.message?.buttonsResponseMessage?.selectedButtonId ||
+      data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId || "";
+    const isFromMe: boolean = msgObj?.fromMe ?? body?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? false;
+    const senderName: string =
+      (chatIsString ? "" : (chatObj?.name || chatObj?.wa_name || chatObj?.wa_contactName || "")) ||
+      msgObj?.senderName || msgObj?.pushName || body?.senderName || body?.pushName ||
+      data?.senderName || data?.pushName || "";
 
     // Store full debug info (best-effort) — includes extracted values for diagnosis
     const debugSummary = JSON.stringify({
@@ -810,7 +829,12 @@ Deno.serve(async (req: Request) => {
       console.log(`Avatar from /chat/find: ${avatarUrl}`);
     }
 
-    let { data: contact } = await supabase.from("contacts").select("id, name, phone, status, tags, notes, avatar_url").eq("tenant_id", tenantId).like("phone", `%${phone.slice(-8)}`).single();
+    // Try exact match first, then partial (last 11 digits) with limit 1
+    let { data: contact } = await supabase.from("contacts").select("id, name, phone, status, tags, notes, avatar_url").eq("tenant_id", tenantId).eq("phone", phone).maybeSingle();
+    if (!contact) {
+      const { data: partialMatch } = await supabase.from("contacts").select("id, name, phone, status, tags, notes, avatar_url").eq("tenant_id", tenantId).like("phone", `%${phone.slice(-11)}`).limit(1).maybeSingle();
+      contact = partialMatch;
+    }
     if (!contact) {
       const { data: newContact } = await supabase.from("contacts").insert({ tenant_id: tenantId, name: senderName || `Cliente ${phone.slice(-4)}`, phone, source: "whatsapp", status: "pendente", avatar_url: avatarUrl }).select("id, name, phone, status, tags, notes, avatar_url").single();
       contact = newContact;

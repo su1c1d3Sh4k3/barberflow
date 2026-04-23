@@ -54,13 +54,9 @@ export function isValidationError<T>(v: { data: T } | NextResponse): v is NextRe
   return v instanceof NextResponse;
 }
 
-/** Build the webhook URL for uazapi. Always uses the public production URL. */
+/** Build the webhook URL for uazapi. Points to Supabase Edge Function (always reachable). */
 export function getWebhookUrl(): string {
-  const base = "https://clinvia-barber.d69qzb.easypanel.host";
-  const token = process.env.WHATSAPP_WEBHOOK_TOKEN;
-  return token
-    ? `${base}/api/webhooks/whatsapp?token=${token}`
-    : `${base}/api/webhooks/whatsapp`;
+  return "https://vpvsrqkptvphkivwqxoy.supabase.co/functions/v1/whatsapp-webhook";
 }
 
 export function applyRateLimit(request: NextRequest, tenantId: string): NextResponse | null {
