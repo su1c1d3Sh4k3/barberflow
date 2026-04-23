@@ -118,7 +118,7 @@ async function forwardToN8n(
   supabase: ReturnType<typeof getSupabase>,
   tenantId: string,
   contact: { id: string; name: string; phone: string; status?: string; tags?: string[]; notes?: string },
-  message: string,
+  message: string | null,
   instanceId: string,
   instanceToken: string,
   instancePhone: string,
@@ -931,7 +931,7 @@ Deno.serve(async (req: Request) => {
         const isApiSent = source === "api" || source === "bot";
 
         await forwardToN8n(
-          supabase, tenantId, contact, message || mediaCaption || "[mídia]",
+          supabase, tenantId, contact, message || null,
           sessionInstanceId, instanceToken, sessionPhone,
           iaSettings as Record<string, unknown>,
           { ia_response: isApiSent, direction: "out", message_id: messageId, media: mediaData }
@@ -943,8 +943,11 @@ Deno.serve(async (req: Request) => {
     }
 
     // ── STEP 5: Log inbound message ──
-    const messageContent = message || mediaCaption || (hasMedia ? `[${mediaType || "mídia"}]` : "");
-    await supabase.from("messages").insert({ tenant_id: tenantId, contact_id: contact.id, direction: "in", content: messageContent });
+    // For DB: use fallback text so there's always something readable
+    const dbContent = message || mediaCaption || (hasMedia ? `[${mediaType || "mídia"}]` : "");
+    // For n8n payload: only real text typed by the user (null if media-only)
+    const n8nContent = message || null;
+    await supabase.from("messages").insert({ tenant_id: tenantId, contact_id: contact.id, direction: "in", content: dbContent });
     await supabase.from("contacts").update({ last_message_at: new Date().toISOString() }).eq("id", contact.id);
 
     // ── STEP 6: Check serviceActive ──
@@ -955,7 +958,7 @@ Deno.serve(async (req: Request) => {
     // ── STEP 7: Route to n8n (IA) or built-in bot ──
     if (iaEnabled) {
       await forwardToN8n(
-        supabase, tenantId, contact, messageContent,
+        supabase, tenantId, contact, n8nContent as string,
         sessionInstanceId, instanceToken, sessionPhone,
         iaSettings as Record<string, unknown>,
         { ia_response: false, direction: "in", message_id: messageId, media: mediaData }
