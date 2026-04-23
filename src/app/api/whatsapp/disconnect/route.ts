@@ -20,18 +20,26 @@ export async function POST(request: NextRequest) {
       return ok({ status: "disconnected" });
     }
 
-    // Disconnect via uazapi
-    try {
-      await uazapi.disconnectInstance(session.instance_token);
-    } catch {
-      // Instance may already be disconnected — continue
-    }
+    const token = session.instance_token;
 
-    // Update DB status
+    // 1. Graceful logout (ignore errors — may already be disconnected)
+    try {
+      await uazapi.disconnectInstance(token);
+    } catch { /* already disconnected */ }
+
+    // 2. Delete instance from uazapi server completely
+    try {
+      await uazapi.deleteInstance(token);
+    } catch { /* instance may not exist anymore */ }
+
+    // 3. Clear instance data from DB so next connect creates a fresh instance
     await supabase
       .from("whatsapp_sessions")
       .update({
         status: "disconnected",
+        instance_token: null,
+        instance_id: null,
+        phone_number: null,
         updated_at: new Date().toISOString(),
       })
       .eq("tenant_id", tenantId);
