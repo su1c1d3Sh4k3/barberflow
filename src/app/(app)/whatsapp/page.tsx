@@ -53,23 +53,26 @@ export default function WhatsAppPage() {
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tenantId = tenant?.id;
 
-  // Fetch session from DB
+  // Fetch live status from API (checks uazapi + updates DB)
   const fetchSession = useCallback(async () => {
     if (!tenantId) return;
     try {
+      const res = await fetch("/api/whatsapp/status");
+      const json = await res.json();
+      if (json.data) {
+        const s = json.data.status as SessionStatus;
+        setStatus(s || "disconnected");
+        setPhoneNumber(json.data.phone_number || null);
+      }
+      // Also get instance_id from DB for display
       const { data } = await supabase
         .from("whatsapp_sessions")
-        .select("status, phone_number, instance_id")
+        .select("instance_id")
         .eq("tenant_id", tenantId)
         .single();
-
-      if (data) {
-        setStatus((data.status as SessionStatus) || "disconnected");
-        setPhoneNumber(data.phone_number || null);
-        if (data.instance_id) setInstanceName(data.instance_id);
-      }
+      if (data?.instance_id) setInstanceName(data.instance_id);
     } catch {
-      // No session
+      // Fallback: no session
     } finally {
       setLoading(false);
     }
