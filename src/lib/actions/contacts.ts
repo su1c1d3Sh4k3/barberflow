@@ -2,6 +2,7 @@
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { normalizePhone, phoneSuffix } from "@/lib/phone";
 
 export async function getContacts(tenantId: string, status?: string) {
   const supabase = createServerSupabaseClient();
@@ -42,9 +43,34 @@ export async function createContact(contact: {
   source?: string;
 }) {
   const supabase = createServerSupabaseClient();
+  const normalized = normalizePhone(contact.phone);
+  const suffix = phoneSuffix(normalized);
+
+  // Check if contact with same last 11 digits already exists
+  const { data: existing } = await supabase
+    .from("contacts")
+    .select("id")
+    .eq("tenant_id", contact.tenant_id)
+    .like("phone", `%${suffix}`)
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) {
+    // Merge into existing contact
+    const { data, error } = await supabase
+      .from("contacts")
+      .update({ ...contact, phone: normalized })
+      .eq("id", existing.id)
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    revalidatePath("/contatos");
+    return data;
+  }
+
   const { data, error } = await supabase
     .from("contacts")
-    .insert(contact)
+    .insert({ ...contact, phone: normalized })
     .select()
     .single();
 

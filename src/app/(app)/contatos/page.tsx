@@ -291,9 +291,21 @@ export default function ContatosPage() {
   const handleCreateContact = async () => {
     if (!tenantId || !newName.trim() || !newPhone.trim()) return;
     setCreating(true);
-    await supabase.from("contacts").insert({
-      tenant_id: tenantId, name: newName.trim(), phone: newPhone.replace(/\D/g, ""), status: "pendente",
-    });
+    const digits = newPhone.replace(/\D/g, "");
+    // Normalize to DDI+DDD+Number
+    const normalized = digits.length === 11 ? `55${digits}` : digits.length === 10 ? `55${digits.slice(0, 2)}9${digits.slice(2)}` : digits.length === 12 && digits.startsWith("55") ? `${digits.slice(0, 4)}9${digits.slice(4)}` : digits;
+    const suffix = normalized.slice(-11);
+
+    // Check if contact already exists by last 11 digits
+    const { data: existing } = await supabase.from("contacts").select("id").eq("tenant_id", tenantId).like("phone", `%${suffix}`).limit(1).maybeSingle();
+
+    if (existing) {
+      await supabase.from("contacts").update({ name: newName.trim(), phone: normalized }).eq("id", existing.id);
+    } else {
+      await supabase.from("contacts").insert({
+        tenant_id: tenantId, name: newName.trim(), phone: normalized, status: "pendente",
+      });
+    }
     setCreating(false);
     setShowNewModal(false);
     setNewName("");

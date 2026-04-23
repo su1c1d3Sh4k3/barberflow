@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { processMessage } from "@/lib/whatsapp/bot";
+import { normalizePhone, phoneSuffix } from "@/lib/phone";
 
 // GET — health check, verifies the endpoint is reachable
 export async function GET() {
@@ -46,24 +47,18 @@ export async function POST(request: NextRequest) {
     // uazapi payload can use "EventType" OR "event"
     const eventType: string = body?.EventType || body?.event || "";
 
-    // Store debug info in webhook_status as soon as we receive anything
-    // This lets us verify the webhook is arriving and what fields it contains
+    // Store FULL payload for debugging
     const debugSummary = JSON.stringify({
       at: new Date().toISOString(),
       eventType,
-      bodyKeys: Object.keys(body),
-      hasToken: !!body?.token,
-      hasInstance: !!body?.instance,
-      hasData: !!body?.data,
-      dataKeys: body?.data ? Object.keys(body.data) : [],
-    });
+      body,
+    }).slice(0, 4000);
 
     // Try to find session to store debug info (best-effort, don't fail on error)
     const payloadToken: string | null = body?.token || null;
     const instance = body?.instance;
-    const instanceId = typeof instance === "string"
-      ? instance
-      : (instance?.id || instance?.instanceId || body?.instanceId);
+    const instanceId = body?.instanceName ||
+      (typeof instance === "string" ? instance : (instance?.id || instance?.instanceId || body?.instanceId));
 
     // Best-effort: store debug info on the matching session
     try {
@@ -91,22 +86,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, skipped: true, eventType });
     }
 
+    // uazapi sends data in TWO possible formats:
+    // Format A (older): body.data.sender, body.data.text, etc.
+    // Format B (current): body.chat, body.message (root level), NO body.data
     const data = body?.data || {};
 
-    // uazapi: data.sender / data.chatid / data.from
-    // Baileys fallback: data.key.remoteJid
+    // Phone/JID extraction — check both formats
     const rawJid: string =
+      // Format B: root-level chat field
+      (typeof body?.chat === "string" ? body.chat : "") ||
+      // Format A: nested data fields
       data?.sender ||
       data?.chatid ||
       data?.from ||
       data?.key?.remoteJid ||
       "";
 
-    const phone = rawJid.replace(/@s\.whatsapp\.net$/, "").replace(/@.*$/, "");
+    const phone = normalizePhone(rawJid.replace(/:.*$/, "").replace(/@.*$/, ""));
 
-    // uazapi: data.text / data.buttonOrListid
-    // Baileys fallback: data.message.conversation etc.
+    // Message text — check both formats
+    const msgObj = body?.message;
     const message: string =
+      // Format B: root-level message (can be string or object)
+      (typeof msgObj === "string" ? msgObj : "") ||
+      (typeof msgObj === "object" && msgObj ? (msgObj.conversation || msgObj.text || msgObj.extendedTextMessage?.text || msgObj.buttonsResponseMessage?.selectedButtonId || msgObj.listResponseMessage?.singleSelectReply?.selectedRowId || "") : "") ||
+      // Format A: nested data fields
       data?.text ||
       data?.buttonOrListid ||
       data?.message?.conversation ||
@@ -115,11 +119,11 @@ export async function POST(request: NextRequest) {
       data?.message?.listResponseMessage?.singleSelectReply?.selectedRowId ||
       "";
 
-    // uazapi: data.fromMe directly; Baileys: data.key.fromMe
-    const isFromMe: boolean = data?.fromMe ?? data?.key?.fromMe ?? false;
+    // fromMe — check both formats
+    const isFromMe: boolean = body?.fromMe ?? data?.fromMe ?? data?.key?.fromMe ?? false;
 
-    // Name: uazapi senderName; Baileys pushName
-    const senderName: string = data?.senderName || data?.pushName || "";
+    // Sender name
+    const senderName: string = body?.senderName || body?.pushName || data?.senderName || data?.pushName || "";
 
     if (!phone || !message || isFromMe) {
       return NextResponse.json({ success: true, skipped: true, debug: { phone: !!phone, message: !!message, isFromMe } });
@@ -186,13 +190,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "tenant_not_found", debug: { instanceId, hasToken: !!payloadToken } }, { status: 404 });
     }
 
-    // Find or create contact (use last 11 digits for more precise matching)
+    // Find or create contact (match by last 11 digits, store normalized)
+    const suffix = phoneSuffix(phone);
     let { data: contact } = await supabase
       .from("contacts")
       .select("id, name, phone")
       .eq("tenant_id", tenantId)
-      .like("phone", `%${phone.slice(-11)}`)
-      .single();
+      .like("phone", `%${suffix}`)
+      .limit(1)
+      .maybeSingle();
 
     if (!contact) {
       const { data: newContact } = await supabase
@@ -208,6 +214,10 @@ export async function POST(request: NextRequest) {
         .single();
 
       contact = newContact;
+    } else if (contact.phone !== phone) {
+      // Normalize phone format on existing contact
+      await supabase.from("contacts").update({ phone }).eq("id", contact.id);
+      contact.phone = phone;
     }
 
     if (!contact) {

@@ -3,6 +3,7 @@ import { ok, apiError } from "@/app/api/_helpers";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { getTenantFromSession } from "@/lib/supabase/api-auth";
 import { uazapi } from "@/lib/uazapi/client";
+import { normalizePhone } from "@/lib/phone";
 
 export async function POST(request: NextRequest) {
   // Support both service-role (tests) and user session (browser)
@@ -66,10 +67,8 @@ export async function POST(request: NextRequest) {
       let phone = contact.phone || (contact.id || "").split("@")[0];
       if (!phone || phone.length < 10) { skipped++; continue; }
 
-      // Ensure country code
-      if (!phone.startsWith("55") && phone.length <= 11) {
-        phone = `55${phone}`;
-      }
+      // Normalize to DDI+DDD+Number format
+      phone = normalizePhone(phone);
 
       // Get best name available
       const name = contact.pushName || contact.name || contact.notify || contact.short || phone;

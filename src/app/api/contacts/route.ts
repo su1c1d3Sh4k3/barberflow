@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { validateAuth, isAuthError, validateBody, isValidationError, ok, apiError, db } from "../_helpers";
 import { contactSchema } from "@/lib/validations/service";
 import { logAudit } from "@/lib/audit";
+import { normalizePhone, phoneSuffix } from "@/lib/phone";
 
 export async function GET(req: NextRequest) {
   const auth = validateAuth(req);
@@ -41,14 +42,34 @@ export async function POST(req: NextRequest) {
   if (isValidationError(validation)) return validation;
   const body = validation.data;
 
-  const { data, error } = await db()
+  const normalized = normalizePhone(body.phone);
+  const suffix = phoneSuffix(normalized);
+
+  // Check if contact with same last 11 digits already exists
+  const { data: existing } = await db()
     .from("contacts")
-    .upsert(
-      { ...body, tenant_id: auth.tenantId },
-      { onConflict: "tenant_id,phone" }
-    )
-    .select()
-    .single();
+    .select("id")
+    .eq("tenant_id", auth.tenantId)
+    .like("phone", `%${suffix}`)
+    .limit(1)
+    .maybeSingle();
+
+  let data, error;
+  if (existing) {
+    // Merge into existing contact (update phone to normalized + any new fields)
+    ({ data, error } = await db()
+      .from("contacts")
+      .update({ ...body, phone: normalized })
+      .eq("id", existing.id)
+      .select()
+      .single());
+  } else {
+    ({ data, error } = await db()
+      .from("contacts")
+      .insert({ ...body, phone: normalized, tenant_id: auth.tenantId })
+      .select()
+      .single());
+  }
 
   if (error) return apiError(error.message, 500);
 

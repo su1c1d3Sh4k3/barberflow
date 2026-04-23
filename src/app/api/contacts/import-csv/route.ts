@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { validateAuth, isAuthError, ok, apiError, db } from "../../_helpers";
+import { normalizePhone } from "@/lib/phone";
 
 interface CsvRow {
   name: string;
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
     const batch = rows.slice(i, i + batchSize).map((r) => ({
       tenant_id: auth.tenantId,
       name: r.name?.trim(),
-      phone: r.phone?.trim(),
+      phone: normalizePhone(r.phone?.trim() || ""),
       birthday: r.birthday?.trim() || null,
       tags: r.tags || null,
       notes: r.notes?.trim() || null,

@@ -87,6 +87,17 @@ async function safeSendList(phone: string, text: string, _title: string, buttonT
   }
 }
 
+// ─── Phone normalization (DDI+DDD+Number) ────────────────────────────────────
+
+function normalizePhoneEdge(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 13 && digits.startsWith("55")) return digits;
+  if (digits.length === 11) return `55${digits}`;
+  if (digits.length === 12 && digits.startsWith("55")) return `${digits.slice(0, 4)}9${digits.slice(4)}`;
+  if (digits.length === 10) return `55${digits.slice(0, 2)}9${digits.slice(2)}`;
+  return digits;
+}
+
 // ─── n8n forwarding ──────────────────────────────────────────────────────────
 
 async function forwardToN8n(
@@ -820,7 +831,9 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // ── STEP 2: Find or create contact ──
+    // ── STEP 2: Normalize phone to DDI+DDD+Number (e.g. 5537999575427) ──
+    const normalizedPhone = normalizePhoneEdge(phone);
+
     // Try avatar from webhook payload first; if missing, fetch via /chat/find
     let avatarUrl: string | null = chatObj?.image || chatObj?.imagePreview || null;
     console.log(`Avatar from webhook: ${avatarUrl}, rawJid: ${rawJid}`);
@@ -829,26 +842,28 @@ Deno.serve(async (req: Request) => {
       console.log(`Avatar from /chat/find: ${avatarUrl}`);
     }
 
-    // Try exact match first, then partial (last 11 digits) with limit 1
-    let { data: contact } = await supabase.from("contacts").select("id, name, phone, status, tags, notes, avatar_url").eq("tenant_id", tenantId).eq("phone", phone).maybeSingle();
+    // Find existing contact by last 11 digits (handles any DDI/DDD variation)
+    const phoneSuffix = normalizedPhone.slice(-11);
+    let { data: contact } = await supabase.from("contacts").select("id, name, phone, status, tags, notes, avatar_url").eq("tenant_id", tenantId).like("phone", `%${phoneSuffix}`).limit(1).maybeSingle();
+
     if (!contact) {
-      const { data: partialMatch } = await supabase.from("contacts").select("id, name, phone, status, tags, notes, avatar_url").eq("tenant_id", tenantId).like("phone", `%${phone.slice(-11)}`).limit(1).maybeSingle();
-      contact = partialMatch;
-    }
-    if (!contact) {
-      const { data: newContact } = await supabase.from("contacts").insert({ tenant_id: tenantId, name: senderName || `Cliente ${phone.slice(-4)}`, phone, source: "whatsapp", status: "pendente", avatar_url: avatarUrl }).select("id, name, phone, status, tags, notes, avatar_url").single();
+      const { data: newContact } = await supabase.from("contacts").insert({ tenant_id: tenantId, name: senderName || `Cliente ${normalizedPhone.slice(-4)}`, phone: normalizedPhone, source: "whatsapp", status: "pendente", avatar_url: avatarUrl }).select("id, name, phone, status, tags, notes, avatar_url").single();
       contact = newContact;
     } else {
       // Update name if generic/empty; always refresh avatar_url (URLs can expire)
+      // Also normalize phone if stored in old format
       const needsNameUpdate = senderName && (!contact.name || contact.name.startsWith("Cliente ") || contact.name === "Teste");
       const needsAvatarUpdate = !!avatarUrl && contact.avatar_url !== avatarUrl;
-      if (needsNameUpdate || needsAvatarUpdate) {
+      const needsPhoneUpdate = contact.phone !== normalizedPhone;
+      if (needsNameUpdate || needsAvatarUpdate || needsPhoneUpdate) {
         const updateData: Record<string, string> = {};
         if (needsNameUpdate) updateData.name = senderName;
         if (needsAvatarUpdate) updateData.avatar_url = avatarUrl;
+        if (needsPhoneUpdate) updateData.phone = normalizedPhone;
         await supabase.from("contacts").update(updateData).eq("id", contact.id);
         if (needsNameUpdate) contact.name = senderName;
         if (needsAvatarUpdate) contact.avatar_url = avatarUrl;
+        if (needsPhoneUpdate) contact.phone = normalizedPhone;
       }
     }
     if (!contact) {
